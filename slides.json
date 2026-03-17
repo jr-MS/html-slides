@@ -1,0 +1,52 @@
+[
+  {
+    "id": "openclaw-team-share-v2",
+    "title": "OpenClaw 团队分享 v2",
+    "description": "当前推荐外发版本，图片已内嵌，适合直接分享给同事。",
+    "category": "团队分享",
+    "tags": [
+      "OpenClaw",
+      "团队分享",
+      "推荐",
+      "单文件"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/openclaw-team-share-v2.html",
+    "featured": true,
+    "updated": "2026-03-17"
+  },
+  {
+    "id": "openclaw-wood-v2-editable",
+    "title": "OpenClaw 木纹版 v2（可继续编辑）",
+    "description": "当前编辑中的版本，图片通过仓库 assets 引用，便于后续继续迭代。",
+    "category": "团队分享",
+    "tags": [
+      "OpenClaw",
+      "木纹",
+      "v2",
+      "编辑版"
+    ],
+    "audience": "internal",
+    "visibility": "public",
+    "path": "slides/openclaw-wood-v2-editable.html",
+    "featured": false,
+    "updated": "2026-03-17"
+  },
+  {
+    "id": "openclaw-wood-original",
+    "title": "OpenClaw 木纹原始版",
+    "description": "最早的木纹风格初稿，保留作归档参考。",
+    "category": "归档",
+    "tags": [
+      "OpenClaw",
+      "归档",
+      "原始版"
+    ],
+    "audience": "internal",
+    "visibility": "public",
+    "path": "slides/openclaw-wood-original.html",
+    "featured": false,
+    "updated": "2026-03-17"
+  }
+]
