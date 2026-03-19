@@ -15,38 +15,5 @@
     "path": "slides/openclaw-team-share-v2.html",
     "featured": true,
     "updated": "2026-03-17"
-  },
-  {
-    "id": "openclaw-wood-v2-editable",
-    "title": "OpenClaw Wood Edition v2 (Editable)",
-    "description": "The editable working version that keeps assets linked from the repository for future iteration.",
-    "category": "Showcase",
-    "tags": [
-      "OpenClaw",
-      "Wood edition",
-      "v2",
-      "Editable"
-    ],
-    "audience": "internal",
-    "visibility": "public",
-    "path": "slides/openclaw-wood-v2-editable.html",
-    "featured": false,
-    "updated": "2026-03-17"
-  },
-  {
-    "id": "openclaw-wood-original",
-    "title": "OpenClaw Wood Edition — Original",
-    "description": "The earliest wood-tone draft, kept as an archive reference for the evolution of the deck.",
-    "category": "Archive",
-    "tags": [
-      "OpenClaw",
-      "Archive",
-      "Original"
-    ],
-    "audience": "internal",
-    "visibility": "public",
-    "path": "slides/openclaw-wood-original.html",
-    "featured": false,
-    "updated": "2026-03-17"
   }
 ]
