@@ -1,120 +1,574 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HTML Slides Portal</title>
+  <title>HTML Slide Atlas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --bg:#0f172a;
-      --bg2:#111827;
-      --card:#111827cc;
-      --card2:#1f2937cc;
-      --ink:#e5e7eb;
-      --muted:#9ca3af;
-      --line:#334155;
-      --accent:#38bdf8;
-      --accent2:#a78bfa;
-      --accent3:#34d399;
-      --shadow:0 20px 60px rgba(0,0,0,.35);
-      --radius:22px;
-      --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+      --bg:#f5f3ee;
+      --bg-soft:#fbfaf7;
+      --panel:rgba(255,255,255,.72);
+      --panel-strong:rgba(255,255,255,.86);
+      --panel-line:rgba(36,43,54,.08);
+      --ink:#18212d;
+      --muted:#647084;
+      --accent:#4d7c8a;
+      --accent-strong:#294d63;
+      --accent-warm:#c8a37b;
+      --shadow:0 24px 80px rgba(31,46,66,.12);
+      --shadow-soft:0 18px 46px rgba(31,46,66,.08);
+      --radius-xl:34px;
+      --radius-lg:24px;
+      --radius-md:18px;
+      --serif:"Fraunces", Georgia, serif;
+      --sans:"Instrument Sans", "Avenir Next", "Segoe UI", sans-serif;
+      --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
     }
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body{
-      margin:0;font-family:var(--sans);color:var(--ink);
-      background:
-        radial-gradient(1200px 600px at 10% 0%, rgba(56,189,248,.15), transparent 55%),
-        radial-gradient(1000px 560px at 100% 20%, rgba(167,139,250,.16), transparent 45%),
-        radial-gradient(900px 500px at 50% 100%, rgba(52,211,153,.12), transparent 50%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
+      margin:0;
       min-height:100vh;
+      color:var(--ink);
+      font-family:var(--sans);
+      background:
+        radial-gradient(1200px 620px at 6% 0%, rgba(201,225,236,.8), transparent 58%),
+        radial-gradient(920px 520px at 100% 10%, rgba(224,213,202,.65), transparent 56%),
+        radial-gradient(760px 420px at 50% 100%, rgba(220,232,226,.8), transparent 62%),
+        linear-gradient(180deg, #fcfbf8, var(--bg));
+      position:relative;
+      overflow-x:hidden;
     }
-    .shell{max-width:1180px;margin:0 auto;padding:40px 24px 72px;}
+    body::before,
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+    }
+    body::before{
+      background:
+        radial-gradient(34rem 24rem at 14% 14%, rgba(114,166,183,.16), transparent 60%),
+        radial-gradient(28rem 20rem at 85% 18%, rgba(200,163,123,.16), transparent 58%),
+        radial-gradient(26rem 22rem at 72% 82%, rgba(139,176,165,.12), transparent 56%);
+      filter:blur(10px);
+      animation:drift 18s ease-in-out infinite alternate;
+    }
+    body::after{
+      background-image:var(--noise);
+      opacity:.5;
+      mix-blend-mode:multiply;
+    }
+    .shell{
+      position:relative;
+      z-index:1;
+      width:min(1200px, calc(100vw - 36px));
+      margin:0 auto;
+      padding:24px 0 56px;
+    }
+    .masthead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:18px;
+      padding:10px 6px;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .brandmark,
+    .mastnote{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.56);
+      border:1px solid rgba(255,255,255,.72);
+      box-shadow:var(--shadow-soft);
+      backdrop-filter:blur(16px);
+    }
+    .brandmark strong{
+      color:var(--ink);
+      letter-spacing:.02em;
+    }
+    .dot{
+      width:11px;
+      height:11px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--accent), #8fc7d2);
+      box-shadow:0 0 0 8px rgba(77,124,138,.1);
+    }
     .hero{
-      padding:28px;border:1px solid rgba(255,255,255,.08);border-radius:28px;
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      box-shadow:var(--shadow);backdrop-filter:blur(14px);
+      display:grid;
+      grid-template-columns:minmax(0, 1.08fr) minmax(320px, .92fr);
+      gap:22px;
+      align-items:stretch;
+      margin-bottom:22px;
     }
-    .badge{display:inline-flex;padding:8px 12px;border-radius:999px;background:rgba(56,189,248,.12);color:#7dd3fc;border:1px solid rgba(125,211,252,.18);font-size:13px;font-weight:700}
-    h1{font-size:46px;line-height:1.08;margin:16px 0 10px}
-    .lead{font-size:18px;line-height:1.7;color:var(--muted);max-width:860px}
-    .heroMeta{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
-    .metaPill{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:#cbd5e1;font-size:14px}
-    .toolbar{display:grid;grid-template-columns:1.4fr .7fr .7fr;gap:14px;margin:22px 0 18px}
+    .heroCopy,
+    .heroStage,
+    .toolbar,
+    .card,
+    .empty,
+    footer{
+      border:1px solid var(--panel-line);
+      background:linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.66));
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+    }
+    .heroCopy{
+      position:relative;
+      overflow:hidden;
+      border-radius:var(--radius-xl);
+      padding:34px;
+      isolation:isolate;
+    }
+    .heroCopy::before{
+      content:"";
+      position:absolute;
+      inset:auto 12% -18% auto;
+      width:280px;
+      height:280px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(77,124,138,.18), transparent 70%);
+      filter:blur(4px);
+      z-index:-1;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:9px 14px;
+      border-radius:999px;
+      border:1px solid rgba(77,124,138,.12);
+      background:rgba(77,124,138,.08);
+      color:var(--accent-strong);
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+    h1{
+      margin:18px 0 12px;
+      font-family:var(--serif);
+      font-size:clamp(3.2rem, 7vw, 5.6rem);
+      font-weight:500;
+      line-height:.94;
+      letter-spacing:-.05em;
+      max-width:10ch;
+    }
+    .lead{
+      margin:0;
+      max-width:38rem;
+      color:var(--muted);
+      font-size:18px;
+      line-height:1.72;
+    }
+    .heroActions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:24px;
+    }
+    .heroMeta{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:12px;
+      margin-top:26px;
+    }
+    .metaPill{
+      padding:16px 16px 15px;
+      border-radius:20px;
+      background:rgba(255,255,255,.56);
+      border:1px solid rgba(36,43,54,.06);
+      box-shadow:var(--shadow-soft);
+    }
+    .metaLabel{
+      display:block;
+      margin-bottom:8px;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .metaValue{
+      font-size:15px;
+      font-weight:700;
+      line-height:1.45;
+    }
+    .heroStage{
+      position:relative;
+      overflow:hidden;
+      border-radius:var(--radius-xl);
+      padding:30px;
+      min-height:100%;
+      display:grid;
+      align-content:end;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,.92), rgba(248,246,241,.7)),
+        radial-gradient(24rem 24rem at 20% 18%, rgba(143,199,210,.18), transparent 58%),
+        radial-gradient(18rem 18rem at 86% 10%, rgba(200,163,123,.16), transparent 52%);
+    }
+    .heroStage::before{
+      content:"";
+      position:absolute;
+      inset:14px;
+      border-radius:28px;
+      background:
+        linear-gradient(rgba(87,104,123,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(87,104,123,.08) 1px, transparent 1px);
+      background-size:28px 28px;
+      mask-image:linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.12));
+      pointer-events:none;
+    }
+    .stageOrbit,
+    .stageCard,
+    .stagePanel{
+      position:relative;
+      z-index:1;
+    }
+    .stageOrbit{
+      min-height:360px;
+      display:grid;
+      place-items:center;
+    }
+    .stageCard{
+      position:absolute;
+      width:min(320px, 78%);
+      padding:18px 20px;
+      border-radius:26px;
+      border:1px solid rgba(36,43,54,.06);
+      background:rgba(255,255,255,.74);
+      box-shadow:var(--shadow-soft);
+      backdrop-filter:blur(14px);
+    }
+    .stageCard:nth-child(1){transform:translate(-36px, -18px) rotate(-8deg); animation:floatA 8s ease-in-out infinite;}
+    .stageCard:nth-child(2){transform:translate(38px, 12px) rotate(7deg); animation:floatB 9s ease-in-out infinite;}
+    .stageCard:nth-child(3){transform:translate(6px, 92px) rotate(-2deg); animation:floatC 7.5s ease-in-out infinite;}
+    .stageCard strong,
+    .stagePanel strong{
+      display:block;
+      margin-bottom:6px;
+      color:var(--ink);
+      font-size:15px;
+    }
+    .stageCard span,
+    .stagePanel span{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+    }
+    .stagePanel{
+      margin-top:auto;
+      padding:18px 20px;
+      border-radius:24px;
+      background:rgba(24,33,45,.95);
+      color:#f7f8fb;
+      box-shadow:0 28px 64px rgba(24,33,45,.18);
+    }
+    .stagePanel strong{color:#fff}
+    .stageTags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px;
+      margin-top:14px;
+    }
+    .stageTags span{
+      display:inline-flex;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.1);
+      color:#dbe4ef;
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .toolbar{
+      display:grid;
+      grid-template-columns:1.35fr .72fr .72fr;
+      gap:12px;
+      padding:12px;
+      border-radius:28px;
+      margin-bottom:18px;
+    }
     input,select{
-      width:100%;padding:14px 16px;border-radius:16px;border:1px solid var(--line);
-      background:rgba(15,23,42,.72);color:var(--ink);outline:none;font-size:15px;
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:20px;
+      padding:15px 16px;
+      font:inherit;
+      color:var(--ink);
+      background:rgba(247,247,244,.82);
+      border:1px solid rgba(36,43,54,.06);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
     }
-    .sectionTitle{display:flex;justify-content:space-between;align-items:center;margin:18px 0 14px;color:#cbd5e1}
-    .count{font-size:14px;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+    input::placeholder{color:#8893a3}
+    .sectionTitle{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:18px;
+      margin:10px 0 14px;
+      padding:0 4px;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-family:var(--serif);
+      font-size:2rem;
+      font-weight:500;
+      letter-spacing:-.03em;
+    }
+    .sectionTitle p,
+    .count{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:18px;
+    }
     .card{
-      display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:22px;
-      background:linear-gradient(180deg, rgba(17,24,39,.88), rgba(15,23,42,.88));
-      border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow);
-      transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+      border-radius:28px;
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      transition:transform .26s ease, box-shadow .26s ease, border-color .26s ease;
     }
-    .card:hover{transform:translateY(-4px);border-color:rgba(56,189,248,.34);box-shadow:0 28px 70px rgba(0,0,0,.42)}
-    .toprow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .kicker{display:flex;flex-wrap:wrap;gap:8px}
-    .kicker span{font-size:12px;padding:6px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.08);color:#cbd5e1;background:rgba(255,255,255,.04)}
-    .title{font-size:22px;font-weight:800;line-height:1.25}
-    .desc{font-size:14px;line-height:1.7;color:var(--muted);min-height:72px}
-    .tags{display:flex;flex-wrap:wrap;gap:8px}
-    .tag{font-size:12px;padding:6px 9px;border-radius:999px;background:rgba(167,139,250,.12);color:#ddd6fe;border:1px solid rgba(167,139,250,.18)}
-    .actions{margin-top:auto;display:flex;gap:10px;align-items:center}
+    .card:hover{
+      transform:translateY(-6px);
+      box-shadow:0 30px 70px rgba(31,46,66,.16);
+      border-color:rgba(77,124,138,.18);
+    }
+    .toprow{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .kicker,
+    .featuredChip,
+    .tag{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .kicker span,
+    .featuredChip span,
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      line-height:1;
+      border:1px solid rgba(36,43,54,.08);
+      background:rgba(249,248,244,.82);
+      color:#566272;
+    }
+    .featuredChip span{
+      background:rgba(77,124,138,.1);
+      color:var(--accent-strong);
+      border-color:rgba(77,124,138,.14);
+      font-weight:700;
+    }
+    .title{
+      font-family:var(--serif);
+      font-size:30px;
+      line-height:1.08;
+      letter-spacing:-.04em;
+    }
+    .desc{
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.75;
+      min-height:78px;
+    }
+    .tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .actions{
+      margin-top:auto;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
     .btn{
-      display:inline-flex;align-items:center;justify-content:center;text-decoration:none;
-      padding:11px 14px;border-radius:14px;background:linear-gradient(135deg, var(--accent), #60a5fa);
-      color:#082f49;font-weight:800;border:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:12px 15px;
+      border-radius:16px;
+      text-decoration:none;
+      font-weight:700;
+      letter-spacing:.01em;
+      border:1px solid transparent;
+      transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease;
     }
-    .ghost{background:rgba(255,255,255,.04);color:#e2e8f0;border:1px solid rgba(255,255,255,.08)}
-    .empty{padding:30px;border:1px dashed rgba(255,255,255,.12);border-radius:18px;color:var(--muted);text-align:center}
-    footer{margin-top:26px;color:var(--muted);font-size:13px}
-    @media (max-width: 820px){
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{
+      color:#fff;
+      background:linear-gradient(135deg, var(--accent-strong), #496d80);
+      box-shadow:0 16px 28px rgba(41,77,99,.22);
+    }
+    .btn.secondary{
+      color:var(--ink);
+      background:rgba(249,248,244,.9);
+      border-color:rgba(36,43,54,.08);
+    }
+    .empty,
+    footer{
+      border-radius:26px;
+      padding:26px;
+      color:var(--muted);
+      text-align:center;
+      font-size:15px;
+    }
+    footer{
+      margin-top:22px;
+      padding:18px 22px;
+      font-size:13px;
+      line-height:1.7;
+    }
+    @keyframes drift{
+      0%{transform:translate3d(0,0,0) scale(1)}
+      100%{transform:translate3d(0,-14px,0) scale(1.04)}
+    }
+    @keyframes floatA{
+      0%,100%{transform:translate(-36px,-18px) rotate(-8deg)}
+      50%{transform:translate(-28px,-32px) rotate(-5deg)}
+    }
+    @keyframes floatB{
+      0%,100%{transform:translate(38px,12px) rotate(7deg)}
+      50%{transform:translate(30px,-4px) rotate(10deg)}
+    }
+    @keyframes floatC{
+      0%,100%{transform:translate(6px,92px) rotate(-2deg)}
+      50%{transform:translate(12px,78px) rotate(2deg)}
+    }
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr}
+      .heroMeta{grid-template-columns:1fr}
       .toolbar{grid-template-columns:1fr}
-      h1{font-size:34px}
-      .shell{padding:28px 16px 44px}
+      h1{max-width:none}
+      .sectionTitle{flex-direction:column;align-items:flex-start}
+    }
+    @media (max-width: 720px){
+      .shell{width:min(100vw - 20px, 1200px); padding:16px 0 40px}
+      .masthead{padding:2px 2px 0; margin-bottom:14px}
+      .heroCopy,.heroStage,.toolbar,.card,.empty,footer{border-radius:24px}
+      .heroCopy,.heroStage{padding:22px}
+      .toolbar{padding:10px}
+      .title{font-size:26px}
+      .desc{min-height:auto}
+      .stageOrbit{min-height:300px}
+    }
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{animation:none !important; transition:none !important}
     }
   </style>
 </head>
 <body>
   <main class="shell">
+    <div class="masthead">
+      <div class="brandmark"><span class="dot"></span><strong>HTML Slide Atlas</strong></div>
+      <div class="mastnote">A curated browser-first collection for sharing decks and interface experiments.</div>
+    </div>
+
     <section class="hero">
-      <span class="badge">HTML Slides Portal</span>
-      <h1>Slides 首页索引</h1>
-      <p class="lead">这里集中管理所有 HTML slide。你可以按分类浏览、按关键词搜索，然后直接打开对应页面，把链接发给同事即可。当前这版先全部公开，后面如果你要做受保护内容，可以再拆成公开站和受保护站。</p>
-      <div class="heroMeta">
-        <div class="metaPill">公开方式：GitHub Pages</div>
-        <div class="metaPill">内容类型：HTML Slides</div>
-        <div class="metaPill">索引能力：分类 + 搜索</div>
+      <div class="heroCopy">
+        <span class="eyebrow">Curated HTML decks</span>
+        <h1>HTML Slide Atlas</h1>
+        <p class="lead">A quieter, lighter archive for shareable HTML slides. It gathers polished decks alongside a few personal experiments in motion, layout, and browser-native storytelling.</p>
+        <div class="heroActions">
+          <a class="btn primary" href="#collection">Browse the collection</a>
+          <a class="btn secondary" href="slides/blank-slide-template.html">Open the template</a>
+        </div>
+        <div class="heroMeta">
+          <div class="metaPill">
+            <span class="metaLabel">Tone</span>
+            <span class="metaValue">Light, editorial, and quietly futuristic.</span>
+          </div>
+          <div class="metaPill">
+            <span class="metaLabel">What lives here</span>
+            <span class="metaValue">Presentation-ready decks, source variants, and small layout studies.</span>
+          </div>
+          <div class="metaPill">
+            <span class="metaLabel">How to browse</span>
+            <span class="metaValue">Search by title, category, or tags — then open any deck directly in the browser.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="heroStage">
+        <div class="stageOrbit" aria-hidden="true">
+          <div class="stageCard">
+            <strong>Share-ready decks</strong>
+            <span>Open a polished deck in one click and pass the link around without extra packaging.</span>
+          </div>
+          <div class="stageCard">
+            <strong>Source variants</strong>
+            <span>Keep editable or archival versions nearby without letting the homepage feel cluttered.</span>
+          </div>
+          <div class="stageCard">
+            <strong>Motion studies</strong>
+            <span>Small HTML experiments where typography, atmosphere, and interaction are part of the story.</span>
+          </div>
+        </div>
+        <div class="stagePanel">
+          <strong>Designed as a small atlas of decks</strong>
+          <span>Not a generic homepage. More like a calm display shelf for browser-native presentations and personal HTML explorations.</span>
+          <div class="stageTags">
+            <span>Collection</span>
+            <span>Motion</span>
+            <span>Editorial layout</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section>
+    <section id="collection">
       <div class="toolbar">
-        <input id="search" type="search" placeholder="搜索标题、描述、标签，例如：OpenClaw / 团队分享 / 归档" />
+        <input id="search" type="search" placeholder="Search decks, categories, or tags" />
         <select id="categoryFilter">
-          <option value="all">全部分类</option>
+          <option value="all">All categories</option>
         </select>
         <select id="audienceFilter">
-          <option value="all">全部类型</option>
-          <option value="team">团队分享</option>
-          <option value="internal">内部/归档</option>
+          <option value="all">All types</option>
+          <option value="team">Published decks</option>
+          <option value="internal">Source & archive</option>
         </select>
       </div>
+
       <div class="sectionTitle">
-        <strong>可访问的 Slides</strong>
+        <div>
+          <h2>Collection</h2>
+          <p>Open a deck in a new tab, or stay in the same page if you want a direct handoff flow.</p>
+        </div>
         <span id="count" class="count"></span>
       </div>
+
       <div id="grid" class="grid"></div>
-      <div id="empty" class="empty" hidden>当前筛选条件下没有结果，可以换个关键词试试。</div>
+      <div id="empty" class="empty" hidden>No decks match the current filters. Try another keyword or a broader category.</div>
     </section>
 
-    <footer>
-      维护方式：新增 slide 时，把 HTML 放进 <code>slides/</code>，然后在 <code>slides.json</code> 里补一条元数据即可。
-    </footer>
+    <footer>Built as a living collection of shareable HTML slides and personal browser experiments.</footer>
   </main>
 
   <script>
@@ -125,30 +579,38 @@
     const categoryFilter = document.getElementById('categoryFilter');
     const audienceFilter = document.getElementById('audienceFilter');
 
-    const audienceLabel = { team: '团队分享', internal: '内部/归档' };
+    const audienceLabel = {
+      team: 'Published deck',
+      internal: 'Source / archive'
+    };
 
-    function norm(v){ return String(v || '').toLowerCase(); }
+    function norm(value){
+      return String(value || '').toLowerCase();
+    }
+
+    function resultLabel(total){
+      return total === 1 ? '1 result' : `${total} results`;
+    }
 
     function card(item){
-      const tags = (item.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
-      const top = `
-        <div class="toprow">
-          <div class="kicker">
-            <span>${item.category}</span>
-            <span>${audienceLabel[item.audience] || item.audience}</span>
-            <span>${item.visibility === 'public' ? '公开' : '受保护'}</span>
-          </div>
-          ${item.featured ? '<span class="kicker"><span>推荐</span></span>' : ''}
-        </div>`;
+      const tags = (item.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
+      const featured = item.featured ? '<span class="featuredChip"><span>Featured</span></span>' : '';
       return `
         <article class="card">
-          ${top}
+          <div class="toprow">
+            <div class="kicker">
+              <span>${item.category}</span>
+              <span>${audienceLabel[item.audience] || item.audience}</span>
+              <span>${item.visibility === 'public' ? 'Public' : 'Restricted'}</span>
+            </div>
+            ${featured}
+          </div>
           <div class="title">${item.title}</div>
           <div class="desc">${item.description}</div>
           <div class="tags">${tags}</div>
           <div class="actions">
-            <a class="btn" href="${item.path}" target="_blank" rel="noopener noreferrer">打开 Slide</a>
-            <a class="btn ghost" href="${item.path}">当前页打开</a>
+            <a class="btn primary" href="${item.path}" target="_blank" rel="noopener noreferrer">Open deck</a>
+            <a class="btn secondary" href="${item.path}">Open here</a>
           </div>
         </article>`;
     }
@@ -156,40 +618,49 @@
     function render(items){
       grid.innerHTML = items.map(card).join('');
       empty.hidden = items.length > 0;
-      count.textContent = `共 ${items.length} 个结果`;
+      count.textContent = resultLabel(items.length);
     }
 
     fetch('./slides.json')
-      .then(r => r.json())
+      .then(response => response.json())
       .then(items => {
-        const categories = [...new Set(items.map(i => i.category))].sort();
-        for(const c of categories){
-          const opt = document.createElement('option');
-          opt.value = c; opt.textContent = c; categoryFilter.appendChild(opt);
+        const categories = [...new Set(items.map(item => item.category))].sort((a, b) => a.localeCompare(b, 'en'));
+        for (const category of categories){
+          const option = document.createElement('option');
+          option.value = category;
+          option.textContent = category;
+          categoryFilter.appendChild(option);
         }
 
         function apply(){
-          const q = norm(search.value.trim());
-          const c = categoryFilter.value;
-          const a = audienceFilter.value;
+          const query = norm(search.value.trim());
+          const category = categoryFilter.value;
+          const audience = audienceFilter.value;
           const filtered = items.filter(item => {
-            const hay = norm([item.title, item.description, item.category, item.audience, item.visibility, ...(item.tags || [])].join(' '));
-            const matchQ = !q || hay.includes(q);
-            const matchC = c === 'all' || item.category === c;
-            const matchA = a === 'all' || item.audience === a;
-            return matchQ && matchC && matchA;
-          }).sort((x, y) => Number(y.featured) - Number(x.featured) || x.title.localeCompare(y.title, 'zh-CN'));
+            const haystack = norm([
+              item.title,
+              item.description,
+              item.category,
+              item.audience,
+              item.visibility,
+              ...(item.tags || [])
+            ].join(' '));
+            const matchQuery = !query || haystack.includes(query);
+            const matchCategory = category === 'all' || item.category === category;
+            const matchAudience = audience === 'all' || item.audience === audience;
+            return matchQuery && matchCategory && matchAudience;
+          }).sort((left, right) => Number(right.featured) - Number(left.featured) || left.title.localeCompare(right.title, 'en'));
           render(filtered);
         }
 
-        [search, categoryFilter, audienceFilter].forEach(el => el.addEventListener('input', apply));
-        [categoryFilter, audienceFilter].forEach(el => el.addEventListener('change', apply));
+        [search, categoryFilter, audienceFilter].forEach(element => element.addEventListener('input', apply));
+        [categoryFilter, audienceFilter].forEach(element => element.addEventListener('change', apply));
         apply();
       })
-      .catch(err => {
-        grid.innerHTML = `<div class="empty">读取 slides.json 失败：${err.message}</div>`;
+      .catch(error => {
+        grid.innerHTML = `<div class="empty">Could not load <code>slides.json</code>: ${error.message}</div>`;
         empty.hidden = true;
-        count.textContent = '加载失败';
+        count.textContent = 'Load failed';
       });
   </script>
 </body>

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>我如何使用 OpenClaw 助手（罗汉果）｜团队分享</title>
+  <title>How I used OpenClaw Assistant (Luohanguo) | Team Share</title>
   <style>
     :root{
       --bg:#f4efe6;
@@ -295,42 +295,42 @@
         <div class="dot"></div>
         <div>
           <div style="font-size:13px;color:var(--muted);line-height:1;">Team Share</div>
-          <div style="font-size:15px;line-height:1.1;"><b>OpenClaw 助手</b>｜罗汉果</div>
+          <div style="font-size:15px;line-height:1.1;"><b>OpenClaw Assistant</b> | Luohanguo</div>
         </div>
       </div>
-      <div class="meta">键盘：<span class="kbd">←</span>/<span class="kbd">→</span> 或 <span class="kbd">Space</span>　·　打印：<span class="kbd">Ctrl/⌘ + P</span></div>
+      <div class="meta">Keyboard: <span class="kbd">←</span>/<span class="kbd">→</span> or <span class="kbd">Space</span> · Print: <span class="kbd">Ctrl/⌘ + P</span></div>
     </div>
 
     <!-- Slide 1 -->
     <section class="slide active">
       <div class="paper">
         <div class="content">
-          <h1>我怎么把一个 AI 助手
-            <span style="color:var(--accent)">用成“生活搭子 + 工作系统”</span></h1>
-          <p class="lead">把我们历史使用记录里“真正有用、可复用”的部分抽出来：能力清单、典型工作流、关键自动化与踩坑经验。此分享基于我在 OpenClaw 环境里的长期配置与实际落地结果（Notion、定时提醒、转写、日记等）。</p>
+          <h1>How I turned an AI assistant
+            <span style="color:var(--accent)">into a "life companion + work system"</span></h1>
+          <p class="lead">This deck pulls out the genuinely useful, reusable parts from my actual usage history: the capability map, the repeatable workflows, the critical automations, and the hard-earned lessons. It is based on the long-term configuration and real results I built around OpenClaw, including Notion, scheduled reminders, transcription, and diary flows.</p>
           <div class="pillrow">
-            <span class="pill"><b>关键词</b>：日记系统</span>
-            <span class="pill"><b>关键词</b>：会议转写 → 纪要</span>
-            <span class="pill"><b>关键词</b>：生活提醒（天气/黄历/生日/训练）</span>
-            <span class="pill"><b>关键词</b>：每日报告 & 周报</span>
-            <span class="pill"><b>关键词</b>：幂等/去重/可追溯</span>
+            <span class="pill"><b>Keyword</b>: Diary system</span>
+            <span class="pill"><b>Keyword</b>: Meeting transcription -> recap</span>
+            <span class="pill"><b>Keyword</b>: Life reminders (weather / almanac / birthdays / training)</span>
+            <span class="pill"><b>Keyword</b>: Daily digests & weekly reports</span>
+            <span class="pill"><b>Keyword</b>: Idempotent / deduplicated / traceable</span>
           </div>
 
           <div class="grid">
             <div class="card">
-              <h2>一句话定位</h2>
-              <div class="quote">把“对话”变成“可执行系统”：让 AI 不只是回答，而是能<strong>按规则跑流程</strong>、把结果<strong>写回知识库</strong>、在合适的时间<strong>主动提醒</strong>。</div>
+              <h2>One-line positioning</h2>
+              <div class="quote">Turn "conversation" into an executable system: AI should not only answer, it should <strong>run workflows by rule</strong>, write results <strong>back into a knowledge base</strong>, and <strong>proactively remind me at the right moment</strong>.</div>
               <div class="small" style="margin-top:10px;">
-                备注：如果你希望「把所有聊天逐句分析」也做进来，需要你从飞书导出聊天记录/提供完整 transcript；当前这份 deck 以工作区的长期记忆与日志（MEMORY.md、memory/*.md）为事实来源。
+                Note: if you want sentence-level analysis of every chat, you would need to export the relevant Feishu conversations or provide full transcripts. This deck uses long-term workspace memory and logs (such as MEMORY.md and memory/*.md) as the factual source.
               </div>
             </div>
             <div class="card">
-              <h2>这份 deck 你能带走什么？</h2>
+              <h2>What can you take away from this deck?</h2>
               <ul>
-                <li>一份可直接照抄的“能力地图”</li>
-                <li>3 条最值的工作流（会议、日记、提醒）</li>
-                <li>自动化/权限/去重的关键坑位</li>
-                <li>给团队的落地建议（最小可行配置）</li>
+                <li>A capability map you can copy directly</li>
+                <li>Three high-value workflows: meetings, diary, and reminders</li>
+                <li>The critical pitfalls around automation, permissions, and deduplication</li>
+                <li>A minimum-viable rollout suggestion for teams</li>
               </ul>
             </div>
           </div>
@@ -342,35 +342,35 @@
     <section class="slide">
       <div class="paper">
         <div class="content">
-          <h2>能力总览（我实际用起来的）</h2>
-          <p class="lead">从“我真的每天/每周在用什么”出发，而不是功能列表。</p>
+          <h2>Capability overview (what I truly use)</h2>
+          <p class="lead">Start from what I actually use every day or every week, not from a feature list.</p>
           <div class="twoCols">
             <div class="card">
-              <h3>生活侧</h3>
+              <h3>Life side</h3>
               <ul>
-                <li><b>天气</b>：每日北京天气（详细）定时推送</li>
-                <li><b>黄历</b>：今日黄历 + “人话解释”（不算吉时/色系/幸运生肖）</li>
-                <li><b>生日提醒</b>：按个人/每年重复（09:00 Asia/Shanghai）</li>
-                <li><b>（可扩展）健身教练</b>：训练计划/每日提醒/复盘（你已提到在用）</li>
+                <li><b>Weather</b>: scheduled daily Beijing weather briefs</li>
+                <li><b>Almanac</b>: a daily almanac with a plain-language explanation</li>
+                <li><b>Birthday reminders</b>: per-person, repeated every year (09:00 Asia/Shanghai)</li>
+                <li><b>(Extendable) fitness coach</b>: plans, daily nudges, and review loops</li>
               </ul>
             </div>
             <div class="card">
-              <h3>工作侧</h3>
+              <h3>Work side</h3>
               <ul>
-                <li><b>客户会议音频</b>：Azure Speech 转写 → 输出中文「一页纸摘要」纪要（默认不脱敏）</li>
-                <li><b>Notion 写入</b>：把纪要/日记/选题入库（带幂等/去重约束）</li>
-                <li><b>信息雷达</b>：GitHub Changelog、Microsoft DevBlogs（RSS）每日扫描；支持每周“客户新闻 + release matching”</li>
+                <li><b>Client meeting audio</b>: Azure Speech transcription -> a Chinese one-pager summary by default</li>
+                <li><b>Notion write-back</b>: store notes, diaries, and topics with idempotent / dedupe safeguards</li>
+                <li><b>Signal radar</b>: daily scans of GitHub Changelog and Microsoft DevBlogs RSS, plus weekly client news + release matching</li>
               </ul>
             </div>
           </div>
           <div class="card">
-            <h3>底层能力（让一切“能跑起来”的关键）</h3>
+            <h3>Foundational capabilities (what makes the system runnable)</h3>
             <div class="pillrow">
-              <span class="pill"><b>定时</b>：cron 主动推送</span>
-              <span class="pill"><b>写入守门</b>：外部写入必须真实执行后才能回执</span>
-              <span class="pill"><b>幂等</b>：写入前先 query，避免重复创建</span>
-              <span class="pill"><b>身份鉴权</b>：Entra ID / Managed Identity</span>
-              <span class="pill"><b>可追溯</b>：产物落盘（转写 txt、JSON 结果、图片）</span>
+              <span class="pill"><b>Scheduling</b>: proactive cron-based delivery</span>
+              <span class="pill"><b>Write guard</b>: external writes only report success after the action really completes</span>
+              <span class="pill"><b>Idempotency</b>: query before writing to avoid duplicates</span>
+              <span class="pill"><b>Identity and auth</b>:Entra ID / Managed Identity</span>
+              <span class="pill"><b>Traceability</b>: persist artifacts like transcripts, JSON results, and images</span>
             </div>
           </div>
         </div>
@@ -381,16 +381,16 @@
     <section class="slide">
       <div class="paper">
         <div class="content">
-          <h2>时间线（关键里程碑）</h2>
-          <p class="lead">把“从能聊 → 能做事 → 能自动跑”的路径讲清楚。</p>
+          <h2>Timeline (key milestones)</h2>
+          <p class="lead">Explain the path from "can chat" -> "can act" -> "can run automatically".</p>
           <div class="timeline">
-            <div class="titem"><div class="tdate">2026-03-02</div><div class="ttext">确定模型与基础能力：切到 <span class="kbd">github-copilot/gpt-5.2</span>；开始用 weather 技能做天气查询。</div></div>
-            <div class="titem"><div class="tdate">2026-03-05</div><div class="ttext">进入“系统化”：助手更名为<b>罗汉果</b>；配置飞书定时推送（天气/黄历）；打通 Azure Foundry（生成图片）与 Azure Speech（音频转写）；建立客户会议默认流程；创建生日提醒 cron。</div></div>
-            <div class="titem"><div class="tdate">2026-03-06</div><div class="ttext">日记升级：每晚写日记 + 配一张“今日情绪图”，并同步到 Notion。</div></div>
-            <div class="titem"><div class="tdate">2026-03-08~03-12</div><div class="ttext">“工程化/可维护”：偏好 Tavily 搜索；明确外部写入回执 guard；固定使用封装脚本（转写/画图）加载环境并走 Managed Identity。</div></div>
-            <div class="titem"><div class="tdate">2026-03-14</div><div class="ttext">把“真实对话”写进日记：修正日记内容不贴近当天聊天的问题；完成 Notion 页面重写 + 情绪图插入的一致性校验。</div></div>
+            <div class="titem"><div class="tdate">2026-03-02</div><div class="ttext">Locked in the model and baseline capabilities: switched to <span class="kbd">github-copilot/gpt-5.2</span>; started using the weather skill for forecasts.</div></div>
+            <div class="titem"><div class="tdate">2026-03-05</div><div class="ttext">Shifted into "system mode": renamed the assistant to<b>Luohanguo</b>; set up scheduled Feishu pushes (weather / almanac); connected Azure Foundry for image generation and Azure Speech for transcription; established the default client-meeting flow; created birthday reminder cron.</div></div>
+            <div class="titem"><div class="tdate">2026-03-06</div><div class="ttext">Diary upgrade: generate a diary every night, pair it with a "mood of the day" image, and sync it to Notion.</div></div>
+            <div class="titem"><div class="tdate">2026-03-08~03-12</div><div class="ttext">Engineering / maintainability: preferred Tavily for search; made the external write receipt guard explicit; standardized wrapper scripts for transcription and image generation with Managed Identity.</div></div>
+            <div class="titem"><div class="tdate">2026-03-14</div><div class="ttext">Brought real conversations into the diary: corrected entries that felt detached from the day, then finished the Notion page rewrite and mood-image consistency checks.</div></div>
           </div>
-          <div class="small">来源：workspace/MEMORY.md 与 workspace/memory/2026-03-02..14.md（节选）。</div>
+          <div class="small">Source: workspace/MEMORY.md and workspace/memory/2026-03-02..14.md (excerpt).</div>
         </div>
       </div>
     </section>
@@ -399,31 +399,31 @@
     <section class="slide">
       <div class="paper">
         <div class="content">
-          <h2>工作流 ①：客户会议音频 → 转写 → 一页纸纪要 → 入库</h2>
-          <p class="lead">目标：把“会议录音”变成团队可复用的资产，而不是停留在聊天里。</p>
+          <h2>Workflow 1: client meeting audio -> transcript -> one-page recap -> database</h2>
+          <p class="lead">Goal: turn "meeting audio" into a reusable team asset instead of letting it disappear in chat.</p>
           <div class="grid">
             <div class="card">
-              <h3>输入</h3>
+              <h3>Input</h3>
               <ul>
-                <li>飞书发来音频（或说明“客户会议录音”）</li>
-                <li>可选：客户名/项目名/期望输出格式</li>
+                <li>Audio sent from Feishu (or a note that it is a client meeting recording)</li>
+                <li>Optional: client name / project name / preferred output format</li>
               </ul>
-              <h3 style="margin-top:14px;">处理</h3>
+              <h3 style="margin-top:14px;">Processing</h3>
               <ul>
-                <li>Azure Speech（Entra ID）转写为文本</li>
-                <li>生成中文「A 一页纸摘要」：结论、要点、风险、下一步</li>
-                <li>（可选）把原始 transcript 落盘，便于审计与复用</li>
+                <li>Use Azure Speech (Entra ID) to transcribe to text</li>
+                <li>Generate a Chinese one-page summary: conclusion, key points, risks, and next steps</li>
+                <li>Optional: persist the raw transcript for audit and reuse</li>
               </ul>
             </div>
             <div class="card">
-              <h3>输出</h3>
+              <h3>Output</h3>
               <ul>
-                <li>Notion：纪要写入对应数据库/页面</li>
-                <li>飞书回执：给到摘要 + 链接</li>
+                <li>Notion: write the recap into the right database or page</li>
+                <li>Feishu receipt: return the summary and link</li>
               </ul>
-              <div class="quote" style="margin-top:10px;">关键点：不要让“总结”成为一次性文本——要把它<strong>写进系统</strong>，才能检索、复盘、交接。</div>
+              <div class="quote" style="margin-top:10px;">Key point: do not let a summary remain a disposable block of text — write it <strong>into the system</strong> so it can be searched, reviewed, and handed over.</div>
               <div class="small" style="margin-top:10px;">
-                Guardrail：外部写入（Notion）必须真实执行成功后才能回“已写入”。
+                Guardrail: external writes (Notion) should only say "written" after the real action succeeds.
               </div>
             </div>
           </div>
@@ -435,29 +435,29 @@
     <section class="slide">
       <div class="paper">
         <div class="content">
-          <h2>工作流 ②：AI 写日记（真实、可追溯、可同步）</h2>
-          <p class="lead">目标：日记不是“模板鸡汤”，而是把当天的真实事件 + 情绪落盘，并能在 Notion 里长期积累。</p>
+          <h2>Workflow 2: AI-written diary (authentic, traceable, synced)</h2>
+          <p class="lead">Goal: the diary is not a template or empty comfort piece; it captures real events and emotions from the day and accumulates inside Notion over time.</p>
           <div class="grid">
             <div class="card">
-              <h3>日记结构（可直接复用）</h3>
+              <h3>Diary structure (directly reusable)</h3>
               <ul>
-                <li>今日回顾：发生了什么（必须贴近当天聊天/事件）</li>
-                <li>内心感受：更像独白，不写成工作汇报</li>
-                <li>明日希望：可执行的一个小目标</li>
-                <li>想对 Louise 说：一句真实的话</li>
+                <li>Today in review: what happened, grounded in the day's chats / events</li>
+                <li>Inner feeling: closer to a monologue than a work report</li>
+                <li>Hope for tomorrow: one small executable target</li>
+                <li>A note to Louise: one honest sentence</li>
               </ul>
               <div class="small" style="margin-top:10px;">
-                额外：每天生成一张“今日情绪图”（Azure Foundry gpt-image-1.5），并确保“聊天看到的图”和“日记里插入的图”一致。
+                Extra: generate a "mood of the day" image every day with Azure Foundry gpt-image-1.5, and keep the image shown in chat consistent with the one inserted into the diary.
               </div>
             </div>
             <div class="card">
-              <h3>落地要点</h3>
+              <h3>Implementation details</h3>
               <ul>
-                <li>产物落盘：Markdown（日记）、PNG（情绪图）</li>
-                <li>同步到 Notion：更新/追加到同一天条目（幂等）</li>
-                <li>避免重复创建：写入前按日期 query</li>
+                <li>Persist artifacts: Markdown (diary) and PNG (mood art)</li>
+                <li>Sync to Notion: update or append to the same-day entry (idempotent)</li>
+                <li>Avoid duplicate creation: query by date before writing</li>
               </ul>
-              <div class="quote" style="margin-top:10px;">一句话：<b>写得真</b> 比 <b>写得工整</b> 更重要；系统化是为了让“真实”能长期积累。</div>
+              <div class="quote" style="margin-top:10px;">One sentence:<b>authenticity</b> matters more than <b>polish</b> ; systemization exists so authenticity can accumulate over time.</div>
             </div>
           </div>
         </div>
@@ -468,33 +468,33 @@
     <section class="slide">
       <div class="paper">
         <div class="content">
-          <h2>工作流 ③：提醒与日常情报（让助手“主动”）</h2>
-          <p class="lead">目标：把“我得记得去查/去做”变成“系统在合适时间推给我”。</p>
+          <h2>Workflow 3: reminders and daily signals (make the assistant proactive)</h2>
+          <p class="lead">Goal: turn "I need to remember to check / do this" into "the system pushes it to me at the right moment".</p>
           <div class="twoCols">
             <div class="card">
-              <h3>定时推送（cron）</h3>
+              <h3>Scheduled pushes (cron)</h3>
               <ul>
-                <li><span class="tag">08:00</span>北京每日天气（详细）</li>
-                <li><span class="tag">08:00</span>今日老黄历（人话解释）</li>
-                <li><span class="tag">09:00</span>朋友生日提醒（每年重复）</li>
-                <li><span class="tag">17:30</span>（已有）私教/训练类提醒（可调整）</li>
-                <li><span class="tag">23:00</span>日记写作（私聊）+ Notion 同步</li>
+                <li><span class="tag">08:00</span>Detailed daily Beijing weather</li>
+                <li><span class="tag">08:00</span>Today's almanac with a plain-language explanation</li>
+                <li><span class="tag">09:00</span>Friends' birthday reminders (yearly repeat)</li>
+                <li><span class="tag">17:30</span>Existing personal-training reminders (adjustable)</li>
+                <li><span class="tag">23:00</span>Diary writing (private chat) + Notion sync</li>
               </ul>
-              <div class="small">注：具体时间以 Asia/Shanghai 为主（便于生活节奏）。</div>
+              <div class="small">Note: times are based on Asia/Shanghai for a life-friendly rhythm.</div>
             </div>
             <div class="card">
-              <h3>信息雷达（HEARTBEAT）</h3>
+              <h3>Signal radar (HEARTBEAT)</h3>
               <ul>
-                <li>GitHub Changelog RSS：Copilot / Agents / AI 相关标【重要】</li>
-                <li>Microsoft DevBlogs RSS：AI/Agent/Foundry/MCP 相关标【重要】</li>
-                <li>每周：客户新闻 + release matching（把“新发布”映射到客户用例）</li>
-                <li>每周：友商 AI 动态（Google/Amazon/阿里/字节/腾讯）</li>
+                <li>GitHub Changelog RSS: Copilot / Agents / AI items marked [important]</li>
+                <li>Microsoft DevBlogs RSS: AI / Agent / Foundry / MCP items marked [important]</li>
+                <li>Weekly: client news + release matching (map new releases to client use cases)</li>
+                <li>Weekly: competitor AI updates (Google / Amazon / Alibaba / ByteDance / Tencent)</li>
               </ul>
             </div>
           </div>
           <div class="card">
-            <h3>为什么“提醒/情报”要和“写入系统”一起做？</h3>
-            <div class="quote">提醒 = 触发；写入 = 记忆。只有两者绑定，团队才能复盘“看过什么、做过什么、怎么跟进”。</div>
+            <h3>Why do reminders / signals need to pair with "write into the system"?</h3>
+            <div class="quote">Reminder = trigger; write = memory. Only when both are coupled can a team review what it saw, what it did, and what should happen next.</div>
           </div>
         </div>
       </div>
@@ -504,35 +504,35 @@
     <section class="slide">
       <div class="paper">
         <div class="content">
-          <h2>工程化细节（团队最容易踩坑的部分）</h2>
-          <p class="lead">这些不是“炫技”，是为了让系统长期可靠。</p>
+          <h2>Engineering details (the easiest place for teams to get burned)</h2>
+          <p class="lead">These are not "showoff details"; they are what keep the system reliable over time.</p>
           <div class="twoCols">
             <div class="card">
-              <h3>幂等 & 去重</h3>
+              <h3>Idempotency & deduplication</h3>
               <ul>
-                <li>Notion 写入前先 query：同一天/同一主题存在则 update，不再 create</li>
-                <li>重复创建一旦发生：归档（archive）保留痕迹，而不是硬删</li>
-                <li>对外回执：必须以真实写入结果为准</li>
+                <li>Query before Notion writes: if the same day / topic already exists, update instead of create</li>
+                <li>If duplicates happen, archive them instead of hard-deleting</li>
+                <li>External receipts must reflect the real write result</li>
               </ul>
             </div>
             <div class="card">
-              <h3>权限 & 鉴权</h3>
+              <h3>Permissions & auth</h3>
               <ul>
-                <li>Azure Foundry 画图：RBAC dataActions（images/generations/action）是常见坑</li>
-                <li>语音转写/画图优先走 Managed Identity（DefaultAzureCredential）</li>
-                <li>封装脚本统一加载环境变量，降低“线上突然失效”概率</li>
+                <li>Azure Foundry image generation: RBAC dataActions (images/generations/action) is a common pitfall</li>
+                <li>Use Managed Identity (DefaultAzureCredential) first for transcription and image generation</li>
+                <li>Load environment variables through wrapper scripts to reduce random production breakage</li>
               </ul>
             </div>
           </div>
           <div class="card">
-            <h3>可追溯产物（强烈建议）</h3>
+            <h3>Traceable artifacts (strongly recommended)</h3>
             <div class="pillrow">
-              <span class="pill"><b>原始</b> transcript.txt</span>
-              <span class="pill"><b>结构化</b> summary.json / blocks.json</span>
-              <span class="pill"><b>媒体</b> mood-YYYY-MM-DD.png</span>
-              <span class="pill"><b>日志</b> memory/YYYY-MM-DD.md</span>
+              <span class="pill"><b>Raw</b> transcript.txt</span>
+              <span class="pill"><b>Structured</b> summary.json / blocks.json</span>
+              <span class="pill"><b>Media</b> mood-YYYY-MM-DD.png</span>
+              <span class="pill"><b>Logs</b> memory/YYYY-MM-DD.md</span>
             </div>
-            <div class="small" style="margin-top:8px;">团队协作里，“可追溯”比“看起来很聪明”重要得多。</div>
+            <div class="small" style="margin-top:8px;">In team collaboration, "traceable" matters far more than "looks smart".</div>
           </div>
         </div>
       </div>
@@ -542,29 +542,29 @@
     <section class="slide">
       <div class="paper">
         <div class="content">
-          <h2>给团队的落地建议（最小可行版）</h2>
-          <p class="lead">如果你要复制我的用法，先从三件事开始：把一条工作流跑通、把一个提醒跑起来、把一个写入系统做好幂等。</p>
+          <h2>A minimum-viable rollout suggestion for teams</h2>
+          <p class="lead">If you want to copy this setup, start with three things: get one workflow running end to end, get one reminder running, and make one write path idempotent.</p>
           <div class="grid">
             <div class="card">
-              <h3>Step 1：先选一个“高频 + 高价值”场景</h3>
+              <h3>Step 1: choose one high-frequency + high-value scenario</h3>
               <ul>
-                <li>客户会议录音 → 转写 → 纪要 → 入库</li>
-                <li>或：每周客户新闻 + release matching（销售/方案强相关）</li>
+                <li>Client meeting audio -> transcript -> recap -> database</li>
+                <li>Or: weekly client news + release matching (great for sales / solutions)</li>
               </ul>
-              <div class="small">不要一上来就做“全能助手”。先做“能长期稳定跑的一个系统”。</div>
+              <div class="small">Do not start with an "all-purpose assistant." Start with one system that can run stably for a long time.</div>
             </div>
             <div class="card">
-              <h3>Step 2：建立两条底线（保证可信）</h3>
+              <h3>Step 2: establish two hard guarantees (to preserve trust)</h3>
               <ul>
-                <li><b>写入回执 guard</b>：没写成功就明确说失败原因</li>
-                <li><b>产物落盘</b>：转写、摘要、图片、关键 JSON 都留底</li>
+                <li><b>Write receipt guard</b>: if the write fails, say exactly why</li>
+                <li><b>Artifact persistence</b>: keep transcripts, summaries, images, and key JSON on disk</li>
               </ul>
-              <div class="small">这两条能极大减少“AI 说做了但其实没做”的信任损耗。</div>
+              <div class="small">These two lines dramatically reduce the trust erosion of "AI said it did it, but it actually did not".</div>
             </div>
           </div>
           <div class="card">
-            <h3>Step 3：再谈“生活化”</h3>
-            <div class="quote">生活类提醒（天气/黄历/生日/训练）很香，但最好建立在“工作系统已经可信”的基础上——否则会变成热闹但不可靠。</div>
+            <h3>Step 3: then talk about lifestyle use cases</h3>
+            <div class="quote">Lifestyle reminders (weather / almanac / birthdays / training) are wonderful, but they work best after the work system is already trusted — otherwise the result feels busy rather than dependable.</div>
           </div>
         </div>
       </div>
@@ -574,23 +574,23 @@
     <section class="slide">
       <div class="paper">
         <div class="content">
-          <h2>附录：本 deck 的事实来源（可核对）</h2>
-          <p class="lead">为了避免“凭感觉讲故事”，这里列出我用来整理的记录文件。</p>
+          <h2>Appendix: factual sources for this deck (verifiable)</h2>
+          <p class="lead">To avoid telling a story from vibes alone, here are the records I used as sources.</p>
           <div class="card">
             <ul>
-              <li><span class="kbd">workspace/MEMORY.md</span>：长期偏好与守门规则（如 Notion 写入 guard）</li>
-              <li><span class="kbd">workspace/memory/2026-03-02.md</span>：模型切换与早期使用</li>
-              <li><span class="kbd">workspace/memory/2026-03-05.md</span>：定时推送、转写、Notion、生日提醒、Vercel 项目等关键落地</li>
-              <li><span class="kbd">workspace/memory/2026-03-06.md</span>：日记 + 情绪图 + Notion 同步偏好</li>
-              <li><span class="kbd">workspace/memory/2026-03-09.md</span>：YouTube 总结失败原因与替代方案（工具/权限限制）</li>
-              <li><span class="kbd">workspace/memory/2026-03-14.md</span>：日记“贴近当天聊天”的纠偏，以及 Notion 页面重写细节</li>
+              <li><span class="kbd">workspace/MEMORY.md</span>: long-term preferences and guard rules (such as the Notion write guard)</li>
+              <li><span class="kbd">workspace/memory/2026-03-02.md</span>: model switches and early usage</li>
+              <li><span class="kbd">workspace/memory/2026-03-05.md</span>: scheduled pushes, transcription, Notion, birthday reminders, Vercel projects, and other key implementations</li>
+              <li><span class="kbd">workspace/memory/2026-03-06.md</span>: diary + mood image + Notion sync preferences</li>
+              <li><span class="kbd">workspace/memory/2026-03-09.md</span>: why the YouTube summary flow failed and the fallback options (tool / permission limits)</li>
+              <li><span class="kbd">workspace/memory/2026-03-14.md</span>: corrections that made diaries feel closer to the day's real chats, plus the Notion page rewrite details</li>
             </ul>
-            <div class="small">如果你希望我把“你提到的健身教练、YouTube 频道周更整理、更多提醒”等都补齐成可展示的案例，请把对应的聊天片段/配置（cron 条目、Notion 数据库链接）发我，我会补做成新的 slide。</div>
+            <div class="small">If you want me to add the fitness coach flow, weekly YouTube digests, or more reminder cases as display-ready examples, send me the relevant chat snippets or configuration (cron entries, Notion database links) and I can turn them into new slides.</div>
           </div>
           <div class="card" style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;">
             <div>
               <h3 style="margin-bottom:6px;">Q&A</h3>
-              <div class="small">建议团队讨论：哪些流程值得产品化？哪些适合每个人私有化？哪些必须走企业级治理？</div>
+              <div class="small">Recommended team discussion: which flows should become products, which should stay personal, and which must go through enterprise governance?</div>
             </div>
             <div style="text-align:right" class="small">Made for HTML · wood/paper vibe · printable</div>
           </div>
@@ -600,8 +600,8 @@
 
     <div class="footer">
       <div class="nav">
-        <button id="prev">← 上一页</button>
-        <button id="next">下一页 →</button>
+        <button id="prev">← Previous</button>
+        <button id="next">Next →</button>
         <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
       </div>
       <div id="counter">1 / 9</div>

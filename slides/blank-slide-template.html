@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blank Slide Template | HTML Slide Atlas</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --bg2:#111827;
+      --panel:rgba(15,23,42,.84);
+      --panel2:rgba(17,24,39,.92);
+      --ink:#e5e7eb;
+      --muted:#94a3b8;
+      --line:rgba(148,163,184,.22);
+      --accent:#38bdf8;
+      --accent2:#a78bfa;
+      --accent3:#34d399;
+      --shadow:0 24px 70px rgba(0,0,0,.35);
+      --radius:26px;
+      --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 640px at 10% 0%, rgba(56,189,248,.14), transparent 55%),
+        radial-gradient(1000px 600px at 100% 15%, rgba(167,139,250,.16), transparent 48%),
+        radial-gradient(820px 520px at 50% 100%, rgba(52,211,153,.10), transparent 52%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+    }
+    .shell{
+      width:min(1200px, calc(100vw - 32px));
+      margin:0 auto;
+      padding:28px 0 40px;
+    }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(15,23,42,.7);
+      border:1px solid rgba(255,255,255,.08);
+      color:#cbd5e1;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--accent), var(--accent3));
+      box-shadow:0 0 0 6px rgba(56,189,248,.12);
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:11px 15px;
+      border-radius:14px;
+      text-decoration:none;
+      font-weight:700;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+      color:var(--ink);
+    }
+    .btn.primary{
+      background:linear-gradient(135deg, var(--accent), #60a5fa);
+      border-color:transparent;
+      color:#082f49;
+    }
+    .canvas{
+      position:relative;
+      overflow:hidden;
+      min-height:min(760px, calc(100vh - 110px));
+      padding:28px;
+      border-radius:34px;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+        linear-gradient(180deg, var(--panel), var(--panel2));
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
+    }
+    .canvas::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(148,163,184,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,.08) 1px, transparent 1px);
+      background-size:40px 40px;
+      mask-image:linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.2));
+      pointer-events:none;
+    }
+    .frame{
+      position:relative;
+      z-index:1;
+      min-height:100%;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:20px;
+    }
+    .region{
+      border:1px dashed var(--line);
+      border-radius:22px;
+      background:rgba(255,255,255,.03);
+      padding:22px;
+    }
+    .regionLabel{
+      display:inline-flex;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      color:#bae6fd;
+      background:rgba(56,189,248,.12);
+      border:1px solid rgba(125,211,252,.18);
+      margin-bottom:14px;
+    }
+    .hero{
+      display:grid;
+      grid-template-columns:1.4fr .9fr;
+      gap:18px;
+    }
+    h1{
+      margin:0 0 12px;
+      font-size:clamp(40px, 5vw, 62px);
+      line-height:1.02;
+      letter-spacing:-.03em;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:18px;
+      line-height:1.7;
+      max-width:36rem;
+    }
+    .placeholderStack{
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+    .miniCard{
+      padding:16px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(255,255,255,.04);
+      color:#cbd5e1;
+    }
+    .miniCard strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+      color:#f8fafc;
+    }
+    .contentGrid{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:18px;
+      min-height:340px;
+    }
+    .contentBox{
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      justify-content:space-between;
+    }
+    .contentPlaceholder{
+      flex:1;
+      min-height:220px;
+      border-radius:18px;
+      border:1px dashed rgba(167,139,250,.28);
+      background:
+        linear-gradient(180deg, rgba(167,139,250,.08), rgba(52,211,153,.04));
+      display:grid;
+      place-items:center;
+      text-align:center;
+      color:#d8b4fe;
+      font-size:18px;
+      padding:22px;
+    }
+    .hintList{
+      margin:0;
+      padding-left:18px;
+      color:var(--muted);
+      line-height:1.8;
+    }
+    .footerBar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+    .footerNote{
+      color:var(--muted);
+      font-size:14px;
+    }
+    .footerActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    @media (max-width: 900px){
+      .hero,
+      .contentGrid{
+        grid-template-columns:1fr;
+      }
+      .shell{width:min(1200px, calc(100vw - 20px));padding:20px 0 28px;}
+      .canvas{padding:20px;min-height:auto;}
+      h1{font-size:38px;}
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <div class="pill"><span class="dot" aria-hidden="true"></span><span>Reusable Blank Slide Starter</span></div>
+      <a class="btn primary" href="../index.html">Back to Slide Atlas</a>
+    </div>
+
+    <section class="canvas" aria-label="Blank slide template">
+      <div class="frame">
+        <header class="region hero">
+          <div>
+            <span class="regionLabel">Title / Subtitle</span>
+            <h1>Place the main headline here</h1>
+            <p class="subtitle">Use this line for a subtitle, abstract, or the core idea of the slide. Keeping this structure makes it easy to start a new deck quickly.</p>
+          </div>
+          <div class="placeholderStack">
+            <div class="miniCard">
+              <strong>Usage note</strong>
+              Swap the headline, palette, and layout, and this page can become the opening slide or a standalone explainer.
+            </div>
+            <div class="miniCard">
+              <strong>Reusable pieces</strong>
+              The top status bar, main content card, and footer navigation are already in place — replace the content and keep moving.
+            </div>
+          </div>
+        </header>
+
+        <section class="region contentGrid">
+          <div class="contentBox">
+            <span class="regionLabel">Content Area</span>
+            <div class="contentPlaceholder">Place the main body, charts, screenshots, lists, or featured modules here</div>
+          </div>
+          <div>
+            <span class="regionLabel">Optional Side Notes</span>
+            <ul class="hintList">
+              <li>Swap this for bullet points, key metrics, or annotation notes.</li>
+              <li>If you need a larger canvas, remove the right rail and let the content span the full width.</li>
+              <li>If you need a multi-page deck, duplicate this file and keep expanding it.</li>
+            </ul>
+          </div>
+        </section>
+
+        <footer class="region footerBar">
+          <div>
+            <span class="regionLabel">Footer / Nav</span>
+            <div class="footerNote">Use this space for page numbers, dates, sources, navigation buttons, or speaker notes.</div>
+          </div>
+          <div class="footerActions">
+            <a class="btn" href="../index.html">Back to the collection</a>
+            <span class="btn" aria-disabled="true">Footer placeholder button</span>
+          </div>
+        </footer>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

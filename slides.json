@@ -1,14 +1,14 @@
 [
   {
     "id": "openclaw-team-share-v2",
-    "title": "OpenClaw 团队分享 v2",
-    "description": "当前推荐外发版本，图片已内嵌，适合直接分享给同事。",
-    "category": "团队分享",
+    "title": "OpenClaw Team Share v2",
+    "description": "The recommended share-ready deck with embedded visuals, designed for direct handoff.",
+    "category": "Showcase",
     "tags": [
       "OpenClaw",
-      "团队分享",
-      "推荐",
-      "单文件"
+      "Team Share",
+      "Featured",
+      "Single file"
     ],
     "audience": "team",
     "visibility": "public",
@@ -18,14 +18,14 @@
   },
   {
     "id": "openclaw-wood-v2-editable",
-    "title": "OpenClaw 木纹版 v2（可继续编辑）",
-    "description": "当前编辑中的版本，图片通过仓库 assets 引用，便于后续继续迭代。",
-    "category": "团队分享",
+    "title": "OpenClaw Wood Edition v2 (Editable)",
+    "description": "The editable working version that keeps assets linked from the repository for future iteration.",
+    "category": "Showcase",
     "tags": [
       "OpenClaw",
-      "木纹",
+      "Wood edition",
       "v2",
-      "编辑版"
+      "Editable"
     ],
     "audience": "internal",
     "visibility": "public",
@@ -35,18 +35,35 @@
   },
   {
     "id": "openclaw-wood-original",
-    "title": "OpenClaw 木纹原始版",
-    "description": "最早的木纹风格初稿，保留作归档参考。",
-    "category": "归档",
+    "title": "OpenClaw Wood Edition — Original",
+    "description": "The earliest wood-tone draft, kept as an archive reference for the evolution of the deck.",
+    "category": "Archive",
     "tags": [
       "OpenClaw",
-      "归档",
-      "原始版"
+      "Archive",
+      "Original"
     ],
     "audience": "internal",
     "visibility": "public",
     "path": "slides/openclaw-wood-original.html",
     "featured": false,
     "updated": "2026-03-17"
+  },
+  {
+    "id": "blank-slide-template",
+    "title": "Blank Slide Template",
+    "description": "A starter slide with title, subtitle, content, and footer placeholders for new HTML decks.",
+    "category": "Template",
+    "tags": [
+      "Blank",
+      "Starter",
+      "Template",
+      "Reusable"
+    ],
+    "audience": "internal",
+    "visibility": "public",
+    "path": "slides/blank-slide-template.html",
+    "featured": false,
+    "updated": "2026-03-18"
   }
 ]
