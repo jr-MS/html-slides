@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>两场设计对谈匿名洞察报告</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           VIEWPORT FITTING: MANDATORY BASE STYLES
+           These styles ensure every slide fits exactly
+           within the viewport with no scrolling.
+           =========================================== */
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --bg-outer: #231e1a;
+            --bg-radial: radial-gradient(circle at 20% 20%, rgba(202, 154, 118, 0.10), transparent 28%),
+                         radial-gradient(circle at 80% 14%, rgba(119, 91, 167, 0.08), transparent 26%),
+                         radial-gradient(circle at 50% 100%, rgba(216, 200, 171, 0.08), transparent 35%);
+            --bg-page: #f7f2eb;
+            --bg-page-alt: #fbf8f3;
+            --ink-strong: #221d18;
+            --ink-main: #3b322a;
+            --ink-soft: #6b5d52;
+            --line-soft: rgba(52, 41, 32, 0.12);
+            --line-strong: rgba(52, 41, 32, 0.24);
+            --accent-wine: #8d5a4d;
+            --accent-plum: #70608c;
+            --accent-mint: #8fa99a;
+            --accent-gold: #cfb690;
+            --accent-cream: #e9dcc6;
+            --shadow-soft: 0 30px 70px rgba(0, 0, 0, 0.22);
+
+            --font-display: "Cormorant Garamond", "Noto Serif SC", serif;
+            --font-body: "IBM Plex Sans", "Noto Sans SC", sans-serif;
+
+            --title-size: clamp(1.8rem, 5vw, 4.4rem);
+            --h2-size: clamp(1.35rem, 3.4vw, 2.6rem);
+            --h3-size: clamp(1rem, 2.2vw, 1.45rem);
+            --body-size: clamp(0.8rem, 1.35vw, 1.02rem);
+            --small-size: clamp(0.68rem, 1vw, 0.86rem);
+
+            --slide-padding: clamp(1rem, 3vw, 2rem);
+            --content-gap: clamp(0.6rem, 1.8vw, 1.4rem);
+            --element-gap: clamp(0.35rem, 1vh, 0.8rem);
+            --card-padding: clamp(0.75rem, 1.6vw, 1.2rem);
+            --paper-padding: clamp(1rem, 2.2vw, 2rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.75s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-radial), var(--bg-outer);
+            color: var(--ink-main);
+            overflow-x: hidden;
+            min-height: 100%;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.09;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.3' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+            mix-blend-mode: soft-light;
+            z-index: 1;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        .paper {
+            width: min(92vw, 1220px);
+            height: min(86vh, 860px);
+            max-width: min(92vw, 1220px);
+            max-height: min(86vh, 860px);
+            margin: 0 auto;
+            background: linear-gradient(180deg, var(--bg-page-alt) 0%, var(--bg-page) 100%);
+            border: 1px solid rgba(66, 53, 42, 0.12);
+            border-radius: clamp(1rem, 2vw, 1.8rem);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) clamp(1.8rem, 3vw, 2.8rem);
+            position: relative;
+        }
+
+        .paper::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.56), transparent 24%),
+                linear-gradient(90deg, rgba(141, 90, 77, 0.06), transparent 12%);
+            pointer-events: none;
+        }
+
+        .paper-main {
+            padding: var(--paper-padding) clamp(1rem, 2.4vw, 2.1rem);
+            display: flex;
+            flex-direction: column;
+            gap: var(--content-gap);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .paper-tabs {
+            border-left: 1px solid var(--line-soft);
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.04));
+            display: grid;
+            grid-template-rows: repeat(5, 1fr);
+            gap: 0.35rem;
+            padding: 0.8rem 0.35rem 0.8rem 0;
+        }
+
+        .tab {
+            border-radius: 0 0.85rem 0.85rem 0;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: clamp(0.48rem, 0.95vh, 0.72rem);
+            line-height: 1;
+            letter-spacing: 0.2em;
+            color: rgba(34, 29, 24, 0.56);
+            padding: 0.55rem 0;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        .tab.active {
+            color: var(--ink-strong);
+            background: linear-gradient(180deg, rgba(230, 216, 188, 0.95), rgba(208, 188, 158, 0.92));
+            border-color: rgba(103, 78, 56, 0.15);
+        }
+
+        .tab.wine { background-color: rgba(171, 120, 109, 0.28); }
+        .tab.plum { background-color: rgba(128, 112, 162, 0.24); }
+        .tab.mint { background-color: rgba(143, 169, 154, 0.24); }
+        .tab.gold { background-color: rgba(207, 182, 144, 0.26); }
+        .tab.cream { background-color: rgba(234, 220, 196, 0.32); }
+
+        .binder {
+            position: absolute;
+            left: clamp(0.8rem, 1.8vw, 1.2rem);
+            top: clamp(1rem, 3vw, 1.7rem);
+            display: grid;
+            gap: clamp(0.7rem, 1.2vw, 1rem);
+        }
+
+        .binder span {
+            width: clamp(0.45rem, 0.9vw, 0.7rem);
+            height: clamp(0.45rem, 0.9vw, 0.7rem);
+            border-radius: 50%;
+            border: 1px solid rgba(60, 47, 38, 0.18);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .topline,
+        .footerline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            font-size: var(--small-size);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            position: relative;
+            z-index: 2;
+        }
+
+        .topline::after,
+        .footerline::before {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(59, 50, 42, 0.18), rgba(59, 50, 42, 0.05));
+        }
+
+        .footerline::before {
+            order: -1;
+        }
+
+        .eyebrow {
+            font-size: var(--small-size);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent-wine);
+            font-weight: 600;
+        }
+
+        h1, h2, h3, blockquote {
+            font-family: var(--font-display);
+            color: var(--ink-strong);
+        }
+
+        h1 {
+            font-size: var(--title-size);
+            line-height: 0.94;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: var(--h2-size);
+            line-height: 1;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: var(--h3-size);
+            line-height: 1.1;
+            font-weight: 600;
+        }
+
+        p,
+        li,
+        .body-text {
+            font-size: var(--body-size);
+            line-height: 1.48;
+            color: var(--ink-main);
+        }
+
+        .hero-grid,
+        .two-col,
+        .summary-grid,
+        .card-grid,
+        .insight-grid,
+        .matrix-grid,
+        .action-grid {
+            display: grid;
+            gap: clamp(0.6rem, 1.3vw, 1rem);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-grid {
+            grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.85fr);
+            align-items: stretch;
+        }
+
+        .summary-grid,
+        .card-grid,
+        .action-grid {
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+        }
+
+        .two-col {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: start;
+        }
+
+        .insight-grid {
+            grid-template-columns: 1.1fr 0.9fr;
+        }
+
+        .matrix-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .panel,
+        .quote-card,
+        .number-card,
+        .mini-card,
+        .evidence-card,
+        .action-card,
+        .thesis-card {
+            border: 1px solid var(--line-soft);
+            background: rgba(255, 255, 255, 0.58);
+            border-radius: clamp(0.85rem, 1.6vw, 1.1rem);
+            padding: var(--card-padding);
+            overflow: hidden;
+        }
+
+        .panel.tint-wine,
+        .number-card.tint-wine,
+        .action-card.tint-wine {
+            background: linear-gradient(180deg, rgba(141, 90, 77, 0.12), rgba(255, 255, 255, 0.54));
+        }
+
+        .panel.tint-plum,
+        .number-card.tint-plum,
+        .action-card.tint-plum {
+            background: linear-gradient(180deg, rgba(112, 96, 140, 0.11), rgba(255, 255, 255, 0.52));
+        }
+
+        .panel.tint-mint,
+        .number-card.tint-mint,
+        .action-card.tint-mint {
+            background: linear-gradient(180deg, rgba(143, 169, 154, 0.11), rgba(255, 255, 255, 0.54));
+        }
+
+        .panel.tint-gold,
+        .number-card.tint-gold,
+        .action-card.tint-gold {
+            background: linear-gradient(180deg, rgba(207, 182, 144, 0.14), rgba(255, 255, 255, 0.55));
+        }
+
+        .hero-copy {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: var(--content-gap);
+        }
+
+        .hero-copy p {
+            max-width: 33ch;
+            color: var(--ink-soft);
+        }
+
+        .stat-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+        }
+
+        .stat-chip,
+        .tiny-chip,
+        .legend-chip {
+            padding: 0.45rem 0.7rem;
+            border-radius: 999px;
+            font-size: var(--small-size);
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(40, 30, 22, 0.1);
+            background: rgba(255, 255, 255, 0.75);
+            color: var(--ink-soft);
+        }
+
+        .shape-stage {
+            position: relative;
+            min-height: min(54vh, 440px);
+            border-radius: 1.4rem;
+            border: 1px solid var(--line-soft);
+            background:
+                radial-gradient(circle at 18% 18%, rgba(112, 96, 140, 0.16), transparent 24%),
+                radial-gradient(circle at 84% 18%, rgba(141, 90, 77, 0.12), transparent 22%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(248, 242, 232, 0.96));
+            overflow: hidden;
+        }
+
+        .shape-stage::before {
+            content: "";
+            position: absolute;
+            inset: clamp(1rem, 2vw, 1.5rem);
+            border-radius: 1rem;
+            border: 1px dashed rgba(52, 41, 32, 0.16);
+        }
+
+        .shape-ring,
+        .shape-ring::before,
+        .shape-ring::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(66, 53, 42, 0.16);
+        }
+
+        .shape-ring {
+            width: min(24vw, 240px);
+            height: min(24vw, 240px);
+            left: 14%;
+            top: 18%;
+            background: radial-gradient(circle, rgba(255,255,255,0.7), transparent 68%);
+        }
+
+        .shape-ring::before {
+            inset: 12%;
+        }
+
+        .shape-ring::after {
+            inset: 24%;
+        }
+
+        .shape-line {
+            position: absolute;
+            left: 18%;
+            right: 12%;
+            top: 48%;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(59, 50, 42, 0.16), rgba(59, 50, 42, 0.02));
+        }
+
+        .shape-pill {
+            position: absolute;
+            padding: 0.65rem 0.95rem;
+            border-radius: 999px;
+            border: 1px solid var(--line-strong);
+            background: rgba(255, 255, 255, 0.82);
+            font-size: var(--small-size);
+            color: var(--ink-soft);
+        }
+
+        .shape-pill.one { right: 12%; top: 22%; }
+        .shape-pill.two { right: 8%; top: 40%; }
+        .shape-pill.three { right: 20%; bottom: 16%; }
+
+        .keyline {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(59, 50, 42, 0.22), rgba(59, 50, 42, 0.02));
+        }
+
+        .summary-number {
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            font-family: var(--font-display);
+            color: var(--accent-wine);
+            line-height: 1;
+        }
+
+        .number-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .number-card p {
+            color: var(--ink-soft);
+        }
+
+        .flow-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .flow-step {
+            padding: 0.48rem 0.74rem;
+            border-radius: 999px;
+            font-size: var(--small-size);
+            border: 1px solid rgba(46, 36, 29, 0.1);
+            background: rgba(255, 255, 255, 0.74);
+            color: var(--ink-soft);
+            position: relative;
+        }
+
+        .flow-step + .flow-step::before {
+            content: "→";
+            position: absolute;
+            left: calc(-1 * clamp(0.55rem, 1.1vw, 0.8rem));
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(89, 71, 58, 0.48);
+            font-size: var(--small-size);
+        }
+
+        .bullet-list,
+        .evidence-list {
+            display: grid;
+            gap: clamp(0.35rem, 0.8vh, 0.7rem);
+            list-style: none;
+        }
+
+        .bullet-list li,
+        .evidence-list li {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.6rem;
+            align-items: start;
+        }
+
+        .bullet-list li::before,
+        .evidence-list li::before {
+            content: "";
+            width: 0.5rem;
+            height: 0.5rem;
+            margin-top: 0.38rem;
+            border-radius: 50%;
+            background: linear-gradient(180deg, var(--accent-wine), var(--accent-plum));
+            box-shadow: 0 0 0 0.14rem rgba(141, 90, 77, 0.14);
+        }
+
+        .evidence-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            justify-content: space-between;
+        }
+
+        .evidence-card time {
+            font-size: var(--small-size);
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--accent-plum);
+        }
+
+        .axis-card {
+            position: relative;
+            min-height: min(34vh, 260px);
+            border: 1px solid var(--line-soft);
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.55);
+            overflow: hidden;
+        }
+
+        .axis-card::before,
+        .axis-card::after {
+            content: "";
+            position: absolute;
+            background: rgba(59, 50, 42, 0.18);
+        }
+
+        .axis-card::before {
+            left: 14%;
+            right: 10%;
+            top: 50%;
+            height: 1px;
+        }
+
+        .axis-card::after {
+            top: 10%;
+            bottom: 12%;
+            left: 50%;
+            width: 1px;
+        }
+
+        .axis-label {
+            position: absolute;
+            font-size: var(--small-size);
+            color: var(--ink-soft);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .axis-label.top { top: 0.9rem; left: 52%; }
+        .axis-label.bottom { bottom: 0.75rem; left: 52%; }
+        .axis-label.left { left: 0.75rem; top: 54%; transform: translateY(-50%); }
+        .axis-label.right { right: 0.75rem; top: 54%; transform: translateY(-50%); }
+
+        .axis-node {
+            position: absolute;
+            width: min(28vw, 240px);
+            padding: 0.9rem 0.95rem;
+            border-radius: 1rem;
+            border: 1px solid var(--line-strong);
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 16px 28px rgba(42, 34, 28, 0.08);
+        }
+
+        .axis-node.a { left: 12%; top: 16%; }
+        .axis-node.b { right: 10%; top: 18%; }
+
+        .axis-node strong {
+            display: block;
+            margin-bottom: 0.2rem;
+            color: var(--ink-strong);
+            font-size: var(--h3-size);
+        }
+
+        blockquote {
+            font-size: clamp(1.35rem, 2.8vw, 2.4rem);
+            line-height: 1.12;
+            color: var(--ink-strong);
+        }
+
+        .thesis-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            min-height: min(20vh, 152px);
+        }
+
+        .thesis-card span,
+        .action-card span {
+            font-size: var(--small-size);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--accent-wine);
+            font-weight: 600;
+        }
+
+        .action-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .outro-card {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: clamp(0.8rem, 1.4vw, 1.1rem);
+            align-items: stretch;
+        }
+
+        .closing-rule {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .progress-shell {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            z-index: 50;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent-wine), var(--accent-gold), var(--accent-plum));
+            transition: width 0.45s ease;
+        }
+
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.65rem, 1.6vw, 1.1rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.48rem;
+            z-index: 40;
+        }
+
+        .nav-dots button {
+            width: 0.7rem;
+            height: 0.7rem;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.18);
+            cursor: pointer;
+            transition: transform 0.28s ease, background 0.28s ease, border-color 0.28s ease;
+        }
+
+        .nav-dots button.active {
+            background: var(--accent-gold);
+            border-color: rgba(255, 255, 255, 0.7);
+            transform: scale(1.18);
+        }
+
+        .keyboard-hint {
+            position: fixed;
+            left: clamp(0.7rem, 1.8vw, 1.2rem);
+            bottom: clamp(0.7rem, 1.4vw, 1rem);
+            z-index: 40;
+            font-size: var(--small-size);
+            color: rgba(255, 255, 255, 0.72);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition:
+                opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide.visible .reveal:nth-child(1) { transition-delay: 0.08s; }
+        .slide.visible .reveal:nth-child(2) { transition-delay: 0.16s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: 0.24s; }
+        .slide.visible .reveal:nth-child(4) { transition-delay: 0.32s; }
+        .slide.visible .reveal:nth-child(5) { transition-delay: 0.4s; }
+
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 1.5rem);
+                --content-gap: clamp(0.45rem, 1.2vw, 0.9rem);
+                --title-size: clamp(1.45rem, 4.4vw, 2.9rem);
+                --h2-size: clamp(1.15rem, 3vw, 2rem);
+                --body-size: clamp(0.74rem, 1.2vw, 0.94rem);
+            }
+
+            .paper {
+                height: min(88vh, 760px);
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2vw, 1rem);
+                --paper-padding: clamp(0.7rem, 1.4vw, 1rem);
+                --content-gap: clamp(0.35rem, 1vw, 0.6rem);
+                --body-size: clamp(0.68rem, 1vw, 0.88rem);
+            }
+
+            .nav-dots,
+            .keyboard-hint,
+            .binder {
+                display: none;
+            }
+
+            .paper {
+                height: min(90vh, 680px);
+            }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --title-size: clamp(1rem, 3.3vw, 1.6rem);
+                --h2-size: clamp(0.9rem, 2.4vw, 1.2rem);
+                --h3-size: clamp(0.82rem, 1.8vw, 1rem);
+                --body-size: clamp(0.62rem, 0.92vw, 0.78rem);
+            }
+
+            .tab {
+                display: none;
+            }
+
+            .paper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 920px) {
+            .hero-grid,
+            .two-col,
+            .insight-grid,
+            .matrix-grid,
+            .outro-card {
+                grid-template-columns: 1fr;
+            }
+
+            .paper {
+                width: min(94vw, 1220px);
+            }
+
+            .shape-stage,
+            .axis-card {
+                min-height: min(32vh, 240px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                --title-size: clamp(1.4rem, 7vw, 2.35rem);
+            }
+
+            .paper {
+                grid-template-columns: 1fr;
+            }
+
+            .paper-tabs {
+                display: none;
+            }
+
+            .summary-grid,
+            .card-grid,
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+
+            .reveal {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-shell" aria-hidden="true">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+    <div class="keyboard-hint">Scroll / ← → / Space</div>
+
+    <section class="slide visible" data-section="INTRO">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Internal report</span><span>Two anonymized designer conversations</span></div>
+                    <div class="hero-grid">
+                        <div class="hero-copy">
+                            <div>
+                                <div class="eyebrow reveal">March conversations / anonymous synthesis</div>
+                                <h1 class="reveal">两场设计对谈<br>匿名洞察报告</h1>
+                                <p class="reveal">这不是一份“审美偏好”纪要，而是一份关于设计、spec、实现、验证与 AI 协作边界如何重组的工作流报告。</p>
+                            </div>
+                            <div class="stat-strip reveal">
+                                <span class="stat-chip">2 场 1:1 对谈</span>
+                                <span class="stat-chip">≈ 97 分钟素材</span>
+                                <span class="stat-chip">匿名化整理</span>
+                                <span class="stat-chip">HTML editorial deck</span>
+                            </div>
+                        </div>
+                        <div class="shape-stage reveal" aria-hidden="true">
+                            <div class="shape-ring"></div>
+                            <div class="shape-line"></div>
+                            <div class="shape-pill one">Design as system</div>
+                            <div class="shape-pill two">AI as operator</div>
+                            <div class="shape-pill three">Validation as bottleneck</div>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>Prepared from transcripts, not screenshots</span><span>01</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab active cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="INTRO">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>How to read</span><span>Method + scope</span></div>
+                    <div>
+                        <div class="eyebrow reveal">Source handling</div>
+                        <h2 class="reveal">这份报告刻意保留“结构”，去掉“身份”</h2>
+                    </div>
+                    <div class="summary-grid">
+                        <div class="number-card tint-gold reveal">
+                            <div class="summary-number">01</div>
+                            <h3>匿名化</h3>
+                            <p>成稿统一使用“设计师 A / B”，不放姓名、头像、会议栏、团队标识，也不直接嵌入原始讨论截图。</p>
+                        </div>
+                        <div class="number-card tint-mint reveal">
+                            <div class="summary-number">02</div>
+                            <h3>取样方式</h3>
+                            <p>基于两段长视频的本地转录与时间戳片段，重点提炼流程、约束、分歧和组织含义，而非逐字记录。</p>
+                        </div>
+                        <div class="number-card tint-plum reveal">
+                            <div class="summary-number">03</div>
+                            <h3>阅读角度</h3>
+                            <p>把讨论看作“设计如何进入 AI 原生研发体系”的证据，而不是单一工具或单个 feature 的经验分享。</p>
+                        </div>
+                        <div class="number-card tint-wine reveal">
+                            <div class="summary-number">04</div>
+                            <h3>主要问题</h3>
+                            <p>AI 现在最擅长什么？最不擅长什么？设计师未来更像产出者、审阅者，还是系统规则的制定者？</p>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>Method first, interpretation second</span><span>02</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab active cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="INTRO">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Executive summary</span><span>Three core signals</span></div>
+                    <div>
+                        <div class="eyebrow reveal">At a glance</div>
+                        <h2 class="reveal">先给结论：两场讨论共同指向三件事</h2>
+                    </div>
+                    <div class="card-grid">
+                        <div class="panel tint-wine reveal">
+                            <h3>AI 已经进入流程，但还没接管流程</h3>
+                            <p>两位设计师都承认 agent 能加速起草、补全、局部实现；但真正决定成败的仍是权限、环境、验证、人工 review 与组织编排。</p>
+                        </div>
+                        <div class="panel tint-plum reveal">
+                            <h3>设计稿正从“视觉稿”变成“结构化输入”</h3>
+                            <p>Figma、token、feature flag、flow 完整性、组件语义——这些不再只是设计资产，而是在给系统提供可执行上下文。</p>
+                        </div>
+                        <div class="panel tint-mint reveal">
+                            <h3>设计师角色正在从产出者转向守门人</h3>
+                            <p>未来的价值不只在画页面，而在定义规则、写清 success criteria、约束组件行为，并在关键节点做最终判断。</p>
+                        </div>
+                    </div>
+                    <div class="flow-strip reveal" aria-label="High-level flow">
+                        <span class="flow-step">Prompt / Spec</span>
+                        <span class="flow-step">Design context</span>
+                        <span class="flow-step">Implementation</span>
+                        <span class="flow-step">Verification</span>
+                        <span class="flow-step">Feedback loop</span>
+                    </div>
+                    <div class="footerline reveal"><span>Core message: generation is easy, governance is hard</span><span>03</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab active cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="A">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Designer A</span><span>Today’s friction</span></div>
+                    <div>
+                        <div class="eyebrow reveal">Profile A</div>
+                        <h2 class="reveal">设计师 A：更像一个在现实流程里“硬闯到底”的 builder</h2>
+                    </div>
+                    <div class="two-col">
+                        <div class="panel tint-wine reveal">
+                            <h3>他真正描述的不是设计，而是落地阻力</h3>
+                            <ul class="bullet-list">
+                                <li><span>从问题发现、spec 起草，到前端实现、联调、测试，角色边界非常模糊。</span></li>
+                                <li><span>AI 明显加速了 spec 与代码初稿，但协作、分享、版本治理仍回到传统文档与人工沟通。</span></li>
+                                <li><span>最大耗时不在“写出代码”，而在环境、权限、coverage、PR、人工测试与反复修正。</span></li>
+                                <li><span>设计本身仍主要依赖 Figma 与组件体系，生成式设计并不是主角。</span></li>
+                            </ul>
+                        </div>
+                        <div class="panel tint-gold reveal">
+                            <h3>高信号证据</h3>
+                            <ul class="evidence-list">
+                                <li><span><strong>03:24–03:57</strong>：先用 VS Code agent 写 spec，但共享和版本管理困难，最后又搬回 Word。</span></li>
+                                <li><span><strong>13:55–15:45</strong>：环境、权限、coverage、debug 才是真正吃时间的地方。</span></li>
+                                <li><span><strong>21:15–21:42</strong>：review 通过后仍要进测试环境，人工验证还能抓出不少问题。</span></li>
+                                <li><span><strong>30:12–32:25</strong>：开始想象从 spec 到代码再到 design review 的新模式，但判断权仍在人。</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>关键词：builder / friction / delivery</span><span>04</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab active wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="A">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Designer A</span><span>Workflow view</span></div>
+                    <div>
+                        <div class="eyebrow reveal">A’s workflow</div>
+                        <h2 class="reveal">在 A 的世界里，AI 已经嵌入流程，但流程本身还没有被重写</h2>
+                    </div>
+                    <div class="panel reveal">
+                        <div class="flow-strip">
+                            <span class="flow-step">问题 / 需求</span>
+                            <span class="flow-step">PM spec</span>
+                            <span class="flow-step">Review</span>
+                            <span class="flow-step">Figma</span>
+                            <span class="flow-step">前端实现</span>
+                            <span class="flow-step">联调</span>
+                            <span class="flow-step">测试 / 发布</span>
+                        </div>
+                    </div>
+                    <div class="summary-grid">
+                        <div class="mini-card reveal">
+                            <h3>AI 在哪里有效</h3>
+                            <p>Spec 起草、代码草稿、局部改写、bot review、文案润色。</p>
+                        </div>
+                        <div class="mini-card reveal">
+                            <h3>AI 在哪里失灵</h3>
+                            <p>权限 setup、真实 API 映射、coverage、release 流程、判断是否“真的对”。</p>
+                        </div>
+                        <div class="mini-card reveal">
+                            <h3>更深一层的信号</h3>
+                            <p>设计师不再只是交付界面，而是在接手部分 PM、前端与协调工作。</p>
+                        </div>
+                    </div>
+                    <div class="quote-card tint-wine reveal">
+                        <blockquote>“加速发生在前面，阻力堆积在后面。”</blockquote>
+                        <p class="body-text">这是 A 视角最重要的隐含结论：生成越来越快，交付链条没有同步变轻。</p>
+                    </div>
+                    <div class="footerline reveal"><span>Observation: friction migrates downstream</span><span>05</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab active wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="B">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Designer B</span><span>Future architecture</span></div>
+                    <div>
+                        <div class="eyebrow reveal">Profile B</div>
+                        <h2 class="reveal">设计师 B：不是在谈单点生成，而是在谈一个 agent 化闭环</h2>
+                    </div>
+                    <div class="two-col">
+                        <div class="panel tint-plum reveal">
+                            <h3>B 的问题意识更系统化</h3>
+                            <ul class="bullet-list">
+                                <li><span>理想流程是：Insight → PM / Spec → Design → Code → Verify → PR → Rollout → 数据反馈。</span></li>
+                                <li><span>重点不在“AI 能不能直接出图”，而在设计输入能否被结构化、验证标准能否被系统读取。</span></li>
+                                <li><span>Figma、token、feature flag、组件层级、success criteria 都变成 agent 的上下文契约。</span></li>
+                                <li><span>真正卡住的是隐性规则、人工 orchestrator、以及验证链条的自动化程度不够。</span></li>
+                            </ul>
+                        </div>
+                        <div class="panel tint-mint reveal">
+                            <h3>高信号证据</h3>
+                            <ul class="evidence-list">
+                                <li><span><strong>00:43–01:11</strong>：明确描述从 insight 到 rollout 再回看数据的闭环。</span></li>
+                                <li><span><strong>01:43–02:09</strong>：spec 仍依赖 design，Figma 整洁度、token、flag、flow 都要清楚。</span></li>
+                                <li><span><strong>17:41–18:11</strong>：希望 design agent 先理解组件语义，再产出 UX spec。</span></li>
+                                <li><span><strong>26:05–26:16</strong>：承认现在真正的 orchestrator 还是人自己。</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>关键词：orchestration / structure / verification</span><span>06</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab active plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="B">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Designer B</span><span>System diagram</span></div>
+                    <div>
+                        <div class="eyebrow reveal">B’s system lens</div>
+                        <h2 class="reveal">在 B 的叙事中，设计资产更像系统接口，而不是静态交付物</h2>
+                    </div>
+                    <div class="panel reveal">
+                        <div class="flow-strip">
+                            <span class="flow-step">Insight</span>
+                            <span class="flow-step">UX spec</span>
+                            <span class="flow-step">Component mapping</span>
+                            <span class="flow-step">Build / Verify</span>
+                            <span class="flow-step">PR / Rollout</span>
+                            <span class="flow-step">Data feedback</span>
+                        </div>
+                    </div>
+                    <div class="summary-grid">
+                        <div class="mini-card reveal">
+                            <h3>为什么 Figma 仍然重要</h3>
+                            <p>它提供不是“图”，而是结构化上下文：token、层级、行为线索、scope 边界。</p>
+                        </div>
+                        <div class="mini-card reveal">
+                            <h3>为什么验证仍然难</h3>
+                            <p>热区、视觉对齐、平台规范、边界状态，很多都不是稿面上显式写出来的东西。</p>
+                        </div>
+                        <div class="mini-card reveal">
+                            <h3>为什么 agent 数量值得怀疑</h3>
+                            <p>B 后半段开始质疑“越多越好”，更倾向少量 agent + 共用 skills 的组合。</p>
+                        </div>
+                    </div>
+                    <div class="quote-card tint-plum reveal">
+                        <blockquote>“难的不是生成，而是让系统理解那些设计师默认知道、但从不写明的规则。”</blockquote>
+                    </div>
+                    <div class="footerline reveal"><span>Design as interface, not artifact</span><span>07</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab active plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="SYNTH">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Synthesis</span><span>Where they converge</span></div>
+                    <div>
+                        <div class="eyebrow reveal">Shared ground</div>
+                        <h2 class="reveal">两位设计师的共识，比表面上看到的更一致</h2>
+                    </div>
+                    <div class="card-grid">
+                        <div class="panel tint-gold reveal">
+                            <h3>1. 设计仍是入口</h3>
+                            <p>无论从现实项目还是未来系统看，spec 都离不开设计上下文；设计不是被跳过，而是更早、更深地进入研发链路。</p>
+                        </div>
+                        <div class="panel tint-wine reveal">
+                            <h3>2. AI 擅长草稿，不擅长裁决</h3>
+                            <p>AI 可以提速起稿、改写、推断，但是否符合体验、规范与组织意图，仍需要人来做最后判断。</p>
+                        </div>
+                        <div class="panel tint-mint reveal">
+                            <h3>3. 真正关键是上下文质量</h3>
+                            <p>Figma 整洁度、token 规范、feature flag、success criteria、组件语义，才是系统能否可靠工作的前提。</p>
+                        </div>
+                        <div class="panel tint-plum reveal">
+                            <h3>4. 验证链条是新的战场</h3>
+                            <p>两场对谈都把“验证”抬到核心位置：不是能不能生出来，而是能不能放心地上线、复用和持续演化。</p>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>Shared diagnosis: context and verification dominate</span><span>08</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab active mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="SYNTH">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Synthesis</span><span>Where they differ</span></div>
+                    <div>
+                        <div class="eyebrow reveal">Contrast</div>
+                        <h2 class="reveal">真正的差异，不在观点对错，而在他们站的位置不同</h2>
+                    </div>
+                    <div class="insight-grid">
+                        <div class="axis-card reveal" aria-hidden="true">
+                            <div class="axis-label top">future system</div>
+                            <div class="axis-label bottom">current delivery</div>
+                            <div class="axis-label left">single project</div>
+                            <div class="axis-label right">organizational model</div>
+                            <div class="axis-node a">
+                                <strong>设计师 A</strong>
+                                <p>站在真实项目里看问题：流程哪里最卡，哪些节点最耗时，今天怎么把东西交出去。</p>
+                            </div>
+                            <div class="axis-node b">
+                                <strong>设计师 B</strong>
+                                <p>站在系统架构层看问题：哪些工件该结构化，哪些 agent 该拆分，未来如何形成闭环。</p>
+                            </div>
+                        </div>
+                        <div class="panel tint-plum reveal">
+                            <h3>这意味着什么？</h3>
+                            <ul class="bullet-list">
+                                <li><span>A 让我们看见今天的真实阻力：权限、API、coverage、测试、handoff。</span></li>
+                                <li><span>B 让我们看见明天的设计命题：上下文建模、agent orchestration、双向回写。</span></li>
+                                <li><span>二者并不冲突，而是同一条演进路径的上下游：先解决当前摩擦，再设计未来闭环。</span></li>
+                                <li><span>如果只做 A，会陷在局部提效；如果只做 B，会停在宏大愿景。组织需要两种视角同时存在。</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>A = operational truth / B = architectural horizon</span><span>09</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab active mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="SYNTH">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Synthesis</span><span>Deeper thesis</span></div>
+                    <div>
+                        <div class="eyebrow reveal">Deeper read</div>
+                        <h2 class="reveal">更深一层看：设计正在从“界面产出”迁移到“系统治理”</h2>
+                    </div>
+                    <div class="quote-card reveal">
+                        <blockquote>未来最稀缺的能力，可能不是把界面画出来，而是把规则写清楚、把判断前移、把质量门槛系统化。</blockquote>
+                    </div>
+                    <div class="summary-grid">
+                        <div class="thesis-card reveal">
+                            <span>Thesis 1</span>
+                            <h3>Spec 会越来越 UX 化</h3>
+                            <p>不是更长的 PRD，而是更结构化的行为说明、边界条件与 success criteria。</p>
+                        </div>
+                        <div class="thesis-card reveal">
+                            <span>Thesis 2</span>
+                            <h3>设计资产会越来越工程化</h3>
+                            <p>组件、token、flag、状态迁移将从“设计附件”变成系统可消费的契约。</p>
+                        </div>
+                        <div class="thesis-card reveal">
+                            <span>Thesis 3</span>
+                            <h3>设计师会越来越像质量操作系统</h3>
+                            <p>定义约束、设定审查点、识别隐性规则，而不是只在末端做视觉审批。</p>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>Design becomes governance infrastructure</span><span>10</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab active mint">synth</div>
+                    <div class="tab gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="ACTION">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Action</span><span>What to do next</span></div>
+                    <div>
+                        <div class="eyebrow reveal">Recommendations</div>
+                        <h2 class="reveal">如果要把这些讨论转成行动，建议先做四件小而硬的事</h2>
+                    </div>
+                    <div class="action-grid">
+                        <div class="action-card tint-wine reveal">
+                            <span>01</span>
+                            <h3>建立统一的 UX spec 模板</h3>
+                            <p>把 scope、states、interactions、edge cases、feature flags、success criteria 固化成可复用结构，而不是散落在聊天与口头同步里。</p>
+                        </div>
+                        <div class="action-card tint-plum reveal">
+                            <span>02</span>
+                            <h3>把 Figma 从稿子升级成“上下文入口”</h3>
+                            <p>优先补齐 token 命名、组件层级、关键 flow 与隐性规则说明，让设计资产能被 agent 可靠读取。</p>
+                        </div>
+                        <div class="action-card tint-mint reveal">
+                            <span>03</span>
+                            <h3>把验证链条拆成更小的 gate</h3>
+                            <p>在生成后立刻做结构检查、组件 conformance、交互检查、人工 spot review，而不是把问题一次性堆到 PR 末端。</p>
+                        </div>
+                        <div class="action-card tint-gold reveal">
+                            <span>04</span>
+                            <h3>少量 agent + 明确 skill，优先于复杂编排</h3>
+                            <p>先在小 feature 上验证一个薄闭环，再决定是否需要多 agent orchestration，不要一开始就追求宏大的系统图。</p>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>Start with contracts, not complexity</span><span>11</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab active gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <section class="slide" data-section="ACTION">
+        <div class="slide-content">
+            <article class="paper">
+                <div class="binder" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="paper-main">
+                    <div class="topline reveal"><span>Closing note</span><span>One-line takeaway</span></div>
+                    <div>
+                        <div class="eyebrow reveal">Final takeaway</div>
+                        <h2 class="reveal">一句话收束</h2>
+                    </div>
+                    <div class="outro-card">
+                        <div class="panel tint-gold reveal">
+                            <blockquote>AI 正在把设计工作往前推、往深推，但它还没有把设计工作变轻。</blockquote>
+                            <p class="body-text">它让起稿更快，却也逼迫团队把原本模糊的规则、接口、验收标准和治理机制讲得更清楚。</p>
+                        </div>
+                        <div class="panel tint-wine reveal">
+                            <h3>最值得继续验证的 3 个实验</h3>
+                            <div class="closing-rule">
+                                <span class="legend-chip">Spec → code gate</span>
+                                <span class="legend-chip">Figma → UX spec</span>
+                                <span class="legend-chip">Human spot review</span>
+                            </div>
+                            <p>如果这些实验成立，设计与前端之间的 handoff 将不只是更快，而是更少信息损失、更少重复劳动、也更容易形成可复用组织能力。</p>
+                        </div>
+                    </div>
+                    <div class="footerline reveal"><span>Anonymized by design</span><span>12</span></div>
+                </div>
+                <aside class="paper-tabs" aria-hidden="true">
+                    <div class="tab cream">intro</div>
+                    <div class="tab wine">A</div>
+                    <div class="tab plum">B</div>
+                    <div class="tab mint">synth</div>
+                    <div class="tab active gold">action</div>
+                </aside>
+            </article>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           Handles navigation, progress, scroll-triggered
+           reveal animations, touch gestures, and wheel
+           navigation without introducing dependencies.
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll(".slide"));
+                this.progressBar = document.getElementById("progressBar");
+                this.navDots = document.getElementById("navDots");
+                this.currentIndex = 0;
+                this.lastWheelAt = 0;
+                this.touchStartY = 0;
+                this.touchEndY = 0;
+                this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+                this.buildDots();
+                this.observeSlides();
+                this.bindEvents();
+                this.updateUI(0);
+            }
+
+            buildDots() {
+                this.slides.forEach((slide, index) => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.setAttribute("aria-label", `Go to slide ${index + 1}`);
+                    button.addEventListener("click", () => this.goToSlide(index));
+                    this.navDots.appendChild(button);
+                });
+            }
+
+            observeSlides() {
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add("visible");
+                                const index = this.slides.indexOf(entry.target);
+                                if (index !== -1) {
+                                    this.updateUI(index);
+                                }
+                            }
+                        });
+                    },
+                    {
+                        threshold: 0.55
+                    }
+                );
+
+                this.slides.forEach((slide) => observer.observe(slide));
+            }
+
+            bindEvents() {
+                document.addEventListener("keydown", (event) => {
+                    const nextKeys = ["ArrowDown", "ArrowRight", "PageDown", " "];
+                    const prevKeys = ["ArrowUp", "ArrowLeft", "PageUp"];
+
+                    if (nextKeys.includes(event.key)) {
+                        event.preventDefault();
+                        this.goToSlide(this.currentIndex + 1);
+                    }
+
+                    if (prevKeys.includes(event.key)) {
+                        event.preventDefault();
+                        this.goToSlide(this.currentIndex - 1);
+                    }
+
+                    if (event.key === "Home") {
+                        event.preventDefault();
+                        this.goToSlide(0);
+                    }
+
+                    if (event.key === "End") {
+                        event.preventDefault();
+                        this.goToSlide(this.slides.length - 1);
+                    }
+                });
+
+                window.addEventListener(
+                    "wheel",
+                    (event) => {
+                        const now = Date.now();
+                        if (now - this.lastWheelAt < 700) return;
+                        if (Math.abs(event.deltaY) < 22) return;
+
+                        this.lastWheelAt = now;
+                        if (event.deltaY > 0) {
+                            this.goToSlide(this.currentIndex + 1);
+                        } else {
+                            this.goToSlide(this.currentIndex - 1);
+                        }
+                    },
+                    { passive: true }
+                );
+
+                window.addEventListener("touchstart", (event) => {
+                    this.touchStartY = event.changedTouches[0].screenY;
+                }, { passive: true });
+
+                window.addEventListener("touchend", (event) => {
+                    this.touchEndY = event.changedTouches[0].screenY;
+                    const delta = this.touchStartY - this.touchEndY;
+                    if (Math.abs(delta) < 44) return;
+                    if (delta > 0) {
+                        this.goToSlide(this.currentIndex + 1);
+                    } else {
+                        this.goToSlide(this.currentIndex - 1);
+                    }
+                }, { passive: true });
+            }
+
+            goToSlide(index) {
+                const boundedIndex = Math.max(0, Math.min(index, this.slides.length - 1));
+                const target = this.slides[boundedIndex];
+                if (!target) return;
+
+                target.scrollIntoView({
+                    behavior: this.reducedMotion ? "auto" : "smooth",
+                    block: "start"
+                });
+                this.updateUI(boundedIndex);
+            }
+
+            updateUI(index) {
+                this.currentIndex = index;
+                const progress = ((index + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = `${progress}%`;
+
+                Array.from(this.navDots.children).forEach((dot, dotIndex) => {
+                    dot.classList.toggle("active", dotIndex === index);
+                });
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            new SlidePresentation();
+        });
+    </script>
+</body>
+</html>

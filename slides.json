@@ -43,5 +43,22 @@
     "path": "slides/interview-analysis-slides.html",
     "featured": false,
     "updated": "2026-03-19"
+  },
+  {
+    "id": "designer-discussion-report",
+    "title": "两场设计对谈匿名洞察报告",
+    "description": "基于两场匿名化设计对谈整理的 HTML 报告，聚焦设计、AI 与研发协作的结构性洞察。",
+    "category": "Report",
+    "tags": [
+      "Design",
+      "AI",
+      "Workflow",
+      "Report"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/designer-discussion-report.html",
+    "featured": false,
+    "updated": "2026-03-20"
   }
 ]
