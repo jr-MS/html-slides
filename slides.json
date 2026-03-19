@@ -32,5 +32,20 @@
     "path": "slides/github-copilot-report.html",
     "featured": false,
     "updated": "2026-03-19"
+  },
+  {
+    "id": "interview-analysis-slides",
+    "title": "AI 时代 PM 访谈分析报告",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "AI",
+      "PM"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/interview-analysis-slides.html",
+    "featured": false,
+    "updated": "2026-03-19"
   }
 ]

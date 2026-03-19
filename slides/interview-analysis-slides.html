@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 时代 PM 访谈分析报告</title>
+  <style>
+    :root {
+      --paper: #fbf5e8;
+      --paper-deep: #f3ead6;
+      --ink: #2f2a24;
+      --red: #d45a4b;
+      --blue: #4d79b9;
+      --green: #4d8f69;
+      --yellow: #f2c35d;
+      --purple: #8b6bb8;
+      --shadow: rgba(47, 42, 36, 0.18);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.7), transparent 22%),
+        radial-gradient(circle at 80% 15%, rgba(255,255,255,0.45), transparent 18%),
+        linear-gradient(135deg, #f7efdd, #efe2c6 50%, #f5ebd8);
+      color: var(--ink);
+      font-family: "Marker Felt", "Bradley Hand", "Comic Sans MS", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      overflow: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mix-blend-mode: multiply;
+    }
+    .deck { position: relative; width: 100vw; height: 100vh; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 4.6vh 4.4vw 10vh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 2vh;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(28px) scale(0.985);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0) scale(1);
+    }
+    .sheet {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 30px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0.08)),
+        repeating-linear-gradient(180deg, transparent, transparent 30px, rgba(77,121,185,0.08) 30px, rgba(77,121,185,0.08) 31px),
+        var(--paper);
+      box-shadow: 0 22px 40px var(--shadow);
+      border: 3px solid rgba(47,42,36,0.24);
+      padding: 2.2rem 2.45rem 1.8rem;
+      overflow: hidden;
+    }
+    .sheet::before,
+    .sheet::after {
+      content: "";
+      position: absolute;
+      border-radius: 14px;
+      opacity: 0.8;
+    }
+    .sheet::before {
+      top: 16px;
+      right: 34px;
+      width: 96px;
+      height: 24px;
+      background: rgba(242,195,93,0.42);
+      transform: rotate(6deg);
+    }
+    .sheet::after {
+      bottom: 16px;
+      left: 24px;
+      width: 72px;
+      height: 18px;
+      background: rgba(77,121,185,0.18);
+      transform: rotate(-8deg);
+    }
+    .slide-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .kicker {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border: 2px dashed rgba(47,42,36,0.38);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.45);
+      font-size: 0.92rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.55rem;
+    }
+    h1, h2, h3 { margin: 0; line-height: 1.12; }
+    h1 { font-size: clamp(2.25rem, 4vw, 4.6rem); max-width: 11ch; }
+    h2 { font-size: clamp(1.55rem, 2.4vw, 2.8rem); }
+    h3 { font-size: 1.03rem; margin-bottom: 0.55rem; }
+    p, li, .subtitle, .lead, .tiny, .small-note {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    .subtitle { max-width: 62ch; font-size: 1.04rem; line-height: 1.68; color: rgba(47,42,36,0.84); }
+    .lead { font-size: 1rem; line-height: 1.7; color: rgba(47,42,36,0.9); }
+    .tiny { font-size: 0.88rem; line-height: 1.55; color: rgba(47,42,36,0.72); }
+    .small-note { margin-top: 0.75rem; font-size: 0.94rem; line-height: 1.58; color: rgba(47,42,36,0.75); }
+    .hand { font-family: "Marker Felt", "Bradley Hand", "Comic Sans MS", sans-serif; }
+    .grid-2, .grid-3, .grid-4 { display: grid; gap: 0.9rem; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card, .metric, .quote, .sticky {
+      position: relative;
+      padding: 0.92rem 1rem;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.5);
+      border: 2.5px solid rgba(47,42,36,0.24);
+      box-shadow: 0 10px 16px rgba(47,42,36,0.08);
+    }
+    .card::after, .metric::after, .quote::after, .sticky::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border: 1.5px dashed rgba(47,42,36,0.1);
+      border-radius: 16px;
+      pointer-events: none;
+    }
+    .accent-red { background: rgba(212,90,75,0.11); }
+    .accent-blue { background: rgba(77,121,185,0.11); }
+    .accent-green { background: rgba(77,143,105,0.11); }
+    .accent-yellow { background: rgba(242,195,93,0.16); }
+    .accent-purple { background: rgba(139,107,184,0.11); }
+    ul { margin: 0; padding-left: 1.1rem; line-height: 1.56; }
+    li + li { margin-top: 0.26rem; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1.25rem;
+      align-items: stretch;
+      min-height: 74vh;
+    }
+    .hero-title {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .scribble {
+      display: inline-block;
+      position: relative;
+      padding: 0 0.2rem;
+    }
+    .scribble::after {
+      content: "";
+      position: absolute;
+      left: -4px;
+      right: -4px;
+      bottom: 3px;
+      height: 0.58em;
+      background: rgba(242,195,93,0.42);
+      z-index: -1;
+      transform: rotate(-1.2deg);
+      border-radius: 10px;
+    }
+    .hero-doodles { position: relative; min-height: 420px; }
+    .floating {
+      position: absolute;
+      border-radius: 20px;
+      padding: 1rem;
+      background: rgba(255,255,255,0.52);
+      border: 2.5px solid rgba(47,42,36,0.24);
+      box-shadow: 0 10px 18px rgba(47,42,36,0.08);
+    }
+    .floating.one { top: 7%; left: 2%; width: 53%; transform: rotate(-3deg); }
+    .floating.two { top: 28%; right: 2%; width: 50%; transform: rotate(4deg); }
+    .floating.three { bottom: 9%; left: 10%; width: 63%; transform: rotate(-2deg); }
+    .ring {
+      position: absolute;
+      border: 3px dashed rgba(212,90,75,0.35);
+      border-radius: 999px;
+    }
+    .ring.r1 { width: 140px; height: 140px; top: 2%; right: 18%; }
+    .ring.r2 { width: 110px; height: 110px; bottom: 5%; right: 8%; border-color: rgba(77,143,105,0.32); }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+    .tag {
+      padding: 0.32rem 0.72rem;
+      border-radius: 999px;
+      border: 2px solid rgba(47,42,36,0.24);
+      background: rgba(255,255,255,0.55);
+      font-size: 0.9rem;
+    }
+    .comparison { display: grid; grid-template-columns: 0.85fr 1.05fr 1.05fr 1.05fr; gap: 0.7rem; }
+    .comparison > div {
+      padding: 0.8rem;
+      border-radius: 18px;
+      border: 2px solid rgba(47,42,36,0.24);
+      background: rgba(255,255,255,0.5);
+      line-height: 1.48;
+      font-size: 0.95rem;
+    }
+    .row-head {
+      font-family: "Marker Felt", "Bradley Hand", sans-serif;
+      background: rgba(47,42,36,0.08);
+      font-weight: 700;
+    }
+    .big-quote {
+      font-size: 1.22rem;
+      line-height: 1.68;
+      padding: 1.15rem 1.25rem;
+      background: rgba(255,255,255,0.54);
+      border-left: 8px solid rgba(212,90,75,0.62);
+    }
+    .split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 0.9rem; height: 100%; }
+    .timeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; }
+    .step {
+      padding: 0.85rem;
+      border-radius: 18px;
+      border: 2.5px solid rgba(47,42,36,0.24);
+      background: rgba(255,255,255,0.45);
+      min-height: 168px;
+    }
+    .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-weight: 700;
+      background: rgba(242,195,93,0.55);
+      border: 2px solid rgba(47,42,36,0.24);
+      margin-bottom: 0.6rem;
+    }
+    .quote-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .page { font-size: 0.92rem; opacity: 0.72; }
+    .controls {
+      position: fixed;
+      right: 24px;
+      bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 10;
+    }
+    .btn {
+      border: 2px solid rgba(47,42,36,0.28);
+      background: rgba(255,255,255,0.8);
+      color: var(--ink);
+      border-radius: 999px;
+      min-width: 46px;
+      height: 46px;
+      padding: 0 0.95rem;
+      cursor: pointer;
+      font: inherit;
+      box-shadow: 0 8px 18px rgba(47,42,36,0.12);
+    }
+    .progress {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 7px;
+      background: rgba(47,42,36,0.08);
+      z-index: 10;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
+      transition: width 0.3s ease;
+    }
+    .dots { display: flex; gap: 0.42rem; align-items: center; max-width: 50vw; flex-wrap: wrap; justify-content: center; }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(47,42,36,0.24);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+    .dot.active { width: 24px; border-radius: 999px; background: var(--red); }
+    @media (max-width: 1180px) {
+      html, body { overflow: auto; }
+      .deck { height: auto; min-height: 100vh; }
+      .slide {
+        position: relative;
+        min-height: 100vh;
+        padding: 2.5vh 2.6vw 11vh;
+        overflow: auto;
+      }
+      .hero, .grid-2, .grid-3, .grid-4, .comparison, .split, .timeline, .quote-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media print {
+      html, body { overflow: visible; background: white; }
+      .slide {
+        position: relative;
+        opacity: 1 !important;
+        transform: none !important;
+        pointer-events: auto !important;
+        min-height: 100vh;
+        page-break-after: always;
+      }
+      .controls, .progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <section class="slide active">
+      <div class="sheet">
+        <div class="hero">
+          <div class="hero-title">
+            <span class="kicker">AI 时代 PM 访谈研究 · Expanded Research Deck</span>
+            <h1>从 <span class="scribble">PM</span> 到 <span class="scribble">Product Builder</span></h1>
+            <p class="subtitle">
+              基于产品经理A、产品经理B、产品经理C 三场长访谈的综合分析。
+              这不是“AI 会不会替代 PM”的泛泛讨论，而是一次围绕真实工作流展开的研究：
+              AI 正在如何进入需求、文档、原型、代码、评审、总结与企业协作系统。
+            </p>
+            <div class="tag-row">
+              <span class="tag">3 位受访者</span>
+              <span class="tag">更完整研究汇报版</span>
+              <span class="tag">工作流 / Agent / MCP / 治理</span>
+              <span class="tag">手绘风 HTML Slides</span>
+            </div>
+          </div>
+          <div class="hero-doodles">
+            <div class="floating one accent-yellow">
+              <h3>总论点</h3>
+              <p class="lead">PM 没有消失，但价值重心正在从“组织信息”转向“编排 AI、推进验证、直接交付产物”。</p>
+            </div>
+            <div class="floating two accent-blue">
+              <h3>本 deck 回答</h3>
+              <ul>
+                <li>三位受访者各自如何使用 AI</li>
+                <li>哪些环节最先被重构</li>
+                <li>组织与产品应该如何响应</li>
+              </ul>
+            </div>
+            <div class="floating three accent-green">
+              <h3>核心判断</h3>
+              <p class="lead">AI 已从“聊天入口”升级为“工作流引擎”，最关键的差异点不再只是模型能力，而是上下文整合与治理能力。</p>
+            </div>
+            <div class="ring r1"></div>
+            <div class="ring r2"></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><div class="tiny">方向键 / 空格翻页；支持打印成 PDF。</div><div class="page">01 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Research Framing</span><h2>研究背景与分析框架</h2></div></div>
+        <div class="grid-2">
+          <div class="card accent-yellow">
+            <h3>我们为什么做这份访谈整理</h3>
+            <ul>
+              <li>用户已经不再只问“模型好不好”，而是开始问“AI 能不能真正接进工作流”。</li>
+              <li>三位受访者都不是浅层尝鲜者，而是已经把 AI 带入真实工作中的人。</li>
+              <li>因此他们提供的是“实践信号”，而不是“想象中的未来”。</li>
+            </ul>
+          </div>
+          <div class="card accent-blue">
+            <h3>这份分析主要关注什么</h3>
+            <ul>
+              <li>角色变化：PM 是否正在 builder 化。</li>
+              <li>工作流变化：AI 究竟进入了哪些节点。</li>
+              <li>产品机会：哪些能力最值得沉淀成平台。</li>
+              <li>治理风险：安全、责任、质量、思考能力。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-top:0.9rem;">
+          <div class="metric accent-green"><h3>分析维度 1</h3><p class="lead">个人提效 vs. 团队工作流升级</p></div>
+          <div class="metric accent-purple"><h3>分析维度 2</h3><p class="lead">生成内容 vs. 编排执行</p></div>
+          <div class="metric accent-red"><h3>分析维度 3</h3><p class="lead">效率收益 vs. 组织治理成本</p></div>
+        </div>
+        <div class="small-note">这意味着：我们不只是在总结三个人怎么用 AI，而是在识别一条正在成形的企业工作方式变化曲线。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">02 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Executive Summary</span><h2>先看结论：跨访谈最强的 5 个共同信号</h2></div></div>
+        <div class="grid-2">
+          <div class="metric accent-red"><h3>信号 1 · PM 正在 builder 化</h3><p class="lead">三位受访者都在不同程度上把 AI 用于 prototype、文档、任务拆解，甚至轻开发与 PR 流程。</p></div>
+          <div class="metric accent-blue"><h3>信号 2 · AI 正在流程化</h3><p class="lead">真正高价值的，不再是单轮问答，而是会议、文档、代码、评审、总结的连续链路。</p></div>
+          <div class="metric accent-green"><h3>信号 3 · 文档生产方式变了</h3><p class="lead">PRD、migration doc、summary 越来越是 AI 先起草，人做取舍、判断和润色。</p></div>
+          <div class="metric accent-purple"><h3>信号 4 · 上下文整合成关键能力</h3><p class="lead">Teams、Outlook、SharePoint、ADO、Repo、会议记录打通后，AI 才真正有组织级价值。</p></div>
+        </div>
+        <div class="big-quote quote" style="margin-top:0.95rem;">第五个也是最重要的信号：<strong>效率与风险同时被放大</strong>。安全、责任漂移、质量治理与思考外包已经不是边缘话题，而是核心设计问题。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">03 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Interviewee 1</span><h2>产品经理A：把隐性经验变成可调用的 Skill</h2></div></div>
+        <div class="split">
+          <div class="card accent-yellow">
+            <h3>人物画像</h3>
+            <ul>
+              <li>偏技术产品经理 / 内部工具建设者。</li>
+              <li>天然把工作看成一条可拆解的流程，而不是一个个孤立任务。</li>
+              <li>关注如何把 review 规则、metrics 解释、release 经验等隐性判断固化下来。</li>
+              <li>对 MCP、Skill、Agent 的兴趣，不是因为“新”，而是因为它们能承载组织知识。</li>
+            </ul>
+          </div>
+          <div class="card accent-blue">
+            <h3>核心观点</h3>
+            <ul>
+              <li>专家脑中的知识应该被做成技能，而不是继续停留在人身上。</li>
+              <li>AI 最适合接入那些重复、高频、格式稳定、依赖规则的流程环节。</li>
+              <li>如果知识能被结构化，就更容易复用、审核和扩展到更多团队。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="small-note">产品经理A代表的不是“更会写 prompt 的 PM”，而是“更像系统设计者的 PM”。他关心的是把能力沉淀成平台资产。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">04 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Interviewee 1 Deep Dive</span><h2>产品经理A具体在用什么：流程自动化与知识技能化</h2></div></div>
+        <div class="grid-3">
+          <div class="card accent-yellow">
+            <h3>发布与总结</h3>
+            <ul>
+              <li>汇总 release item、PR、size、重点变化。</li>
+              <li>把会前人工整理变成自动 summary。</li>
+              <li>减少组织者逐条查看工单和评论的时间。</li>
+            </ul>
+          </div>
+          <div class="card accent-green">
+            <h3>文档与事项生成</h3>
+            <ul>
+              <li>根据上下文自动起草 PRD 或说明文档。</li>
+              <li>从评估结果中创建 item / child item。</li>
+              <li>让 work item 不再依赖人工转述。</li>
+            </ul>
+          </div>
+          <div class="card accent-blue">
+            <h3>Skill 化专家经验</h3>
+            <ul>
+              <li>把 metrics team 的判断逻辑沉淀成 skill。</li>
+              <li>把 review / release readiness 规则沉淀成可复用能力。</li>
+              <li>让 AI 能“按组织经验做事”，而不是只按通用知识输出。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="big-quote quote" style="margin-top:0.95rem;">对产品经理A来说，AI 的价值不是替他干一个活，而是把那些“本来只能找资深同事口头请教”的判断流程变成组织能力接口。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">05 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Interviewee 1 Implications</span><h2>产品经理A的启示：为什么“技能化”值得单独做成产品方向</h2></div></div>
+        <div class="grid-2">
+          <div class="card accent-purple">
+            <h3>对组织的意义</h3>
+            <ul>
+              <li>减少对少数关键人的依赖。</li>
+              <li>让判断标准更一致、可传播。</li>
+              <li>让新成员更快接近资深员工的工作水位。</li>
+              <li>更容易接入审计、效果评估和治理。</li>
+            </ul>
+          </div>
+          <div class="card accent-red">
+            <h3>对产品的要求</h3>
+            <ul>
+              <li>支持模板化输入与结构化输出。</li>
+              <li>支持连接企业系统与上下文绑定。</li>
+              <li>支持审批点、人工 review 与追踪。</li>
+              <li>支持技能迭代，而不是一次性 prompt 收藏。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="small-note">从产品战略看，这类用户最需要的不是“更多聊天功能”，而是“把组织知识接入 AI 执行链”的机制。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">06 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Interviewee 2</span><h2>产品经理B：PM 正在向 Product Builder 演化</h2></div></div>
+        <div class="grid-2">
+          <div class="card accent-blue">
+            <h3>产品经理B的基本判断</h3>
+            <ul>
+              <li>PM 核心职责没有消失，但边界正在向 prototype、POC、代码理解与执行推进延展。</li>
+              <li>AI 当前最擅长的是 initial draft、migration 文档、状态追踪和原型生成。</li>
+              <li>真正不可替代的仍是判断、协作、卖愿景与组织推动。</li>
+            </ul>
+          </div>
+          <div class="card accent-yellow">
+            <h3>他怎么看 builder 化</h3>
+            <ul>
+              <li>PM 不再只是提要求的人，而是越来越多地直接产出可讨论对象。</li>
+              <li>这让问题讨论更具体，也更快暴露认知偏差。</li>
+              <li>但同时要求 PM 具备更高的工程理解与结果判断能力。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="big-quote quote" style="margin-top:0.95rem;">产品经理B的态度并不激进，但非常清醒：AI 让 PM 更像 builder，这是真的；但人类判断的重量，反而因此更大。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">07 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Interviewee 2 Deep Dive</span><h2>产品经理B的现实主义视角：真正的阻力往往不在模型</h2></div></div>
+        <div class="grid-3">
+          <div class="card accent-green">
+            <h3>工程落地摩擦</h3>
+            <ul>
+              <li>环境配置、依赖安装、repo 复杂度、测试链路，都可能比写代码本身更难。</li>
+              <li>这解释了为何很多 AI demo 很亮眼，但企业落地并不顺滑。</li>
+            </ul>
+          </div>
+          <div class="card accent-red">
+            <h3>思考外包焦虑</h3>
+            <ul>
+              <li>AI 初稿太强，会让团队更容易跳过问题定义和自我辩论。</li>
+              <li>“写得完整”不等于“想得透彻”。</li>
+            </ul>
+          </div>
+          <div class="card accent-blue">
+            <h3>工具偏好</h3>
+            <ul>
+              <li>偏好轻量 CLI 工作流，因为摩擦更小、接开发流程更自然。</li>
+              <li>不迷信平台，重点看是否真能嵌入现有工作方式。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="small-note">产品经理B带来的最重要提醒是：企业级 AI 成功，不只是“生成质量高”，而是“接得进去、跑得起来、责任还算清楚”。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">08 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Interviewee 3</span><h2>产品经理C：AI 已经进入从信号收集到 PR 的完整链路</h2></div></div>
+        <div class="split">
+          <div class="card accent-green">
+            <h3>成熟度特征</h3>
+            <ul>
+              <li>不仅使用 AI 生成文档，还把它接到 Teams、Outlook、SharePoint、会议记录和代码工作流里。</li>
+              <li>会把 meeting recording 直接转成规格草案。</li>
+              <li>会让本地 agent 参与 coding、PR、comment 修复与总结生成。</li>
+              <li>AI 不只是提高效率，而是被放进完整执行闭环。</li>
+            </ul>
+          </div>
+          <div class="card accent-purple">
+            <h3>代表性的强信号</h3>
+            <ul>
+              <li>AI 生成的总结有时比人工同步更清晰。</li>
+              <li>很多任务开始被默认认为“可以直接交给 AI”。</li>
+              <li>工作量未必减少，反而可能向最会用 AI 的人集中。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="small-note">产品经理C展示的是一条“AI 作为工作台而非工具箱”的路径：从获取信息，到输出文档，再到推动工程动作，尽量放在同一套流里。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">09 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Interviewee 3 Deep Dive</span><h2>产品经理C的另一面：越接近端到端自动化，越需要治理</h2></div></div>
+        <div class="grid-2">
+          <div class="card accent-red">
+            <h3>风险感知很强</h3>
+            <ul>
+              <li>一旦 AI 能控制本地机器，风险就从“答错”升级成“做错”。</li>
+              <li>涉及凭证、文件、命令、本地环境时，必须有可见监督与留痕。</li>
+              <li>权限与安全边界若不清晰，越高级的 agent 越危险。</li>
+            </ul>
+          </div>
+          <div class="card accent-yellow">
+            <h3>为什么仍然会继续用</h3>
+            <ul>
+              <li>因为 AI 在高频总结、内容组织、轻量开发和反馈闭环上已经显著提升效率。</li>
+              <li>当它能够连续处理信息、文档和代码时，边际价值远高于单点问答。</li>
+              <li>这让“治理”变成必须解决的问题，而不是退回不用。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="big-quote quote" style="margin-top:0.95rem;">产品经理C的经验说明：<strong>真正成熟的 AI 使用者，往往不是最乐观的人，而是最清楚风险的人。</strong></div>
+      </div>
+      <div class="footer"><div></div><div class="page">10 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Cross Interview Comparison</span><h2>横向比较：三位受访者到底哪里相同，哪里不同？</h2></div></div>
+        <div class="comparison">
+          <div class="row-head">维度</div>
+          <div class="row-head">产品经理A</div>
+          <div class="row-head">产品经理B</div>
+          <div class="row-head">产品经理C</div>
+          <div class="row-head">最关注</div>
+          <div>知识技能化、流程沉淀、专家经验产品化</div>
+          <div>PM builder 化、落地摩擦、深度思考能力</div>
+          <div>端到端 AI workflow、上下文整合、治理边界</div>
+          <div class="row-head">最典型场景</div>
+          <div>release summary、meeting prep、item generation</div>
+          <div>spec 初稿、migration doc、prototype、status tracking</div>
+          <div>meeting → spec → local agent → PR → bi-weekly summary</div>
+          <div class="row-head">最大机会</div>
+          <div>把隐性知识变成组织资产</div>
+          <div>让 PM 更快地产出可讨论的成果物</div>
+          <div>把多个工具拼成连续工作流</div>
+          <div class="row-head">最大担忧</div>
+          <div>全流程自动化仍难取代人工 sign-off</div>
+          <div>AI 让团队少思考、且企业落地阻力被低估</div>
+          <div>AI 控制机器与数据时，监督和审计是否足够</div>
+        </div>
+      </div>
+      <div class="footer"><div></div><div class="page">11 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Use Cases</span><h2>高价值用例地图：AI 真正改变了哪些工作</h2></div></div>
+        <div class="grid-4">
+          <div class="card accent-yellow"><h3>文档类</h3><ul><li>PRD 初稿</li><li>migration doc</li><li>one-pager</li><li>双周汇报</li><li>newsletter</li></ul></div>
+          <div class="card accent-blue"><h3>会议类</h3><ul><li>会前准备</li><li>录音转 spec</li><li>行动项提取</li><li>关键风险总结</li><li>决策脉络追踪</li></ul></div>
+          <div class="card accent-green"><h3>研发类</h3><ul><li>prototype / POC</li><li>轻量 coding</li><li>PR summary</li><li>review comment 修复</li><li>测试计划生成</li></ul></div>
+          <div class="card accent-purple"><h3>项目管理类</h3><ul><li>work item 创建</li><li>状态追踪</li><li>阻塞识别</li><li>发布总结</li><li>跨系统上下文聚合</li></ul></div>
+        </div>
+        <div class="small-note">这些用例的共同特征是：高频、跨系统、依赖上下文、输出结构相对稳定，因此最适合先被 AI 工作流化。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">12 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Workflow Change</span><h2>工作流怎么变：从“人驱动流程”到“人编排 AI 流程”</h2></div></div>
+        <div class="timeline">
+          <div class="step accent-yellow"><div class="num">1</div><h3>信号收集</h3><p class="lead">AI 先从 Teams、邮件、文档、工单、代码评论等处把上下文拉齐。</p></div>
+          <div class="step accent-blue"><div class="num">2</div><h3>草稿生成</h3><p class="lead">AI 产出 spec、总结、风险点、任务拆解、会议材料的第一版。</p></div>
+          <div class="step accent-green"><div class="num">3</div><h3>验证与执行</h3><p class="lead">人围绕“已有草稿 / 原型 / 代码”做取舍，而不是从空白页开始。</p></div>
+          <div class="step accent-purple"><div class="num">4</div><h3>研发闭环</h3><p class="lead">Agent 接入本地环境、PR 流程、review comment 与测试环节。</p></div>
+          <div class="step accent-red"><div class="num">5</div><h3>总结沉淀</h3><p class="lead">AI 再把结果反哺回汇报、技能库、组织知识与流程模板。</p></div>
+        </div>
+        <div class="small-note">变化的关键，不是 AI 替代了某个人，而是它被插在多个本来需要人工来回切换的步骤之间。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">13 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Strategic Opportunity</span><h2>最值得投入的能力：上下文整合与技能化，而不是单点聊天</h2></div></div>
+        <div class="grid-2">
+          <div class="card accent-green">
+            <h3>为什么上下文整合是护城河</h3>
+            <ul>
+              <li>模型能力会越来越商品化，但企业上下文连接能力不会轻易标准化。</li>
+              <li>真正决定输出质量的，是 AI 是否拿到了完整、可信、可追溯的信息。</li>
+              <li>上下文越完整，AI 越可能从助手升级为 workflow engine。</li>
+            </ul>
+          </div>
+          <div class="card accent-blue">
+            <h3>为什么技能化值得单独建设</h3>
+            <ul>
+              <li>技能化让组织经验从个人习惯变成平台资产。</li>
+              <li>技能化后的能力更容易被治理、审核与迭代。</li>
+              <li>它也是实现可复用、可扩展 AI 工作流的基础模块。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="big-quote quote" style="margin-top:0.95rem;">换句话说：未来的核心竞争，不是谁能做出更花哨的 Chat UI，而是谁能更安全地整合企业上下文，并把组织经验封装成可执行能力。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">14 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Risk Board</span><h2>风险版图：速度上来了，治理必须同步升级</h2></div></div>
+        <div class="grid-2">
+          <div class="card accent-red"><h3>安全与权限</h3><ul><li>AI 访问企业数据、代码库、本地文件、命令执行环境时，风险边界迅速扩大。</li><li>尤其是本地 agent，一旦具备行动能力，错误影响不再只是文本错误。</li></ul></div>
+          <div class="card accent-yellow"><h3>责任漂移</h3><ul><li>AI 起草越来越多内容后，谁对错误负责必须重新定义。</li><li>最会用 AI 的人会更容易承接更多“顺手就做”的工作。</li></ul></div>
+          <div class="card accent-blue"><h3>质量治理</h3><ul><li>AI 输出可能结构完整但事实不准，容易形成“看起来没问题”的假象。</li><li>若上游 transcript / search 错误，下游文档和代码都会被污染。</li></ul></div>
+          <div class="card accent-purple"><h3>流程风险</h3><ul><li>自动化越强，团队越容易跳过细看与质疑。</li><li>如果没有审计、审批和回滚机制，错误传播会更快。</li></ul></div>
+        </div>
+      </div>
+      <div class="footer"><div></div><div class="page">15 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Human Capability</span><h2>更隐蔽的风险：AI 可能提升效率，也可能削弱思考</h2></div></div>
+        <div class="quote-grid">
+          <div class="quote accent-yellow"><p class="big-quote">“AI 第一版写得已经挺不错了，反而让我少了很多自己脑内 debate 的过程。”</p><p class="tiny">这是三场访谈里最值得警惕的信号之一：效率提升不代表判断质量一定同步提升。</p></div>
+          <div class="quote accent-blue"><p class="big-quote">“写得完整”≠“想得透彻”</p><p class="tiny">当团队围绕 AI 初稿快速推进时，最容易被牺牲的是问题定义、假设推演和边界理解。</p></div>
+          <div class="quote accent-green"><p class="big-quote">真正不可外包的，仍然是判断</p><p class="tiny">包括取舍、利益权衡、组织协调、对风险的承担，以及对愿景的表达。</p></div>
+          <div class="quote accent-red"><p class="big-quote">人类思考节点，必须被刻意保留</p><p class="tiny">成熟的 AI 工作流不是“全自动无摩擦”，而是在哪些地方一定要停下来让人类重新判断。</p></div>
+        </div>
+      </div>
+      <div class="footer"><div></div><div class="page">16 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Org Implications</span><h2>组织层含义：岗位、流程和平台能力都得跟着变</h2></div></div>
+        <div class="grid-3">
+          <div class="card accent-yellow"><h3>岗位层</h3><ul><li>PM、工程、设计边界更模糊。</li><li>Builder 能力会成为新竞争力。</li><li>“只会写文档”会越来越不够。</li></ul></div>
+          <div class="card accent-blue"><h3>流程层</h3><ul><li>文档、评审、状态更新都要适配 AI-first 草稿模式。</li><li>需要重新定义 review、审批和责任节点。</li></ul></div>
+          <div class="card accent-green"><h3>平台层</h3><ul><li>需要统一连接器、权限控制、操作审计、模板和技能库。</li><li>否则 AI 能力会碎片化，难以规模化复用。</li></ul></div>
+        </div>
+        <div class="big-quote quote" style="margin-top:0.95rem;">如果组织只采购工具，不重写流程与责任边界，那么 AI 红利会很快触顶。</div>
+      </div>
+      <div class="footer"><div></div><div class="page">17 / 18</div></div>
+    </section>
+
+    <section class="slide">
+      <div class="sheet">
+        <div class="slide-head"><div><span class="kicker">Action Plan</span><h2>建议的下一步：从试点到平台化的推进路线</h2></div></div>
+        <div class="grid-2">
+          <div class="card accent-green">
+            <h3>短期可执行动作</h3>
+            <ul>
+              <li>先选 2-3 个高频低风险场景试点，例如会议总结、work item 提取、双周更新。</li>
+              <li>先解决上下文接入与可追溯引用，而不是盲目追求更大的模型。</li>
+              <li>先建设模板 / skill / prompt asset，而不是让每个人各自摸索。</li>
+            </ul>
+          </div>
+          <div class="card accent-purple">
+            <h3>中期平台化方向</h3>
+            <ul>
+              <li>建设企业上下文层：Teams、Outlook、SharePoint、ADO、Repo、Meeting 统一接入。</li>
+              <li>建设治理护栏：权限分层、审计留痕、人工审批点、回滚机制。</li>
+              <li>建设 builder 型 PM 能力模型：会定义流程、会校准 AI、会判断质量。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="big-quote quote" style="margin-top:0.95rem;">最终 takeaway：<strong>未来不是 PM 被 AI 替代，而是会使用 AI 工作流的人，逐步替代不会使用的人。</strong></div>
+        <div class="small-note">文件路径：`/Users/louise/Desktop/interview-analysis-slides.html`</div>
+      </div>
+      <div class="footer"><div></div><div class="page">18 / 18</div></div>
+    </section>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="prevBtn" aria-label="Previous slide">←</button>
+    <div class="dots" id="dots"></div>
+    <button class="btn" id="nextBtn" aria-label="Next slide">→</button>
+  </div>
+  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const dotsWrap = document.getElementById('dots');
+    const progressBar = document.getElementById('progressBar');
+    let current = 0;
+
+    slides.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.className = 'dot';
+      dot.type = 'button';
+      dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+      dot.addEventListener('click', () => goTo(index));
+      dotsWrap.appendChild(dot);
+    });
+
+    function render() {
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === current);
+      });
+      Array.from(dotsWrap.children).forEach((dot, index) => {
+        dot.classList.toggle('active', index === current);
+      });
+      progressBar.style.width = (((current + 1) / slides.length) * 100) + '%';
+      document.title = `AI 时代 PM 访谈分析报告 · ${current + 1}/${slides.length}`;
+    }
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      render();
+    }
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    document.getElementById('nextBtn').addEventListener('click', next);
+    document.getElementById('prevBtn').addEventListener('click', prev);
+
+    document.addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(event.key)) {
+        event.preventDefault();
+        next();
+      }
+      if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(event.key)) {
+        event.preventDefault();
+        prev();
+      }
+      if (event.key === 'Home') goTo(0);
+      if (event.key === 'End') goTo(slides.length - 1);
+    });
+
+    render();
+  </script>
+</body>
+</html>
