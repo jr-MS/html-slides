@@ -19,13 +19,13 @@
   {
     "id": "github-copilot-report",
     "title": "GitHub Copilot — 2026 Q1 Report",
-    "description": "A neon-styled quarterly report deck covering GitHub Copilot updates, AI-native development patterns, and CLI best practices.",
+    "description": "A shareable HTML report deck published from a local source file.",
     "category": "Report",
     "tags": [
-      "GitHub Copilot",
-      "Quarterly Report",
-      "Q1 2026",
-      "Neon"
+      "Github",
+      "Copilot",
+      "2026",
+      "Q1"
     ],
     "audience": "team",
     "visibility": "public",
