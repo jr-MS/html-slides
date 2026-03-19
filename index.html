@@ -512,17 +512,17 @@
       border-radius:19px;
       font-size:15px;
       color:#fff;
-      background:linear-gradient(135deg, #23475f, #507b8d 48%, #d7b38a 108%);
-      box-shadow:0 20px 34px rgba(35,71,95,.26), 0 0 0 1px rgba(255,255,255,.26) inset;
-      animation:ctaPulse 3.4s ease-in-out infinite;
+      border-color:rgba(255,255,255,.18);
+      background:linear-gradient(135deg, #22445a, #4a7081 54%, #c9a482 110%);
+      box-shadow:0 12px 24px rgba(35,71,95,.16), 0 1px 0 rgba(255,255,255,.22) inset, 0 -10px 18px rgba(255,255,255,.06) inset;
     }
     .btn.cta::before{
       content:"";
       position:absolute;
-      inset:-2px 55% -2px -18%;
-      background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.24), rgba(255,255,255,0));
+      inset:-2px 62% -2px -24%;
+      background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.16), rgba(255,255,255,0));
       transform:skewX(-24deg);
-      animation:ctaSweep 3.8s ease-in-out infinite;
+      animation:ctaSweep 5.8s ease-in-out infinite;
       pointer-events:none;
     }
     .btn.cta span,
@@ -538,7 +538,7 @@
     }
     .btn.cta:hover{
       transform:translateY(-2px) scale(1.02);
-      box-shadow:0 26px 44px rgba(35,71,95,.32), 0 0 0 1px rgba(255,255,255,.3) inset;
+      box-shadow:0 16px 28px rgba(35,71,95,.2), 0 1px 0 rgba(255,255,255,.24) inset, 0 -10px 18px rgba(255,255,255,.08) inset;
     }
     .btn.cta:hover i{transform:translateX(3px)}
     .empty,
@@ -879,13 +879,10 @@
       0%{transform:translate3d(0,0,0) scale(1)}
       100%{transform:translate3d(0,-14px,0) scale(1.04)}
     }
-    @keyframes ctaPulse{
-      0%,100%{box-shadow:0 20px 34px rgba(35,71,95,.26), 0 0 0 1px rgba(255,255,255,.26) inset}
-      50%{box-shadow:0 24px 42px rgba(35,71,95,.34), 0 0 0 1px rgba(255,255,255,.3) inset, 0 0 0 8px rgba(80,123,141,.08)}
-    }
     @keyframes ctaSweep{
       0%{transform:translateX(-120%) skewX(-24deg)}
-      55%,100%{transform:translateX(250%) skewX(-24deg)}
+      42%{transform:translateX(210%) skewX(-24deg)}
+      100%{transform:translateX(210%) skewX(-24deg)}
     }
     @keyframes halo{
       0%{transform:translate3d(0,0,0) scale(1)}
