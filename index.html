@@ -171,7 +171,7 @@
       font-size:17px;
       line-height:1.72;
     }
-    .heroActions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .heroActions{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
     .heroNote{
       margin-top:14px;
       color:var(--muted);
@@ -505,18 +505,387 @@
     .btn:hover{transform:translateY(-1px)}
     .btn.primary{color:#fff;background:linear-gradient(135deg, var(--accent-strong), #496d80);box-shadow:0 16px 28px rgba(35,71,95,.22)}
     .btn.secondary{color:var(--ink);background:rgba(249,248,244,.9);border-color:rgba(36,43,54,.08)}
+    .btn.cta{
+      position:relative;
+      overflow:hidden;
+      padding:16px 22px;
+      border-radius:19px;
+      font-size:15px;
+      color:#fff;
+      background:linear-gradient(135deg, #23475f, #507b8d 48%, #d7b38a 108%);
+      box-shadow:0 20px 34px rgba(35,71,95,.26), 0 0 0 1px rgba(255,255,255,.26) inset;
+      animation:ctaPulse 3.4s ease-in-out infinite;
+    }
+    .btn.cta::before{
+      content:"";
+      position:absolute;
+      inset:-2px 55% -2px -18%;
+      background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.24), rgba(255,255,255,0));
+      transform:skewX(-24deg);
+      animation:ctaSweep 3.8s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .btn.cta span,
+    .btn.cta strong,
+    .btn.cta i{
+      position:relative;
+      z-index:1;
+    }
+    .btn.cta i{
+      font-style:normal;
+      font-size:17px;
+      transition:transform .25s ease;
+    }
+    .btn.cta:hover{
+      transform:translateY(-2px) scale(1.02);
+      box-shadow:0 26px 44px rgba(35,71,95,.32), 0 0 0 1px rgba(255,255,255,.3) inset;
+    }
+    .btn.cta:hover i{transform:translateX(3px)}
     .empty,
     footer{
       border-radius:26px;
       padding:24px;
       color:var(--muted);
-      text-align:center;
-      font-size:15px;
     }
-    footer{margin-top:22px;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+    footer{
+      margin-top:22px;
+      overflow:hidden;
+    }
+    .journeyStrip{
+      position:relative;
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0, 1fr));
+      gap:14px;
+      align-items:center;
+    }
+    .journeyStrip::before{
+      content:"";
+      position:absolute;
+      left:8%;
+      right:8%;
+      top:50%;
+      height:2px;
+      transform:translateY(-50%);
+      background:linear-gradient(90deg, rgba(80,123,141,.14), rgba(215,179,138,.26), rgba(80,123,141,.14));
+      pointer-events:none;
+    }
+    .journeyPulse{
+      position:absolute;
+      left:8%;
+      top:50%;
+      width:14%;
+      height:10px;
+      transform:translateY(-50%);
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(80,123,141,0), rgba(80,123,141,.38), rgba(215,179,138,0));
+      filter:blur(10px);
+      animation:journeyRun 7s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .journeyStep{
+      position:relative;
+      z-index:1;
+      display:flex;
+      justify-content:center;
+    }
+    .journeyCard{
+      width:100%;
+      min-height:104px;
+      border-radius:22px;
+      padding:12px 12px 10px;
+      background:rgba(255,255,255,.7);
+      border:1px solid rgba(28,37,48,.06);
+      box-shadow:var(--shadow-soft);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .journeyLabel{
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#617184;
+    }
+    .journeyScene{
+      position:relative;
+      height:56px;
+      border-radius:16px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.84), rgba(245,243,238,.74));
+    }
+    .ideaGlow,
+    .sceneCard,
+    .sceneBrowser,
+    .sceneCursor,
+    .sceneUpload,
+    .sceneRocket,
+    .sceneSparkle,
+    .miniHuman{
+      position:absolute;
+    }
+    .ideaGlow{
+      left:15px;
+      top:10px;
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(215,179,138,.95), rgba(215,179,138,.26) 48%, rgba(215,179,138,0) 72%);
+      animation:ideaBlink 2.8s ease-in-out infinite;
+    }
+    .ideaGlow::after{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border-radius:50%;
+      background:#fff7ec;
+    }
+    .sceneCard{
+      left:18px;
+      top:14px;
+      width:24px;
+      height:28px;
+      border-radius:8px;
+      background:linear-gradient(180deg, #f8f3eb, #ebddc9);
+      border:1px solid rgba(158,123,90,.18);
+      box-shadow:0 6px 14px rgba(158,123,90,.12);
+      animation:cardBob 3s ease-in-out infinite;
+    }
+    .sceneCard::before,
+    .sceneCard::after{
+      content:"";
+      position:absolute;
+      left:5px;
+      right:5px;
+      border-radius:999px;
+      background:rgba(91,68,48,.18);
+    }
+    .sceneCard::before{top:8px;height:3px}
+    .sceneCard::after{top:15px;height:3px;width:10px}
+    .sceneBrowser{
+      left:14px;
+      top:11px;
+      width:32px;
+      height:34px;
+      border-radius:10px;
+      background:linear-gradient(180deg, #274d63, #507b8d);
+      box-shadow:0 10px 18px rgba(35,71,95,.2);
+    }
+    .sceneBrowser::before{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      top:0;
+      height:9px;
+      background:rgba(255,255,255,.16);
+    }
+    .sceneBrowser::after{
+      content:"";
+      position:absolute;
+      left:6px;
+      right:6px;
+      top:14px;
+      bottom:6px;
+      border-radius:6px;
+      background:rgba(255,255,255,.86);
+    }
+    .sceneCursor{
+      right:12px;
+      bottom:12px;
+      width:0;
+      height:0;
+      border-left:8px solid #23475f;
+      border-top:12px solid transparent;
+      border-bottom:3px solid transparent;
+      transform:rotate(18deg);
+      animation:cursorTap 2.6s ease-in-out infinite;
+    }
+    .sceneCursor::after{
+      content:"";
+      position:absolute;
+      left:-3px;
+      top:-2px;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      border:1px solid rgba(35,71,95,.2);
+      transform:scale(0);
+      animation:cursorRing 2.6s ease-in-out infinite;
+    }
+    .sceneUpload{
+      left:16px;
+      top:14px;
+      width:30px;
+      height:24px;
+      border-radius:12px;
+      background:linear-gradient(180deg, #ebf2f4, #dbe8eb);
+      border:1px solid rgba(80,123,141,.14);
+    }
+    .sceneUpload::before{
+      content:"";
+      position:absolute;
+      left:11px;
+      top:5px;
+      width:8px;
+      height:8px;
+      border-left:3px solid #507b8d;
+      border-top:3px solid #507b8d;
+      transform:rotate(45deg);
+    }
+    .sceneUpload::after{
+      content:"";
+      position:absolute;
+      left:13px;
+      top:11px;
+      width:4px;
+      height:8px;
+      background:#507b8d;
+      border-radius:999px;
+      box-shadow:0 15px 0 10px rgba(80,123,141,.08);
+    }
+    .sceneRocket{
+      left:16px;
+      top:16px;
+      width:24px;
+      height:14px;
+      border-radius:14px 14px 14px 4px;
+      background:linear-gradient(90deg, #23475f, #507b8d);
+      transform:rotate(-12deg);
+      animation:rocketLift 3.1s ease-in-out infinite;
+    }
+    .sceneRocket::before{
+      content:"";
+      position:absolute;
+      right:-7px;
+      top:3px;
+      border-left:8px solid #d7b38a;
+      border-top:4px solid transparent;
+      border-bottom:4px solid transparent;
+    }
+    .sceneRocket::after{
+      content:"";
+      position:absolute;
+      left:-6px;
+      top:4px;
+      width:7px;
+      height:6px;
+      border-radius:999px;
+      background:linear-gradient(180deg, rgba(255,181,95,.88), rgba(255,120,73,.08));
+      filter:blur(.2px);
+    }
+    .sceneSparkle{
+      right:16px;
+      top:12px;
+      width:16px;
+      height:16px;
+      animation:sparkleTwist 2.9s ease-in-out infinite;
+    }
+    .sceneSparkle::before,
+    .sceneSparkle::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(215,179,138,.12), rgba(215,179,138,.95), rgba(215,179,138,.12));
+      border-radius:999px;
+    }
+    .sceneSparkle::after{
+      transform:rotate(90deg);
+    }
+    .miniHuman{
+      left:18px;
+      top:8px;
+      width:34px;
+      height:42px;
+      animation:cheerBounce 3s ease-in-out infinite;
+    }
+    .miniHuman .head{
+      position:absolute;
+      left:10px;
+      top:0;
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:#f1d7bf;
+      box-shadow:0 1px 0 rgba(0,0,0,.04) inset;
+    }
+    .miniHuman .body{
+      position:absolute;
+      left:13px;
+      top:12px;
+      width:8px;
+      height:16px;
+      border-radius:8px;
+      background:linear-gradient(180deg, #23475f, #507b8d);
+    }
+    .miniHuman .arm-left,
+    .miniHuman .arm-right{
+      position:absolute;
+      top:14px;
+      width:13px;
+      height:4px;
+      border-radius:999px;
+      background:#23475f;
+      transform-origin:left center;
+    }
+    .miniHuman .arm-left{
+      left:2px;
+      transform:rotate(-36deg);
+    }
+    .miniHuman .arm-right{
+      right:2px;
+      transform:rotate(36deg);
+      transform-origin:right center;
+    }
+    .miniHuman .leg-left,
+    .miniHuman .leg-right{
+      position:absolute;
+      top:26px;
+      width:4px;
+      height:12px;
+      border-radius:999px;
+      background:#507b8d;
+    }
+    .miniHuman .leg-left{left:12px;transform:rotate(10deg)}
+    .miniHuman .leg-right{left:19px;transform:rotate(-10deg)}
+    .miniHuman .vibe{
+      position:absolute;
+      right:-2px;
+      top:0;
+      font-size:15px;
+      color:#d7b38a;
+      animation:vibePop 2.4s ease-in-out infinite;
+    }
+    .cheerDots{
+      position:absolute;
+      right:10px;
+      bottom:10px;
+      width:24px;
+      height:20px;
+    }
+    .cheerDots span{
+      position:absolute;
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:#d7b38a;
+      animation:dotBurst 2.5s ease-in-out infinite;
+    }
+    .cheerDots span:nth-child(1){left:0;bottom:0}
+    .cheerDots span:nth-child(2){left:10px;top:2px;background:#507b8d;animation-delay:.15s}
+    .cheerDots span:nth-child(3){right:0;bottom:4px;background:#8ab6aa;animation-delay:.3s}
     @keyframes atmosphere{
       0%{transform:translate3d(0,0,0) scale(1)}
       100%{transform:translate3d(0,-14px,0) scale(1.04)}
+    }
+    @keyframes ctaPulse{
+      0%,100%{box-shadow:0 20px 34px rgba(35,71,95,.26), 0 0 0 1px rgba(255,255,255,.26) inset}
+      50%{box-shadow:0 24px 42px rgba(35,71,95,.34), 0 0 0 1px rgba(255,255,255,.3) inset, 0 0 0 8px rgba(80,123,141,.08)}
+    }
+    @keyframes ctaSweep{
+      0%{transform:translateX(-120%) skewX(-24deg)}
+      55%,100%{transform:translateX(250%) skewX(-24deg)}
     }
     @keyframes halo{
       0%{transform:translate3d(0,0,0) scale(1)}
@@ -538,11 +907,56 @@
       0%,100%{transform:translate3d(0,0,0) rotate(6deg)}
       50%{transform:translate3d(-6px,-20px,0) rotate(2deg)}
     }
+    @keyframes journeyRun{
+      0%{left:8%;opacity:.35}
+      18%{opacity:.75}
+      100%{left:78%;opacity:.45}
+    }
+    @keyframes ideaBlink{
+      0%,100%{transform:scale(.9);opacity:.78}
+      50%{transform:scale(1.12);opacity:1}
+    }
+    @keyframes cardBob{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-4px)}
+    }
+    @keyframes cursorTap{
+      0%,100%{transform:translateY(0) rotate(18deg)}
+      40%{transform:translateY(-3px) rotate(12deg)}
+    }
+    @keyframes cursorRing{
+      0%,100%{transform:scale(0);opacity:0}
+      45%{transform:scale(2);opacity:.6}
+      70%{transform:scale(2.8);opacity:0}
+    }
+    @keyframes rocketLift{
+      0%,100%{transform:translate3d(0,0,0) rotate(-12deg)}
+      50%{transform:translate3d(6px,-8px,0) rotate(-8deg)}
+    }
+    @keyframes sparkleTwist{
+      0%,100%{transform:scale(.9) rotate(0deg);opacity:.55}
+      50%{transform:scale(1.1) rotate(24deg);opacity:1}
+    }
+    @keyframes cheerBounce{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-4px)}
+    }
+    @keyframes vibePop{
+      0%,100%{transform:scale(.9);opacity:.62}
+      50%{transform:scale(1.12);opacity:1}
+    }
+    @keyframes dotBurst{
+      0%,100%{transform:translateY(0) scale(.8);opacity:.3}
+      50%{transform:translateY(-5px) scale(1.05);opacity:1}
+    }
     @media (max-width: 980px){
       .hero{grid-template-columns:1fr}
       .toolbar{grid-template-columns:1fr}
       h1{max-width:none}
       .heroStage{min-height:480px}
+      .journeyStrip{grid-template-columns:repeat(5, minmax(108px, 1fr));overflow-x:auto;padding-bottom:6px}
+      .journeyStrip::before{left:12px;right:12px}
+      .journeyPulse{width:90px}
     }
     @media (max-width: 720px){
       .shell{width:min(100vw - 20px, 1200px);padding:16px 0 40px}
@@ -557,6 +971,10 @@
       .deckMock.nocturne{right:0;top:7%}
       .deckMock.botanical{left:8%;bottom:8%}
       .deckMock.signal{right:8%;bottom:2%}
+      .btn.cta{padding:15px 20px;font-size:14px}
+      footer{padding:18px}
+      .journeyCard{min-height:94px}
+      .journeyScene{height:50px}
     }
     @media (prefers-reduced-motion: reduce){
       html{scroll-behavior:auto}
@@ -578,7 +996,7 @@
           <h1>Slides, kept light.</h1>
           <p class="lead">A small collection of browser-native decks and visual experiments.</p>
           <div class="heroActions">
-            <a class="btn primary" href="#collection">Browse decks</a>
+            <a class="btn cta" href="#collection"><span>Browse decks</span><i aria-hidden="true">↗</i></a>
           </div>
         </div>
         <div class="heroNote">Different moods. Same medium.</div>
@@ -675,7 +1093,73 @@
       <div id="empty" class="empty" hidden>No decks match the current filters.</div>
     </section>
 
-    <footer>Browser-native deck collection</footer>
+    <footer aria-label="From idea to published deck">
+      <div class="journeyStrip">
+        <div class="journeyPulse" aria-hidden="true"></div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Idea</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="ideaGlow"></div>
+              <div class="sceneSparkle" style="left:40px; top:18px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Build</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="sceneCard"></div>
+              <div class="sceneCursor"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Local</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="sceneBrowser"></div>
+              <div class="sceneSparkle"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Publish</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="sceneUpload"></div>
+              <div class="sceneRocket"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Yay</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="miniHuman">
+                <span class="head"></span>
+                <span class="body"></span>
+                <span class="arm-left"></span>
+                <span class="arm-right"></span>
+                <span class="leg-left"></span>
+                <span class="leg-right"></span>
+                <span class="vibe">✌</span>
+              </div>
+              <div class="cheerDots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   </main>
 
   <script>
