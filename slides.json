@@ -2,13 +2,11 @@
   {
     "id": "openclaw-team-share-v2",
     "title": "OpenClaw Team Share v2",
-    "description": "The recommended share-ready deck with embedded visuals, designed for direct handoff.",
+    "description": "A presentation deck showing how OpenClaw became a practical system for notes, reminders, and day-to-day workflows.",
     "category": "Showcase",
     "tags": [
       "OpenClaw",
-      "Team Share",
-      "Featured",
-      "Single file"
+      "Workflow"
     ],
     "audience": "team",
     "visibility": "public",
@@ -19,13 +17,11 @@
   {
     "id": "github-copilot-report",
     "title": "GitHub Copilot — 2026 Q1 Report",
-    "description": "A shareable HTML report deck published from a local source file.",
+    "description": "A quarterly update deck summarizing GitHub Copilot releases, AI-native development patterns, and CLI best practices.",
     "category": "Report",
     "tags": [
-      "Github",
       "Copilot",
-      "2026",
-      "Q1"
+      "Report"
     ],
     "audience": "team",
     "visibility": "public",
@@ -35,12 +31,12 @@
   },
   {
     "id": "interview-analysis-slides",
-    "title": "AI 时代 PM 访谈分析报告",
-    "description": "A published HTML deck added from a local source file.",
+    "title": "AI PM Interview Analysis",
+    "description": "An analysis deck that distills interview findings, recurring themes, and product insights for AI-era PM roles.",
     "category": "Showcase",
     "tags": [
-      "AI",
-      "PM"
+      "Interview",
+      "Analysis"
     ],
     "audience": "team",
     "visibility": "public",

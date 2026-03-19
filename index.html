@@ -655,14 +655,14 @@
 
     <section id="collection">
       <div class="toolbar">
-        <input id="search" type="search" placeholder="Search decks, categories, or tags" />
+        <input id="search" type="search" placeholder="Search decks" />
         <select id="categoryFilter">
-          <option value="all">All categories</option>
+          <option value="all">Any category</option>
         </select>
         <select id="audienceFilter">
-          <option value="all">All types</option>
-          <option value="team">Published decks</option>
-          <option value="internal">Source & archive</option>
+          <option value="all">All decks</option>
+          <option value="team">Public</option>
+          <option value="internal">Archive</option>
         </select>
       </div>
 
@@ -686,11 +686,6 @@
     const categoryFilter = document.getElementById('categoryFilter');
     const audienceFilter = document.getElementById('audienceFilter');
 
-    const audienceLabel = {
-      team: 'Published deck',
-      internal: 'Source / archive'
-    };
-
     function norm(value){
       return String(value || '').toLowerCase();
     }
@@ -700,15 +695,13 @@
     }
 
     function card(item){
-      const tags = (item.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
+      const tags = (item.tags || []).slice(0, 2).map(tag => `<span class="tag">${tag}</span>`).join('');
       const featured = item.featured ? '<span class="featuredChip"><span>Featured</span></span>' : '';
       return `
         <article class="card">
           <div class="toprow">
             <div class="kicker">
               <span>${item.category}</span>
-              <span>${audienceLabel[item.audience] || item.audience}</span>
-              <span>${item.visibility === 'public' ? 'Public' : 'Restricted'}</span>
             </div>
             ${featured}
           </div>
@@ -717,7 +710,6 @@
           <div class="tags">${tags}</div>
           <div class="actions">
             <a class="btn primary" href="${item.path}" target="_blank" rel="noopener noreferrer">Open deck</a>
-            <a class="btn secondary" href="${item.path}">Open here</a>
           </div>
         </article>`;
     }
