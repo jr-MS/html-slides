@@ -6,27 +6,26 @@
   <title>HTML Slide Atlas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --bg:#f5f3ee;
-      --bg-soft:#fbfaf7;
-      --panel:rgba(255,255,255,.72);
-      --panel-strong:rgba(255,255,255,.86);
-      --panel-line:rgba(36,43,54,.08);
-      --ink:#18212d;
-      --muted:#647084;
-      --accent:#4d7c8a;
-      --accent-strong:#294d63;
-      --accent-warm:#c8a37b;
-      --shadow:0 24px 80px rgba(31,46,66,.12);
-      --shadow-soft:0 18px 46px rgba(31,46,66,.08);
-      --radius-xl:34px;
-      --radius-lg:24px;
-      --radius-md:18px;
+      --bg:#f6f3ee;
+      --bg-soft:#fcfbf8;
+      --panel:rgba(255,255,255,.78);
+      --panel-line:rgba(28,37,48,.08);
+      --ink:#1a2230;
+      --muted:#6b7688;
+      --accent:#507b8d;
+      --accent-strong:#23475f;
+      --warm:#d7b38a;
+      --shadow:0 26px 80px rgba(33,47,64,.12);
+      --shadow-soft:0 18px 42px rgba(33,47,64,.08);
+      --radius-xl:36px;
+      --radius-lg:28px;
+      --radius-md:20px;
       --serif:"Fraunces", Georgia, serif;
-      --sans:"Instrument Sans", "Avenir Next", "Segoe UI", sans-serif;
-      --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
+      --sans:"Manrope", "Avenir Next", "Segoe UI", sans-serif;
+      --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
@@ -36,10 +35,10 @@
       color:var(--ink);
       font-family:var(--sans);
       background:
-        radial-gradient(1200px 620px at 6% 0%, rgba(201,225,236,.8), transparent 58%),
-        radial-gradient(920px 520px at 100% 10%, rgba(224,213,202,.65), transparent 56%),
-        radial-gradient(760px 420px at 50% 100%, rgba(220,232,226,.8), transparent 62%),
-        linear-gradient(180deg, #fcfbf8, var(--bg));
+        radial-gradient(1200px 620px at 8% 0%, rgba(206,226,234,.86), transparent 60%),
+        radial-gradient(960px 560px at 100% 6%, rgba(231,218,204,.72), transparent 56%),
+        radial-gradient(780px 460px at 56% 100%, rgba(224,234,230,.8), transparent 60%),
+        linear-gradient(180deg, var(--bg-soft), var(--bg));
       position:relative;
       overflow-x:hidden;
     }
@@ -53,16 +52,16 @@
     }
     body::before{
       background:
-        radial-gradient(34rem 24rem at 14% 14%, rgba(114,166,183,.16), transparent 60%),
-        radial-gradient(28rem 20rem at 85% 18%, rgba(200,163,123,.16), transparent 58%),
-        radial-gradient(26rem 22rem at 72% 82%, rgba(139,176,165,.12), transparent 56%);
+        radial-gradient(34rem 24rem at 12% 18%, rgba(101,155,175,.14), transparent 58%),
+        radial-gradient(26rem 20rem at 84% 18%, rgba(217,179,138,.16), transparent 56%),
+        radial-gradient(22rem 18rem at 76% 82%, rgba(111,155,139,.12), transparent 54%);
       filter:blur(10px);
-      animation:drift 18s ease-in-out infinite alternate;
+      animation:atmosphere 18s ease-in-out infinite alternate;
     }
     body::after{
       background-image:var(--noise);
-      opacity:.5;
       mix-blend-mode:multiply;
+      opacity:.45;
     }
     .shell{
       position:relative;
@@ -77,36 +76,33 @@
       align-items:center;
       gap:16px;
       margin-bottom:18px;
-      padding:10px 6px;
-      color:var(--muted);
-      font-size:14px;
+      padding:6px 4px;
     }
     .brandmark,
-    .mastnote{
+    .mastmeta{
       display:inline-flex;
       align-items:center;
       gap:10px;
       padding:10px 14px;
       border-radius:999px;
-      background:rgba(255,255,255,.56);
+      background:rgba(255,255,255,.54);
       border:1px solid rgba(255,255,255,.72);
       box-shadow:var(--shadow-soft);
       backdrop-filter:blur(16px);
+      color:var(--muted);
+      font-size:13px;
     }
-    .brandmark strong{
-      color:var(--ink);
-      letter-spacing:.02em;
-    }
+    .brandmark strong{color:var(--ink);letter-spacing:.02em}
     .dot{
       width:11px;
       height:11px;
       border-radius:50%;
-      background:linear-gradient(135deg, var(--accent), #8fc7d2);
-      box-shadow:0 0 0 8px rgba(77,124,138,.1);
+      background:linear-gradient(135deg, var(--accent), #91cad2);
+      box-shadow:0 0 0 8px rgba(80,123,141,.1);
     }
     .hero{
       display:grid;
-      grid-template-columns:minmax(0, 1.08fr) minmax(320px, .92fr);
+      grid-template-columns:minmax(0,.95fr) minmax(320px,1.05fr);
       gap:22px;
       align-items:stretch;
       margin-bottom:22px;
@@ -118,7 +114,7 @@
     .empty,
     footer{
       border:1px solid var(--panel-line);
-      background:linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.66));
+      background:linear-gradient(180deg, rgba(255,255,255,.84), rgba(255,255,255,.68));
       box-shadow:var(--shadow);
       backdrop-filter:blur(18px);
     }
@@ -127,169 +123,274 @@
       overflow:hidden;
       border-radius:var(--radius-xl);
       padding:34px;
-      isolation:isolate;
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
     }
     .heroCopy::before{
       content:"";
       position:absolute;
-      inset:auto 12% -18% auto;
+      inset:auto auto -18% 58%;
       width:280px;
       height:280px;
       border-radius:50%;
-      background:radial-gradient(circle, rgba(77,124,138,.18), transparent 70%);
-      filter:blur(4px);
-      z-index:-1;
+      background:radial-gradient(circle, rgba(80,123,141,.16), transparent 70%);
+      filter:blur(5px);
+      pointer-events:none;
     }
     .eyebrow{
       display:inline-flex;
       align-items:center;
       gap:10px;
+      width:max-content;
       padding:9px 14px;
       border-radius:999px;
-      border:1px solid rgba(77,124,138,.12);
-      background:rgba(77,124,138,.08);
+      border:1px solid rgba(80,123,141,.12);
+      background:rgba(80,123,141,.08);
       color:var(--accent-strong);
-      font-size:13px;
+      font-size:12px;
       font-weight:700;
-      letter-spacing:.05em;
+      letter-spacing:.08em;
       text-transform:uppercase;
     }
     h1{
       margin:18px 0 12px;
       font-family:var(--serif);
-      font-size:clamp(3.2rem, 7vw, 5.6rem);
+      font-size:clamp(3.2rem, 7vw, 5.8rem);
       font-weight:500;
-      line-height:.94;
-      letter-spacing:-.05em;
-      max-width:10ch;
+      line-height:.92;
+      letter-spacing:-.06em;
+      max-width:9ch;
     }
     .lead{
       margin:0;
-      max-width:38rem;
+      max-width:30rem;
       color:var(--muted);
-      font-size:18px;
+      font-size:17px;
       line-height:1.72;
     }
-    .heroActions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-top:24px;
-    }
-    .heroMeta{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0, 1fr));
-      gap:12px;
-      margin-top:26px;
-    }
-    .metaPill{
-      padding:16px 16px 15px;
-      border-radius:20px;
-      background:rgba(255,255,255,.56);
-      border:1px solid rgba(36,43,54,.06);
-      box-shadow:var(--shadow-soft);
-    }
-    .metaLabel{
-      display:block;
-      margin-bottom:8px;
+    .heroActions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .heroNote{
+      margin-top:14px;
       color:var(--muted);
-      font-size:12px;
-      letter-spacing:.08em;
+      font-size:13px;
+      letter-spacing:.05em;
       text-transform:uppercase;
-    }
-    .metaValue{
-      font-size:15px;
-      font-weight:700;
-      line-height:1.45;
     }
     .heroStage{
       position:relative;
       overflow:hidden;
       border-radius:var(--radius-xl);
-      padding:30px;
-      min-height:100%;
-      display:grid;
-      align-content:end;
+      padding:28px;
+      min-height:540px;
       background:
-        linear-gradient(160deg, rgba(255,255,255,.92), rgba(248,246,241,.7)),
-        radial-gradient(24rem 24rem at 20% 18%, rgba(143,199,210,.18), transparent 58%),
-        radial-gradient(18rem 18rem at 86% 10%, rgba(200,163,123,.16), transparent 52%);
+        linear-gradient(160deg, rgba(255,255,255,.9), rgba(247,244,238,.72)),
+        radial-gradient(24rem 24rem at 18% 12%, rgba(145,202,210,.18), transparent 56%),
+        radial-gradient(20rem 20rem at 85% 8%, rgba(215,179,138,.18), transparent 52%);
+      isolation:isolate;
     }
     .heroStage::before{
       content:"";
       position:absolute;
       inset:14px;
-      border-radius:28px;
+      border-radius:30px;
       background:
-        linear-gradient(rgba(87,104,123,.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(87,104,123,.08) 1px, transparent 1px);
-      background-size:28px 28px;
-      mask-image:linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.12));
+        linear-gradient(rgba(102,118,136,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(102,118,136,.08) 1px, transparent 1px);
+      background-size:30px 30px;
+      mask-image:linear-gradient(180deg, rgba(0,0,0,.48), rgba(0,0,0,.04));
       pointer-events:none;
     }
-    .stageOrbit,
-    .stageCard,
-    .stagePanel{
+    .heroStage::after{
+      content:"";
+      position:absolute;
+      inset:auto 10% -12% auto;
+      width:280px;
+      height:280px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(35,71,95,.14), transparent 70%);
+      filter:blur(14px);
+      animation:halo 10s ease-in-out infinite alternate;
+      pointer-events:none;
+    }
+    .stageOrbit{
+      position:relative;
+      min-height:100%;
+    }
+    .deckMock{
+      position:absolute;
+      width:clamp(220px, 34vw, 320px);
+      border-radius:28px;
+      overflow:hidden;
+      border:1px solid rgba(20,28,38,.08);
+      box-shadow:0 30px 60px rgba(29,43,60,.14);
+      transform-origin:center;
+    }
+    .deckMock::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(255,255,255,.18), transparent 28%, transparent 72%, rgba(255,255,255,.1));
+      pointer-events:none;
+    }
+    .deckChrome{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:12px 14px 0;
       position:relative;
       z-index:1;
     }
-    .stageOrbit{
-      min-height:360px;
-      display:grid;
-      place-items:center;
+    .deckChrome span{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:rgba(255,255,255,.7);
     }
-    .stageCard{
-      position:absolute;
-      width:min(320px, 78%);
-      padding:18px 20px;
-      border-radius:26px;
-      border:1px solid rgba(36,43,54,.06);
-      background:rgba(255,255,255,.74);
-      box-shadow:var(--shadow-soft);
-      backdrop-filter:blur(14px);
-    }
-    .stageCard:nth-child(1){transform:translate(-36px, -18px) rotate(-8deg); animation:floatA 8s ease-in-out infinite;}
-    .stageCard:nth-child(2){transform:translate(38px, 12px) rotate(7deg); animation:floatB 9s ease-in-out infinite;}
-    .stageCard:nth-child(3){transform:translate(6px, 92px) rotate(-2deg); animation:floatC 7.5s ease-in-out infinite;}
-    .stageCard strong,
-    .stagePanel strong{
-      display:block;
-      margin-bottom:6px;
-      color:var(--ink);
-      font-size:15px;
-    }
-    .stageCard span,
-    .stagePanel span{
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.55;
-    }
-    .stagePanel{
-      margin-top:auto;
-      padding:18px 20px;
-      border-radius:24px;
-      background:rgba(24,33,45,.95);
-      color:#f7f8fb;
-      box-shadow:0 28px 64px rgba(24,33,45,.18);
-    }
-    .stagePanel strong{color:#fff}
-    .stageTags{
+    .deckCanvas{
+      position:relative;
+      padding:16px;
+      min-height:210px;
       display:flex;
-      flex-wrap:wrap;
-      gap:9px;
-      margin-top:14px;
+      flex-direction:column;
+      gap:12px;
     }
-    .stageTags span{
+    .deckLabel{
       display:inline-flex;
-      padding:8px 12px;
+      width:max-content;
+      padding:7px 10px;
       border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.1);
-      color:#dbe4ef;
-      font-size:12px;
-      letter-spacing:.04em;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.08em;
       text-transform:uppercase;
     }
+    .deckTitle{
+      margin:0;
+      font-family:var(--serif);
+      font-size:27px;
+      line-height:.95;
+      letter-spacing:-.05em;
+    }
+    .deckText{
+      margin:0;
+      font-size:12px;
+      line-height:1.55;
+      max-width:18rem;
+      opacity:.84;
+    }
+    .deckRibbon,
+    .deckBars,
+    .deckCluster,
+    .deckFooter,
+    .deckImage,
+    .deckPanel{
+      position:relative;
+      z-index:1;
+    }
+    .deckRibbon{
+      width:78%;
+      height:14px;
+      border-radius:999px;
+      opacity:.92;
+    }
+    .deckBars{display:grid;gap:8px}
+    .deckBars span{
+      display:block;
+      height:10px;
+      border-radius:999px;
+      opacity:.88;
+    }
+    .deckCluster{display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin-top:auto}
+    .deckPanel{
+      min-height:72px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .deckImage{
+      min-height:96px;
+      border-radius:22px;
+      overflow:hidden;
+    }
+    .deckFooter{display:flex;gap:8px;flex-wrap:wrap}
+    .deckFooter span{
+      display:inline-flex;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .deckMock.editorial{
+      left:6%;
+      top:6%;
+      transform:rotate(-8deg);
+      animation:deckFloatA 8.6s ease-in-out infinite;
+      background:linear-gradient(180deg, #fffdf8, #f7f0e7);
+      color:#2f251d;
+    }
+    .deckMock.editorial .deckLabel,
+    .deckMock.editorial .deckFooter span{background:rgba(107,77,54,.08);color:#6b4d36}
+    .deckMock.editorial .deckRibbon{background:linear-gradient(90deg, #ddb68f, #f2dfcb)}
+    .deckMock.editorial .deckBars span:nth-child(1){width:74%;background:rgba(81,62,47,.12)}
+    .deckMock.editorial .deckBars span:nth-child(2){width:88%;background:rgba(81,62,47,.18)}
+    .deckMock.editorial .deckBars span:nth-child(3){width:58%;background:rgba(81,62,47,.12)}
+    .deckMock.editorial .deckPanel{background:rgba(120,88,58,.08);border-color:rgba(120,88,58,.08)}
+    .deckMock.editorial .deckImage{background:linear-gradient(145deg, rgba(232,200,168,.75), rgba(255,247,235,.95))}
+    .deckMock.editorial .deckImage::after{content:"";position:absolute;inset:16px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.15));box-shadow:inset 0 0 0 1px rgba(110,85,62,.08)}
+    .deckMock.nocturne{
+      right:2%;
+      top:2%;
+      transform:rotate(9deg);
+      animation:deckFloatB 9.4s ease-in-out infinite;
+      background:radial-gradient(circle at 15% 10%, rgba(117,139,255,.35), transparent 24%), linear-gradient(180deg, #121726, #1f1833 58%, #241e42);
+      color:#eef1ff;
+    }
+    .deckMock.nocturne .deckLabel,
+    .deckMock.nocturne .deckFooter span{background:rgba(255,255,255,.08);color:#d8dcff}
+    .deckMock.nocturne .deckRibbon{background:linear-gradient(90deg, #86c7ff, #a991ff)}
+    .deckMock.nocturne .deckBars span:nth-child(1){width:70%;background:rgba(255,255,255,.18)}
+    .deckMock.nocturne .deckBars span:nth-child(2){width:90%;background:rgba(135,199,255,.38)}
+    .deckMock.nocturne .deckBars span:nth-child(3){width:55%;background:rgba(255,255,255,.12)}
+    .deckMock.nocturne .deckPanel{background:linear-gradient(160deg, rgba(139,117,255,.22), rgba(134,199,255,.08));border-color:rgba(255,255,255,.08)}
+    .deckMock.nocturne .deckImage{background:linear-gradient(145deg, rgba(130,173,255,.7), rgba(72,54,149,.35))}
+    .deckMock.nocturne .deckImage::after{content:"";position:absolute;inset:10px;border-radius:18px;background:radial-gradient(circle at 30% 20%, rgba(255,255,255,.6), transparent 18%), radial-gradient(circle at 65% 60%, rgba(255,255,255,.18), transparent 24%), linear-gradient(180deg, rgba(255,255,255,.08), transparent)}
+    .deckMock.botanical{
+      left:18%;
+      bottom:4%;
+      transform:rotate(-2deg);
+      animation:deckFloatC 7.8s ease-in-out infinite;
+      background:linear-gradient(180deg, #f5f2ea, #edf3ee 52%, #eef6f0);
+      color:#203126;
+    }
+    .deckMock.botanical .deckLabel,
+    .deckMock.botanical .deckFooter span{background:rgba(51,107,82,.08);color:#336b52}
+    .deckMock.botanical .deckRibbon{background:linear-gradient(90deg, #9bc4b4, #d8e8df)}
+    .deckMock.botanical .deckBars span:nth-child(1){width:72%;background:rgba(51,107,82,.12)}
+    .deckMock.botanical .deckBars span:nth-child(2){width:86%;background:rgba(51,107,82,.18)}
+    .deckMock.botanical .deckBars span:nth-child(3){width:48%;background:rgba(51,107,82,.12)}
+    .deckMock.botanical .deckPanel{background:rgba(111,155,139,.12);border-color:rgba(51,107,82,.08)}
+    .deckMock.botanical .deckImage{background:linear-gradient(145deg, rgba(180,214,198,.72), rgba(243,249,245,.92))}
+    .deckMock.botanical .deckImage::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 72% 18%, rgba(255,255,255,.7), transparent 24%), linear-gradient(135deg, transparent 14%, rgba(73,122,94,.18) 14% 18%, transparent 18% 100%), linear-gradient(40deg, transparent 44%, rgba(73,122,94,.14) 44% 48%, transparent 48% 100%)}
+    .deckMock.signal{
+      right:14%;
+      bottom:12%;
+      transform:rotate(6deg);
+      animation:deckFloatD 8.8s ease-in-out infinite;
+      background:linear-gradient(180deg, #fffaf1, #f8f6ff 54%, #eef2ff);
+      color:#23263b;
+    }
+    .deckMock.signal .deckLabel,
+    .deckMock.signal .deckFooter span{background:rgba(103,96,182,.08);color:#6760b6}
+    .deckMock.signal .deckRibbon{background:linear-gradient(90deg, #8ec5ff, #d4b2ff)}
+    .deckMock.signal .deckBars span:nth-child(1){width:78%;background:rgba(103,96,182,.12)}
+    .deckMock.signal .deckBars span:nth-child(2){width:92%;background:rgba(103,96,182,.2)}
+    .deckMock.signal .deckBars span:nth-child(3){width:62%;background:rgba(103,96,182,.12)}
+    .deckMock.signal .deckPanel{background:linear-gradient(160deg, rgba(180,191,255,.18), rgba(244,229,255,.46));border-color:rgba(103,96,182,.08)}
+    .deckMock.signal .deckImage{background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(230,236,255,.92))}
+    .deckMock.signal .deckImage::after{content:"";position:absolute;inset:14px;border-radius:14px;background:linear-gradient(180deg, rgba(142,197,255,.36), transparent 54%), repeating-linear-gradient(90deg, rgba(103,96,182,.14) 0 14px, transparent 14px 28px)}
     .toolbar{
       display:grid;
       grid-template-columns:1.35fr .72fr .72fr;
@@ -306,7 +407,7 @@
       padding:15px 16px;
       font:inherit;
       color:var(--ink);
-      background:rgba(247,247,244,.82);
+      background:rgba(247,247,244,.84);
       border:1px solid rgba(36,43,54,.06);
       box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
     }
@@ -326,7 +427,6 @@
       font-weight:500;
       letter-spacing:-.03em;
     }
-    .sectionTitle p,
     .count{
       margin:0;
       color:var(--muted);
@@ -349,21 +449,12 @@
     .card:hover{
       transform:translateY(-6px);
       box-shadow:0 30px 70px rgba(31,46,66,.16);
-      border-color:rgba(77,124,138,.18);
+      border-color:rgba(80,123,141,.18);
     }
-    .toprow{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
-    }
+    .toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
     .kicker,
     .featuredChip,
-    .tag{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
+    .tag{display:flex;flex-wrap:wrap;gap:8px}
     .kicker span,
     .featuredChip span,
     .tag{
@@ -378,9 +469,9 @@
       color:#566272;
     }
     .featuredChip span{
-      background:rgba(77,124,138,.1);
+      background:rgba(80,123,141,.1);
       color:var(--accent-strong);
-      border-color:rgba(77,124,138,.14);
+      border-color:rgba(80,123,141,.14);
       font-weight:700;
     }
     .title{
@@ -392,21 +483,11 @@
     .desc{
       color:var(--muted);
       font-size:15px;
-      line-height:1.75;
-      min-height:78px;
+      line-height:1.72;
+      min-height:72px;
     }
-    .tags{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-    .actions{
-      margin-top:auto;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-    }
+    .tags{display:flex;flex-wrap:wrap;gap:8px}
+    .actions{margin-top:auto;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
     .btn{
       display:inline-flex;
       align-items:center;
@@ -421,66 +502,64 @@
       transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease;
     }
     .btn:hover{transform:translateY(-1px)}
-    .btn.primary{
-      color:#fff;
-      background:linear-gradient(135deg, var(--accent-strong), #496d80);
-      box-shadow:0 16px 28px rgba(41,77,99,.22);
-    }
-    .btn.secondary{
-      color:var(--ink);
-      background:rgba(249,248,244,.9);
-      border-color:rgba(36,43,54,.08);
-    }
+    .btn.primary{color:#fff;background:linear-gradient(135deg, var(--accent-strong), #496d80);box-shadow:0 16px 28px rgba(35,71,95,.22)}
+    .btn.secondary{color:var(--ink);background:rgba(249,248,244,.9);border-color:rgba(36,43,54,.08)}
     .empty,
     footer{
       border-radius:26px;
-      padding:26px;
+      padding:24px;
       color:var(--muted);
       text-align:center;
       font-size:15px;
     }
-    footer{
-      margin-top:22px;
-      padding:18px 22px;
-      font-size:13px;
-      line-height:1.7;
-    }
-    @keyframes drift{
+    footer{margin-top:22px;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+    @keyframes atmosphere{
       0%{transform:translate3d(0,0,0) scale(1)}
       100%{transform:translate3d(0,-14px,0) scale(1.04)}
     }
-    @keyframes floatA{
-      0%,100%{transform:translate(-36px,-18px) rotate(-8deg)}
-      50%{transform:translate(-28px,-32px) rotate(-5deg)}
+    @keyframes halo{
+      0%{transform:translate3d(0,0,0) scale(1)}
+      100%{transform:translate3d(-10px,-10px,0) scale(1.1)}
     }
-    @keyframes floatB{
-      0%,100%{transform:translate(38px,12px) rotate(7deg)}
-      50%{transform:translate(30px,-4px) rotate(10deg)}
+    @keyframes deckFloatA{
+      0%,100%{transform:translate3d(0,0,0) rotate(-8deg)}
+      50%{transform:translate3d(6px,-18px,0) rotate(-4deg)}
     }
-    @keyframes floatC{
-      0%,100%{transform:translate(6px,92px) rotate(-2deg)}
-      50%{transform:translate(12px,78px) rotate(2deg)}
+    @keyframes deckFloatB{
+      0%,100%{transform:translate3d(0,0,0) rotate(9deg)}
+      50%{transform:translate3d(-8px,-24px,0) rotate(12deg)}
+    }
+    @keyframes deckFloatC{
+      0%,100%{transform:translate3d(0,0,0) rotate(-2deg)}
+      50%{transform:translate3d(10px,-16px,0) rotate(2deg)}
+    }
+    @keyframes deckFloatD{
+      0%,100%{transform:translate3d(0,0,0) rotate(6deg)}
+      50%{transform:translate3d(-6px,-20px,0) rotate(2deg)}
     }
     @media (max-width: 980px){
       .hero{grid-template-columns:1fr}
-      .heroMeta{grid-template-columns:1fr}
       .toolbar{grid-template-columns:1fr}
       h1{max-width:none}
-      .sectionTitle{flex-direction:column;align-items:flex-start}
+      .heroStage{min-height:480px}
     }
     @media (max-width: 720px){
-      .shell{width:min(100vw - 20px, 1200px); padding:16px 0 40px}
-      .masthead{padding:2px 2px 0; margin-bottom:14px}
+      .shell{width:min(100vw - 20px, 1200px);padding:16px 0 40px}
+      .masthead{padding:2px 2px 0;margin-bottom:14px}
       .heroCopy,.heroStage,.toolbar,.card,.empty,footer{border-radius:24px}
       .heroCopy,.heroStage{padding:22px}
       .toolbar{padding:10px}
       .title{font-size:26px}
       .desc{min-height:auto}
-      .stageOrbit{min-height:300px}
+      .deckMock{width:min(240px, 70vw)}
+      .deckMock.editorial{left:0;top:0}
+      .deckMock.nocturne{right:0;top:7%}
+      .deckMock.botanical{left:8%;bottom:8%}
+      .deckMock.signal{right:8%;bottom:2%}
     }
     @media (prefers-reduced-motion: reduce){
       html{scroll-behavior:auto}
-      *,*::before,*::after{animation:none !important; transition:none !important}
+      *,*::before,*::after{animation:none !important;transition:none !important}
     }
   </style>
 </head>
@@ -488,57 +567,87 @@
   <main class="shell">
     <div class="masthead">
       <div class="brandmark"><span class="dot"></span><strong>HTML Slide Atlas</strong></div>
-      <div class="mastnote">A curated browser-first collection for sharing decks and interface experiments.</div>
+      <div class="mastmeta">Public collection</div>
     </div>
 
     <section class="hero">
       <div class="heroCopy">
-        <span class="eyebrow">Curated HTML decks</span>
-        <h1>HTML Slide Atlas</h1>
-        <p class="lead">A quieter, lighter archive for shareable HTML slides. It gathers polished decks alongside a few personal experiments in motion, layout, and browser-native storytelling.</p>
-        <div class="heroActions">
-          <a class="btn primary" href="#collection">Browse the collection</a>
-          <a class="btn secondary" href="slides/blank-slide-template.html">Open the template</a>
-        </div>
-        <div class="heroMeta">
-          <div class="metaPill">
-            <span class="metaLabel">Tone</span>
-            <span class="metaValue">Light, editorial, and quietly futuristic.</span>
-          </div>
-          <div class="metaPill">
-            <span class="metaLabel">What lives here</span>
-            <span class="metaValue">Presentation-ready decks, source variants, and small layout studies.</span>
-          </div>
-          <div class="metaPill">
-            <span class="metaLabel">How to browse</span>
-            <span class="metaValue">Search by title, category, or tags — then open any deck directly in the browser.</span>
+        <div>
+          <span class="eyebrow">HTML decks</span>
+          <h1>Slides, kept light.</h1>
+          <p class="lead">A small collection of browser-native decks and visual experiments.</p>
+          <div class="heroActions">
+            <a class="btn primary" href="#collection">Browse decks</a>
           </div>
         </div>
+        <div class="heroNote">Different moods. Same medium.</div>
       </div>
 
-      <div class="heroStage">
+      <div class="heroStage" aria-label="Floating slide previews">
         <div class="stageOrbit" aria-hidden="true">
-          <div class="stageCard">
-            <strong>Share-ready decks</strong>
-            <span>Open a polished deck in one click and pass the link around without extra packaging.</span>
-          </div>
-          <div class="stageCard">
-            <strong>Source variants</strong>
-            <span>Keep editable or archival versions nearby without letting the homepage feel cluttered.</span>
-          </div>
-          <div class="stageCard">
-            <strong>Motion studies</strong>
-            <span>Small HTML experiments where typography, atmosphere, and interaction are part of the story.</span>
-          </div>
-        </div>
-        <div class="stagePanel">
-          <strong>Designed as a small atlas of decks</strong>
-          <span>Not a generic homepage. More like a calm display shelf for browser-native presentations and personal HTML explorations.</span>
-          <div class="stageTags">
-            <span>Collection</span>
-            <span>Motion</span>
-            <span>Editorial layout</span>
-          </div>
+          <article class="deckMock editorial">
+            <div class="deckChrome"><span></span><span></span><span></span></div>
+            <div class="deckCanvas">
+              <span class="deckLabel">Editorial</span>
+              <h2 class="deckTitle">Quiet launch.</h2>
+              <p class="deckText">Warm paper, soft pacing, a deck that feels almost printed.</p>
+              <div class="deckRibbon"></div>
+              <div class="deckBars"><span></span><span></span><span></span></div>
+              <div class="deckCluster">
+                <div class="deckImage"></div>
+                <div class="deckPanel"></div>
+              </div>
+              <div class="deckFooter"><span>Warm</span><span>Story</span></div>
+            </div>
+          </article>
+
+          <article class="deckMock nocturne">
+            <div class="deckChrome"><span></span><span></span><span></span></div>
+            <div class="deckCanvas">
+              <span class="deckLabel">Nocturne</span>
+              <h2 class="deckTitle">Signal deck.</h2>
+              <p class="deckText">Neon contrast, dark canvas, motion-first presentation energy.</p>
+              <div class="deckRibbon"></div>
+              <div class="deckBars"><span></span><span></span><span></span></div>
+              <div class="deckCluster">
+                <div class="deckPanel"></div>
+                <div class="deckImage"></div>
+              </div>
+              <div class="deckFooter"><span>Night</span><span>Motion</span></div>
+            </div>
+          </article>
+
+          <article class="deckMock botanical">
+            <div class="deckChrome"><span></span><span></span><span></span></div>
+            <div class="deckCanvas">
+              <span class="deckLabel">Organic</span>
+              <h2 class="deckTitle">Field notes.</h2>
+              <p class="deckText">Airy surfaces, muted greens, and room for images to breathe.</p>
+              <div class="deckRibbon"></div>
+              <div class="deckBars"><span></span><span></span><span></span></div>
+              <div class="deckCluster">
+                <div class="deckImage"></div>
+                <div class="deckPanel"></div>
+              </div>
+              <div class="deckFooter"><span>Soft</span><span>Image-led</span></div>
+            </div>
+          </article>
+
+          <article class="deckMock signal">
+            <div class="deckChrome"><span></span><span></span><span></span></div>
+            <div class="deckCanvas">
+              <span class="deckLabel">Signal</span>
+              <h2 class="deckTitle">Weekly pulse.</h2>
+              <p class="deckText">Structured cards, data hints, and a lighter analytical rhythm.</p>
+              <div class="deckRibbon"></div>
+              <div class="deckBars"><span></span><span></span><span></span></div>
+              <div class="deckCluster">
+                <div class="deckPanel"></div>
+                <div class="deckImage"></div>
+              </div>
+              <div class="deckFooter"><span>Data</span><span>Feed</span></div>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -557,18 +666,15 @@
       </div>
 
       <div class="sectionTitle">
-        <div>
-          <h2>Collection</h2>
-          <p>Open a deck in a new tab, or stay in the same page if you want a direct handoff flow.</p>
-        </div>
+        <h2>Collection</h2>
         <span id="count" class="count"></span>
       </div>
 
       <div id="grid" class="grid"></div>
-      <div id="empty" class="empty" hidden>No decks match the current filters. Try another keyword or a broader category.</div>
+      <div id="empty" class="empty" hidden>No decks match the current filters.</div>
     </section>
 
-    <footer>Built as a living collection of shareable HTML slides and personal browser experiments.</footer>
+    <footer>Browser-native deck collection</footer>
   </main>
 
   <script>
@@ -589,7 +695,7 @@
     }
 
     function resultLabel(total){
-      return total === 1 ? '1 result' : `${total} results`;
+      return total === 1 ? '1 deck' : `${total} decks`;
     }
 
     function card(item){

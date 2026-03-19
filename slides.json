@@ -48,22 +48,5 @@
     "path": "slides/openclaw-wood-original.html",
     "featured": false,
     "updated": "2026-03-17"
-  },
-  {
-    "id": "blank-slide-template",
-    "title": "Blank Slide Template",
-    "description": "A starter slide with title, subtitle, content, and footer placeholders for new HTML decks.",
-    "category": "Template",
-    "tags": [
-      "Blank",
-      "Starter",
-      "Template",
-      "Reusable"
-    ],
-    "audience": "internal",
-    "visibility": "public",
-    "path": "slides/blank-slide-template.html",
-    "featured": false,
-    "updated": "2026-03-18"
   }
 ]
