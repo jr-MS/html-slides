@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Copilot — 2026 Q1 Report</title>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400;500;600;700&f[]=satoshi@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ===========================================
+   CSS CUSTOM PROPERTIES — NEON CYBER THEME
+   =========================================== */
+:root {
+    --bg-primary: #06080e;
+    --bg-secondary: #0c1020;
+    --bg-card: rgba(12, 16, 32, 0.7);
+    --text-primary: #e4e8f7;
+    --text-secondary: #7b82a0;
+    --accent-cyan: #00ffcc;
+    --accent-magenta: #ff00aa;
+    --accent-blue: #3b82f6;
+    --accent-purple: #a855f7;
+    --accent-orange: #f59e0b;
+    --accent-green: #22c55e;
+    --accent-pink: #ec4899;
+    --glow-cyan: rgba(0, 255, 204, 0.15);
+    --glow-magenta: rgba(255, 0, 170, 0.1);
+    --border: rgba(0, 255, 204, 0.1);
+    --border-hover: rgba(0, 255, 204, 0.3);
+    --font-display: 'Clash Display', sans-serif;
+    --font-body: 'Satoshi', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --title-size: clamp(1.8rem, 5vw, 4rem);
+    --h2-size: clamp(1.25rem, 3.5vw, 2.2rem);
+    --h3-size: clamp(0.8rem, 1.6vw, 1.05rem);
+    --body-size: clamp(0.68rem, 1.2vw, 0.9rem);
+    --small-size: clamp(0.58rem, 0.9vw, 0.75rem);
+    --code-size: clamp(0.52rem, 0.8vw, 0.68rem);
+    --slide-padding: clamp(1.5rem, 4vw, 4rem);
+    --content-gap: clamp(0.5rem, 1.5vw, 1.5rem);
+    --card-padding: clamp(0.5rem, 1.2vw, 1rem);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration: 0.6s;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); }
+
+/* ===========================================
+   SLIDE — exact viewport height, no scroll
+   =========================================== */
+.slide {
+    width: 100vw; height: 100vh; height: 100dvh;
+    overflow: hidden; scroll-snap-align: start;
+    display: flex; flex-direction: column; position: relative;
+}
+.slide-content {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    max-height: 100%; overflow: hidden; padding: var(--slide-padding);
+    position: relative; z-index: 2;
+}
+
+/* Grid background */
+.slide::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(0,255,204,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,204,0.025) 1px, transparent 1px);
+    background-size: clamp(30px, 5vw, 60px) clamp(30px, 5vw, 60px);
+    pointer-events: none; z-index: 0;
+}
+
+/* ===========================================
+   TYPOGRAPHY
+   =========================================== */
+h1 { font-family: var(--font-display); font-size: var(--title-size); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; }
+h2 { font-family: var(--font-display); font-size: var(--h2-size); font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: clamp(0.25rem, 0.8vw, 0.6rem); }
+h3 { font-family: var(--font-display); font-size: var(--h3-size); font-weight: 600; line-height: 1.2; }
+p, li { font-size: var(--body-size); line-height: 1.45; color: var(--text-secondary); }
+strong { color: var(--text-primary); font-weight: 600; }
+a { color: var(--accent-cyan); text-decoration: none; }
+code { font-family: var(--font-mono); font-size: var(--code-size); background: rgba(0,255,204,0.07); border: 1px solid rgba(0,255,204,0.12); padding: 1px 4px; border-radius: 3px; color: var(--accent-cyan); }
+pre { background: rgba(6,8,14,0.8); border: 1px solid var(--border); border-radius: clamp(4px,0.5vw,8px); padding: clamp(5px,0.8vw,12px) clamp(6px,1vw,14px); font-family: var(--font-mono); font-size: var(--code-size); line-height: 1.5; overflow: hidden; }
+pre code { background: none; border: none; padding: 0; }
+ul, ol { margin-left: 1em; }
+li { margin-bottom: clamp(0.05rem, 0.3vw, 0.2rem); }
+
+/* ===========================================
+   NEON TEXT
+   =========================================== */
+.neon { color: var(--accent-cyan); text-shadow: 0 0 20px var(--glow-cyan), 0 0 40px var(--glow-cyan); }
+.neon-mag { color: var(--accent-magenta); text-shadow: 0 0 20px var(--glow-magenta); }
+.gradient-text { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* ===========================================
+   CARDS
+   =========================================== */
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: clamp(5px,0.6vw,8px); padding: var(--card-padding); backdrop-filter: blur(8px); transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s; }
+.card:hover { border-color: var(--border-hover); box-shadow: 0 0 16px var(--glow-cyan); transform: translateY(-1px); }
+.card h3 { margin-bottom: clamp(1px, 0.2vw, 4px); }
+.card p { font-size: var(--small-size); }
+.card ul { font-size: var(--small-size); margin-top: clamp(1px, 0.2vw, 3px); }
+.card-cyan { border-left: 2px solid var(--accent-cyan); }
+.card-mag { border-left: 2px solid var(--accent-magenta); }
+.card-blue { border-left: 2px solid var(--accent-blue); }
+.card-green { border-left: 2px solid var(--accent-green); }
+.card-purple { border-left: 2px solid var(--accent-purple); }
+.card-orange { border-left: 2px solid var(--accent-orange); }
+.card-pink { border-left: 2px solid var(--accent-pink); }
+
+/* Tags */
+.tag { display: inline-block; padding: 0px 5px; border-radius: 6px; font-size: clamp(0.4rem, 0.6vw, 0.55rem); font-weight: 600; margin-left: 2px; vertical-align: middle; }
+.tag-cyan { background: rgba(0,255,204,0.1); color: var(--accent-cyan); }
+.tag-green { background: rgba(34,197,94,0.1); color: var(--accent-green); }
+.tag-purple { background: rgba(168,85,247,0.1); color: var(--accent-purple); }
+
+/* ===========================================
+   GRIDS
+   =========================================== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--content-gap); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--content-gap); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--content-gap); }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--content-gap); }
+@media (max-width: 768px) { .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; } }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: var(--small-size); }
+th { background: rgba(0,255,204,0.05); color: var(--text-primary); font-weight: 600; padding: clamp(2px,0.4vw,5px) clamp(4px,0.6vw,8px); text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: clamp(2px,0.3vw,4px) clamp(4px,0.6vw,8px); color: var(--text-secondary); border-bottom: 1px solid rgba(0,255,204,0.04); }
+
+/* Pipeline */
+.pipeline { display: flex; gap: clamp(2px, 0.4vw, 5px); align-items: stretch; }
+.pipe-step { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: clamp(4px,0.5vw,8px); padding: clamp(4px,0.7vw,10px); text-align: center; position: relative; }
+.pipe-step::after { content: '\203A'; position: absolute; right: clamp(-5px,-0.5vw,-8px); top: 50%; transform: translateY(-50%); color: var(--accent-cyan); font-size: var(--body-size); z-index: 3; }
+.pipe-step:last-child::after { display: none; }
+.pipe-icon { font-size: clamp(0.8rem, 1.3vw, 1.2rem); display: block; }
+.pipe-label { font-weight: 600; font-size: var(--small-size); color: var(--text-primary); }
+.pipe-desc { font-size: clamp(0.45rem, 0.65vw, 0.6rem); color: var(--text-secondary); }
+
+/* PROSE boxes */
+.prose-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: clamp(5px,0.7vw,10px); padding: clamp(6px,1vw,14px); text-align: center; backdrop-filter: blur(8px); transition: all 0.3s; }
+.prose-box:hover { border-color: var(--accent-magenta); transform: translateY(-2px); box-shadow: 0 0 14px var(--glow-magenta); }
+.prose-letter { font-family: var(--font-display); font-size: clamp(1.3rem, 2.5vw, 2.2rem); font-weight: 700; }
+.prose-word { font-size: var(--small-size); font-weight: 600; color: var(--text-primary); }
+.prose-desc { font-size: clamp(0.45rem, 0.65vw, 0.6rem); color: var(--text-secondary); }
+
+/* Callout */
+.callout { background: rgba(0,255,204,0.03); border: 1px solid rgba(0,255,204,0.1); border-radius: clamp(4px,0.5vw,8px); padding: clamp(4px,0.7vw,10px); font-size: var(--small-size); }
+.callout-mag { background: rgba(255,0,170,0.03); border-color: rgba(255,0,170,0.1); }
+.callout-orange { background: rgba(245,158,11,0.03); border-color: rgba(245,158,11,0.1); }
+.callout-green { background: rgba(34,197,94,0.03); border-color: rgba(34,197,94,0.1); }
+
+/* File tree */
+.file-tree { background: rgba(6,8,14,0.8); border: 1px solid var(--border); border-radius: clamp(4px,0.5vw,8px); padding: clamp(5px,0.8vw,12px); font-family: var(--font-mono); font-size: var(--code-size); line-height: 1.6; white-space: pre; }
+.ft-dir { color: var(--accent-cyan); }
+.ft-file { color: var(--text-primary); }
+.ft-cmt { color: var(--text-secondary); font-style: italic; }
+
+/* Section slides */
+.section-slide .slide-content { align-items: center; text-align: center; }
+.section-icon { font-size: clamp(2rem, 4.5vw, 3.2rem); display: block; margin-bottom: clamp(3px, 0.4vw, 6px); }
+.neon-line { width: clamp(35px, 5vw, 70px); height: 2px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta)); margin: clamp(4px, 0.8vw, 10px) auto; box-shadow: 0 0 8px var(--glow-cyan); }
+
+/* Hero */
+.hero-slide .slide-content { align-items: center; text-align: center; }
+.hero-badge { display: inline-block; padding: clamp(2px,0.3vw,4px) clamp(6px,0.8vw,12px); border: 1px solid var(--border); border-radius: 16px; font-size: var(--small-size); color: var(--text-secondary); }
+
+/* ===========================================
+   SCROLL ANIMATIONS
+   =========================================== */
+.rv { opacity: 0; transform: translateY(18px); transition: opacity var(--duration) var(--ease-out-expo), transform var(--duration) var(--ease-out-expo); }
+.slide.visible .rv { opacity: 1; transform: translateY(0); }
+.rv:nth-child(1) { transition-delay: 0s; }
+.rv:nth-child(2) { transition-delay: 0.07s; }
+.rv:nth-child(3) { transition-delay: 0.14s; }
+.rv:nth-child(4) { transition-delay: 0.21s; }
+.rv:nth-child(5) { transition-delay: 0.28s; }
+.rv:nth-child(6) { transition-delay: 0.35s; }
+
+/* Nav dots */
+.nav-dots { position: fixed; right: clamp(6px,1.2vw,16px); top: 50%; transform: translateY(-50%); z-index: 100; display: flex; flex-direction: column; gap: clamp(3px,0.4vw,6px); }
+.nav-dot { width: clamp(3px,0.4vw,5px); height: clamp(3px,0.4vw,5px); border-radius: 50%; background: var(--text-secondary); border: none; cursor: pointer; padding: 0; transition: all 0.3s; opacity: 0.5; }
+.nav-dot.active { background: var(--accent-cyan); box-shadow: 0 0 6px var(--glow-cyan); transform: scale(1.5); opacity: 1; }
+.progress-bar { position: fixed; top: 0; left: 0; height: 2px; z-index: 100; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta)); transition: width 0.3s ease; box-shadow: 0 0 6px var(--glow-cyan); }
+
+/* ===========================================
+   RESPONSIVE — Height
+   =========================================== */
+@media (max-height: 700px) {
+    :root { --slide-padding: clamp(0.7rem,3vw,1.8rem); --content-gap: clamp(0.35rem,1vw,0.8rem); --title-size: clamp(1.3rem,4.5vw,2.3rem); --h2-size: clamp(1rem,3vw,1.6rem); }
+}
+@media (max-height: 600px) {
+    :root { --slide-padding: clamp(0.5rem,2.5vw,1.3rem); --title-size: clamp(1.1rem,4vw,1.8rem); --body-size: clamp(0.6rem,1vw,0.8rem); }
+    .nav-dots { display: none; }
+}
+@media (max-height: 500px) {
+    :root { --slide-padding: clamp(0.4rem,2vw,0.9rem); --title-size: clamp(0.9rem,3.5vw,1.4rem); --body-size: clamp(0.55rem,0.9vw,0.7rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+<nav class="nav-dots" id="navDots"></nav>
+<canvas id="particles" style="position:fixed;inset:0;z-index:0;pointer-events:none"></canvas>
+
+<!-- ========== SLIDE 1: TITLE ========== -->
+<section class="slide hero-slide">
+<div class="slide-content">
+    <div class="rv" style="font-size:clamp(2.2rem,5.5vw,4rem)">&#x1F916;</div>
+    <h1 class="rv"><span class="gradient-text">GitHub Copilot</span></h1>
+    <p class="rv" style="font-size:var(--h3-size);color:var(--text-secondary)">2026 Q1 &#x5B63;&#x5EA6;&#x4FE1;&#x606F;&#x62A5;&#x544A;</p>
+    <div class="neon-line rv"></div>
+    <p class="rv">&#x8FD1;&#x4E09;&#x4E2A;&#x6708;&#x66F4;&#x65B0;&#x901F;&#x9012; &middot; &#x4F01;&#x4E1A;&#x7EA7; AI &#x539F;&#x751F;&#x5F00;&#x53D1; &middot; CLI &#x6700;&#x4F73;&#x5B9E;&#x8DF5;</p>
+    <div class="rv" style="margin-top:clamp(6px,1.2vw,16px)"><span class="hero-badge">&#x1F4C5; 2026 &#x5E74; 1 &#x6708; &#x2014; 3 &#x6708;</span></div>
+</div>
+</section>
+
+<!-- ========== SLIDE 2: TOC ========== -->
+<section class="slide">
+<div class="slide-content" style="align-items:center">
+    <h2 class="rv" style="text-align:center"><span class="gradient-text">&#x76EE;&#x5F55;&#x603B;&#x89C8;</span></h2>
+    <div class="neon-line rv"></div>
+    <div style="max-width:min(90vw,520px);width:100%;margin-top:var(--content-gap)">
+        <div class="card rv" style="display:flex;align-items:center;gap:clamp(6px,1.2vw,14px);margin-bottom:var(--content-gap)">
+            <span style="font-size:clamp(1rem,2vw,1.5rem)">&#x1F4F0;</span>
+            <div><h3>&#x8FD1;&#x4E09;&#x4E2A;&#x6708;&#x91CD;&#x8981;&#x66F4;&#x65B0;</h3><p>GPT-5.4 &middot; CLI GA &middot; Memory &middot; Agent Mode</p></div>
+        </div>
+        <div class="card rv" style="display:flex;align-items:center;gap:clamp(6px,1.2vw,14px);margin-bottom:var(--content-gap)">
+            <span style="font-size:clamp(1rem,2vw,1.5rem)">&#x1F3E2;</span>
+            <div><h3>&#x4F01;&#x4E1A;&#x7EA7; AI &#x539F;&#x751F;&#x5F00;&#x53D1;</h3><p>PROSE &#x6846;&#x67B6; &middot; Instructions &middot; Prompts &middot; Agents &middot; Skills</p></div>
+        </div>
+        <div class="card rv" style="display:flex;align-items:center;gap:clamp(6px,1.2vw,14px)">
+            <span style="font-size:clamp(1rem,2vw,1.5rem)">&#x1F4BB;</span>
+            <div><h3>Copilot CLI &#x6700;&#x4F73;&#x5B9E;&#x8DF5;</h3><p>Plan Mode &middot; &#x65E0;&#x9650;&#x4F1A;&#x8BDD; &middot; &#x59D4;&#x6258; &middot; &#x8FDB;&#x9636;&#x6A21;&#x5F0F;</p></div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SECTION: CHANGELOG ========== -->
+<section class="slide section-slide" style="background:linear-gradient(135deg,var(--bg-primary),#0a1628)">
+<div class="slide-content">
+    <span class="section-icon rv">&#x1F4F0;</span>
+    <h2 class="rv"><span class="neon">&#x8FD1;&#x4E09;&#x4E2A;&#x6708;&#x91CD;&#x8981;&#x66F4;&#x65B0;</span></h2>
+    <div class="neon-line rv"></div>
+    <p class="rv">GitHub Changelog &middot; 2026 &#x5E74; 1&#x2013;3 &#x6708;</p>
+</div>
+</section>
+
+<!-- ========== SLIDE: March ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv"><span style="color:var(--accent-green)">&#x25CF;</span> 3 &#x6708;&#x66F4;&#x65B0; &#x2014; &#x91CD;&#x70B9;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div class="card card-green rv">
+            <h3>&#x1F3AF; GPT-5.4 &#x6B63;&#x5F0F;&#x53EF;&#x7528; <span class="tag tag-purple">&#x6A21;&#x578B;</span><span class="tag tag-cyan">&#x91CD;&#x8981;</span></h3>
+            <p>OpenAI &#x6700;&#x65B0;&#x65D7;&#x8230;&#x6A21;&#x578B;&#xFF0C;agentic coding &#x8868;&#x73B0;&#x663E;&#x8457;&#x63D0;&#x5347;</p>
+            <ul><li>&#x66F4;&#x5F3A;&#x7684;&#x4EE3;&#x7801;&#x7406;&#x89E3;&#x548C;&#x4E0A;&#x4E0B;&#x6587;&#x8FFD;&#x8E2A;</li><li>Agent Mode &#x4E2D;&#x81EA;&#x4E3B;&#x89C4;&#x5212;&#x3001;&#x6267;&#x884C;&#x3001;&#x8FED;&#x4EE3;</li></ul>
+        </div>
+        <div class="card card-cyan rv">
+            <h3>&#x1F916; VS Code v1.111 <span class="tag tag-cyan">&#x91CD;&#x8981;</span></h3>
+            <p>Agent &#x6743;&#x9650;&#x7BA1;&#x7406; + Autopilot &#x9884;&#x89C8;</p>
+            <ul><li>Agent &#x4F5C;&#x7528;&#x57DF; hooks &#x652F;&#x6301;</li><li>Autopilot &#x65E0;&#x9700;&#x6301;&#x7EED;&#x5BA1;&#x6279;</li></ul>
+        </div>
+        <div class="card card-purple rv">
+            <h3>&#x1F9E0; Copilot Memory &#x9ED8;&#x8BA4;&#x5F00;&#x542F; <span class="tag tag-green">&#x65B0;&#x529F;&#x80FD;</span></h3>
+            <p>Pro/Pro+ &#x9ED8;&#x8BA4;&#x542F;&#x7528;&#xFF0C;&#x8DE8;&#x4F1A;&#x8BDD;&#x8BB0;&#x4F4F;&#x4EE3;&#x7801;&#x5E93;&#x7EA6;&#x5B9A;&#x548C;&#x504F;&#x597D;</p>
+        </div>
+        <div class="card card-pink rv">
+            <h3>&#x1F3A8; Figma MCP Server <span class="tag tag-green">&#x65B0;&#x529F;&#x80FD;</span></h3>
+            <p>&#x8BBE;&#x8BA1;&#x5230;&#x4EE3;&#x7801;&#x65E0;&#x7F1D;&#x5DE5;&#x4F5C;&#x6D41;&#xFF0C;&#x6E32;&#x67D3; UI &#x56DE;&#x9001; Figma</p>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Feb ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv"><span style="color:var(--accent-blue)">&#x25CF;</span> 2 &#x6708;&#x66F4;&#x65B0; &#x2014; &#x91CD;&#x70B9;</h2>
+    <div class="card card-cyan rv" style="margin-top:var(--content-gap)">
+        <h3>&#x1F680; GitHub Copilot CLI &#x6B63;&#x5F0F;&#x53D1;&#x5E03; (GA) <span class="tag tag-green">GA</span><span class="tag tag-cyan">&#x91CD;&#x8981;</span></h3>
+        <p>&#x4ECE;&#x7EC8;&#x7AEF;&#x52A9;&#x624B;&#x6210;&#x957F;&#x4E3A;&#x5B8C;&#x6574; <strong>Agentic &#x5F00;&#x53D1;&#x73AF;&#x5883;</strong>&#xFF0C;2025.9 &#x9884;&#x89C8;&#x4EE5;&#x6765;&#x6570;&#x767E;&#x6B21;&#x6539;&#x8FDB;</p>
+        <div class="grid-4" style="margin-top:clamp(4px,0.5vw,8px)">
+            <div style="text-align:center"><strong style="color:var(--accent-cyan);font-size:var(--small-size)">Plan Mode</strong><br><span style="font-size:var(--small-size);color:var(--text-secondary)">&#x5148;&#x89C4;&#x5212;&#x518D;&#x7F16;&#x7801;</span></div>
+            <div style="text-align:center"><strong style="color:var(--accent-green);font-size:var(--small-size)">Autopilot</strong><br><span style="font-size:var(--small-size);color:var(--text-secondary)">&#x5168;&#x81EA;&#x4E3B;&#x6267;&#x884C;</span></div>
+            <div style="text-align:center"><strong style="color:var(--accent-purple);font-size:var(--small-size)">MCP & Plugins</strong><br><span style="font-size:var(--small-size);color:var(--text-secondary)">&#x5185;&#x7F6E; GitHub MCP</span></div>
+            <div style="text-align:center"><strong style="color:var(--accent-pink);font-size:var(--small-size)">&#x65E0;&#x9650;&#x4F1A;&#x8BDD;</strong><br><span style="font-size:var(--small-size);color:var(--text-secondary)">&#x8DE8;&#x4F1A;&#x8BDD;&#x8BB0;&#x5FC6;</span></div>
+        </div>
+    </div>
+    <div class="grid-2 rv" style="margin-top:var(--content-gap)">
+        <div class="card card-orange"><h3>&#x1F4C8; Copilot Metrics GA <span class="tag tag-green">GA</span></h3><p>&#x4F7F;&#x7528;&#x6307;&#x6807;&#x4EEA;&#x8868;&#x76D8; GA&#xFF0C;&#x542B; CLI &#x9065;&#x6D4B;&#x548C;&#x7528;&#x6237;&#x7EA7;&#x6D3B;&#x52A8;</p></div>
+        <div class="card card-blue"><h3>&#x1F916; VS Code v1.110 <span class="tag tag-cyan">&#x91CD;&#x8981;</span></h3><p>Agent &#x5904;&#x7406;&#x66F4;&#x590D;&#x6742;&#x957F;&#x4EFB;&#x52A1;&#xFF0C;&#x652F;&#x6301;&#x5E76;&#x884C; subagent</p></div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Jan ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv"><span style="color:var(--accent-purple)">&#x25CF;</span> 1 &#x6708;&#x66F4;&#x65B0;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div class="card card-purple rv">
+            <h3>&#x1F3D7;&#xFE0F; &#x4ED3;&#x5E93;&#x7EA7; Agents Tab <span class="tag tag-green">&#x65B0;&#x529F;&#x80FD;</span></h3>
+            <p>GitHub &#x4ED3;&#x5E93;&#x65B0;&#x589E; Agents &#x6807;&#x7B7E;&#x9875;</p>
+            <ul><li>&#x96C6;&#x4E2D;&#x5316; Coding Agent &#x5DE5;&#x4F5C;&#x6D41;</li><li>&#x4EFB;&#x52A1;&#x900F;&#x660E;&#xFF08;PR &#x5F62;&#x5F0F;&#x5448;&#x73B0;&#xFF09;</li></ul>
+        </div>
+        <div class="card card-green rv">
+            <h3>&#x1F3A8; Visual Studio &#x66F4;&#x65B0; <span class="tag tag-green">&#x65B0;&#x529F;&#x80FD;</span></h3>
+            <ul><li>&#x5F69;&#x8272;&#x5316;&#x4EE3;&#x7801;&#x8865;&#x5168;</li><li>&#x70B9;&#x51FB;&#x90E8;&#x5206;&#x63A5;&#x53D7;</li><li>Markdown &#x9884;&#x89C8;&#x589E;&#x5F3A;</li></ul>
+        </div>
+        <div class="card card-cyan rv">
+            <h3>&#x26A1; &#x5E76;&#x884C; Subagent <span class="tag tag-cyan">&#x91CD;&#x8981;</span></h3>
+            <p>Subagent &#x5E76;&#x884C;&#x6267;&#x884C;&#x72EC;&#x7ACB;&#x4EFB;&#x52A1;&#xFF0C;&#x53EF;&#x9650;&#x5236;&#x5DE5;&#x5177;&#x96C6;&#x63D0;&#x9AD8;&#x5B89;&#x5168;&#x6027;</p>
+        </div>
+        <div class="card card-pink rv">
+            <h3>&#x1F504; PR &#x4E2D;&#x9009;&#x62E9;&#x6A21;&#x578B; <span class="tag tag-green">&#x65B0;&#x529F;&#x80FD;</span></h3>
+            <p>PR &#x8BC4;&#x8BBA; <code>@copilot</code> &#x53EF;&#x6307;&#x5B9A;&#x6A21;&#x578B;</p>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SECTION: ENTERPRISE ========== -->
+<section class="slide section-slide" style="background:linear-gradient(135deg,var(--bg-primary),#1a0828)">
+<div class="slide-content">
+    <span class="section-icon rv">&#x1F3E2;</span>
+    <h2 class="rv"><span class="neon-mag">&#x4F01;&#x4E1A;&#x7EA7; AI &#x539F;&#x751F;&#x5F00;&#x53D1;</span></h2>
+    <div class="neon-line rv"></div>
+    <p class="rv">&#x4ECE; Vibe Coding &#x5230;&#x7ED3;&#x6784;&#x5316; AI &#x5DE5;&#x4F5C;&#x6D41;</p>
+</div>
+</section>
+
+<!-- ========== SLIDE: Problem ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">&#x4F01;&#x4E1A;&#x9762;&#x4E34;&#x7684;&#x6311;&#x6218;</h2>
+    <div class="grid-4" style="margin-top:var(--content-gap)">
+        <div class="card card-orange rv"><h3>&#x1F6AB; &#x5FFD;&#x7565;&#x6A21;&#x5F0F;</h3><p>&#x4EE3;&#x7801;&#x5FFD;&#x7565;&#x56E2;&#x961F;&#x65E2;&#x6709;&#x7684;&#x6A21;&#x5F0F;&#x548C;&#x7EA6;&#x5B9A;</p></div>
+        <div class="card card-orange rv"><h3>&#x26A0;&#xFE0F; &#x7981;&#x7528;&#x5E93;</h3><p>&#x4F7F;&#x7528;&#x5B89;&#x5168;&#x5408;&#x89C4;&#x4E0D;&#x5141;&#x8BB8;&#x7684;&#x4F9D;&#x8D56;</p></div>
+        <div class="card card-orange rv"><h3>&#x274C; &#x8131;&#x79BB;&#x8BED;&#x5883;</h3><p>&#x6280;&#x672F;&#x6B63;&#x786E;&#x4F46;&#x4E0D;&#x7B26;&#x5408;&#x9879;&#x76EE;&#x4E0A;&#x4E0B;&#x6587;</p></div>
+        <div class="card card-orange rv"><h3>&#x1F3B2; &#x4E0D;&#x4E00;&#x81F4;</h3><p>&#x4E0D;&#x540C;&#x5F00;&#x53D1;&#x8005;&#x5F97;&#x5230;&#x4E0D;&#x540C;&#x7ED3;&#x679C;</p></div>
+    </div>
+    <div class="callout callout-orange rv" style="margin-top:var(--content-gap)">
+        <strong>&#x1F9F1; &ldquo;Vibe Coding &#x60AC;&#x5D16;&rdquo;</strong> &#x2014; &#x5373;&#x5174;&#x63D0;&#x793A;&#x5728;&#x7B80;&#x5355;&#x573A;&#x666F;&#x6709;&#x6548;&#xFF0C;&#x4F46;&#x4F01;&#x4E1A;&#x68D5;&#x5730;&#x4EE3;&#x7801;&#x5E93;&#x6709;&#x7EA6;&#x675F;&#x548C;&#x9057;&#x7559;&#x77E5;&#x8BC6;&#x3002;<strong style="color:var(--accent-cyan)">&rarr; &#x89E3;&#x51B3;&#x65B9;&#x6848;&#xFF1A;PROSE &#x6846;&#x67B6;</strong>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: PROSE ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv" style="text-align:center"><span class="gradient-text">PROSE &#x6846;&#x67B6;</span></h2>
+    <p class="rv" style="text-align:center">AI &#x539F;&#x751F;&#x5F00;&#x53D1;&#x7684;&#x7CFB;&#x7EDF;&#x5316;&#x65B9;&#x6CD5;&#x8BBA;</p>
+    <div class="grid-5" style="margin-top:clamp(10px, 2vw, 28px)">
+        <div class="prose-box rv"><div class="prose-letter neon">P</div><div class="prose-word">Prompts</div><div class="prose-desc">&#x53EF;&#x590D;&#x7528;&#x7ED3;&#x6784;&#x5316;&#x4EFB;&#x52A1;</div></div>
+        <div class="prose-box rv"><div class="prose-letter" style="color:var(--accent-green)">R</div><div class="prose-word">Reliability</div><div class="prose-desc">&#x4E00;&#x81F4;&#x53EF;&#x91CD;&#x590D;&#x8F93;&#x51FA;</div></div>
+        <div class="prose-box rv"><div class="prose-letter neon-mag">O</div><div class="prose-word">Orchestration</div><div class="prose-desc">&#x591A; Agent &#x7F16;&#x6392;</div></div>
+        <div class="prose-box rv"><div class="prose-letter" style="color:var(--accent-orange)">S</div><div class="prose-word">Skills</div><div class="prose-desc">Agent &#x81EA;&#x52A8;&#x53D1;&#x73B0;</div></div>
+        <div class="prose-box rv"><div class="prose-letter" style="color:var(--accent-blue)">E</div><div class="prose-word">Engineering</div><div class="prose-desc">&#x4E0A;&#x4E0B;&#x6587;&#x5DE5;&#x7A0B;</div></div>
+    </div>
+    <div class="callout callout-mag rv" style="margin-top:var(--content-gap)">
+        <strong>&#x1F4A1;</strong> &ldquo;Reliability &#x4E0D;&#x662F;&#x5355;&#x72EC;&#x5E94;&#x7528;&#x7684;&#x6280;&#x672F; &#x2014; &#x5B83;&#x662F;&#x7CFB;&#x7EDF;&#x5316;&#x5E94;&#x7528;&#x6240;&#x6709; PROSE &#x7EC4;&#x4EF6;&#x540E;&#x7684;<em style="color:var(--accent-magenta)">&#x7ED3;&#x679C;</em>&#x3002;&rdquo;
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: File Layout ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">&#x5B9A;&#x5236;&#x5316;&#x539F;&#x8BED; &#x2014; &#x56DB;&#x5C42;&#x7ED3;&#x6784;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div class="file-tree rv"><span class="ft-dir">.github/</span>
+  &#x251C;&#x2500;&#x2500; <span class="ft-file">copilot-instructions.md</span> <span class="ft-cmt">&larr; &#x5168;&#x5C40;&#x6307;&#x4EE4;</span>
+  &#x251C;&#x2500;&#x2500; <span class="ft-dir">instructions/</span>
+  &#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-file">*.instructions.md</span> <span class="ft-cmt">&larr; applyTo</span>
+  &#x251C;&#x2500;&#x2500; <span class="ft-dir">prompts/</span>
+  &#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-file">*.prompt.md</span> <span class="ft-cmt">&larr; / &#x547D;&#x4EE4;</span>
+  &#x251C;&#x2500;&#x2500; <span class="ft-dir">agents/</span>
+  &#x2502;   &#x2514;&#x2500;&#x2500; <span class="ft-file">*.agent.md</span> <span class="ft-cmt">&larr; &#x83DC;&#x5355;&#x9009;&#x62E9;</span>
+  &#x2514;&#x2500;&#x2500; <span class="ft-dir">skills/</span>
+      &#x2514;&#x2500;&#x2500; <span class="ft-file">SKILL.md</span> <span class="ft-cmt">&larr; &#x81EA;&#x52A8;&#x53D1;&#x73B0;</span></div>
+        <div>
+            <div class="card card-cyan rv" style="margin-bottom:clamp(3px,0.4vw,6px)"><h3>&#x1F4CB; Instructions</h3><p>&#x81EA;&#x52A8;&#x5E94;&#x7528; &middot; applyTo glob &#x6A21;&#x5F0F;&#x5339;&#x914D;</p></div>
+            <div class="card card-blue rv" style="margin-bottom:clamp(3px,0.4vw,6px)"><h3>&#x1F4DD; Prompts</h3><p>/ &#x547D;&#x4EE4;&#x663E;&#x5F0F;&#x8C03;&#x7528; &middot; &#x53EF;&#x590D;&#x7528;&#x6A21;&#x677F;</p></div>
+            <div class="card card-purple rv" style="margin-bottom:clamp(3px,0.4vw,6px)"><h3>&#x1F916; Agents</h3><p>Chat Mode &#x9009;&#x62E9; &middot; Handoff &#x534F;&#x4F5C;</p></div>
+            <div class="card card-green rv"><h3>&#x26A1; Skills</h3><p>Agent &#x6839;&#x636E;&#x610F;&#x56FE;&#x81EA;&#x52A8;&#x53D1;&#x73B0;&#x5E76;&#x4F7F;&#x7528;</p></div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Instructions ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">&#x1F4CB; Instructions &#x2014; &#x4E0A;&#x4E0B;&#x6587;&#x5DE5;&#x7A0B;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <pre class="rv"><code>---
+applyTo: "**/*.py"
+---
+# Documentation Standards
+## Docstring Format
+- Use Google-style docstrings
+- Always include Args, Returns, Raises
+## Constraints
+- Reference existing codebase patterns
+- NEVER use NumPy-style docstrings</code></pre>
+        <div>
+            <table class="rv">
+                <tr><th>Glob &#x6A21;&#x5F0F;</th><th>&#x5339;&#x914D;</th></tr>
+                <tr><td><code>**/*.py</code></td><td>&#x6240;&#x6709; Python</td></tr>
+                <tr><td><code>**/*.{js,ts}</code></td><td>&#x6240;&#x6709; JS/TS</td></tr>
+                <tr><td><code>**/*.test.*</code></td><td>&#x6240;&#x6709;&#x6D4B;&#x8BD5;&#x6587;&#x4EF6;</td></tr>
+                <tr><td><code>src/**/*.tsx</code></td><td>src &#x4E0B; TSX</td></tr>
+            </table>
+            <div class="callout rv" style="margin-top:var(--content-gap)">
+                <strong>&#x1F4A1;</strong> &#x4FDD;&#x6301;&#x6307;&#x4EE4;&#x7B80;&#x6D01;&#x53EF;&#x884C;&#x52A8; &#x2014; &#x8FC7;&#x957F;&#x7684;&#x6307;&#x4EE4;&#x4F1A;&#x964D;&#x4F4E;&#x6548;&#x679C;
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Agents ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">&#x1F916; Agents &#x2014; &#x591A; Agent &#x7F16;&#x6392;</h2>
+    <p class="rv">&#x6838;&#x5FC3;&#x6A21;&#x5F0F;&#xFF1A;<strong>&#x5206;&#x6790;&#x5668; &rarr; Handoff &rarr; &#x751F;&#x6210;&#x5668;</strong></p>
+    <div class="pipeline rv" style="margin-top:var(--content-gap)">
+        <div class="pipe-step"><span class="pipe-icon">&#x1F4D6;</span><div class="pipe-label">Analyzer</div><div class="pipe-desc">&#x53EA;&#x8BFB;&#x5206;&#x6790;</div></div>
+        <div class="pipe-step"><span class="pipe-icon">&#x1F504;</span><div class="pipe-label">Handoff</div><div class="pipe-desc">&#x4F20;&#x9012;&#x7ED3;&#x679C;</div></div>
+        <div class="pipe-step"><span class="pipe-icon">&#x270D;&#xFE0F;</span><div class="pipe-label">Generator</div><div class="pipe-desc">&#x751F;&#x6210;&#x4EE3;&#x7801;</div></div>
+    </div>
+    <pre class="rv" style="margin-top:var(--content-gap)"><code>---
+name: Doc Analyzer
+description: Analyze code for documentation needs
+tools: ['search', 'usages', 'fetch']
+handoffs:
+  - label: "Write Documentation"
+    agent: doc-writer
+    prompt: "Based on analysis, generate docs."
+---</code></pre>
+</div>
+</section>
+
+<!-- ========== SLIDE: Skills ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">&#x26A1; Skills & &#x4F01;&#x4E1A;&#x6269;&#x5C55;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div>
+            <div class="file-tree rv"><span class="ft-dir">my-skill/</span>
+  &#x251C;&#x2500;&#x2500; <span class="ft-file">SKILL.md</span> <span class="ft-cmt">&larr; &#x5143;&#x6570;&#x636E;+&#x6307;&#x5BFC;</span>
+  &#x251C;&#x2500;&#x2500; <span class="ft-dir">instructions/</span>
+  &#x251C;&#x2500;&#x2500; <span class="ft-dir">scripts/</span>
+  &#x2514;&#x2500;&#x2500; <span class="ft-dir">references/</span></div>
+            <table class="rv" style="margin-top:var(--content-gap)">
+                <tr><th>APM &#x547D;&#x4EE4;</th><th>&#x7528;&#x9014;</th></tr>
+                <tr><td><code>apm install</code></td><td>&#x5B89;&#x88C5;&#x6280;&#x80FD;&#x5305;</td></tr>
+                <tr><td><code>apm compile</code></td><td>&#x751F;&#x6210;&#x5D4C;&#x5957; AGENTS.md</td></tr>
+            </table>
+        </div>
+        <div>
+            <div class="callout callout-green rv">
+                <strong>&#x1F511; &#x5173;&#x952E;&#x533A;&#x522B;</strong><br>
+                Instructions &#x81EA;&#x52A8;&#x5E94;&#x7528; &rarr; Prompts / &#x8C03;&#x7528; &rarr; Agents &#x83DC;&#x5355;&#x9009; &rarr; <strong style="color:var(--accent-cyan)">Skills Agent &#x81EA;&#x52A8;&#x53D1;&#x73B0;</strong>
+            </div>
+            <div class="callout callout-mag rv" style="margin-top:var(--content-gap)">
+                <strong>&#x2601;&#xFE0F; &#x4E91;&#x7AEF;&#x534F;&#x540C;</strong><br>
+                &#x901A;&#x8FC7; GitHub MCP Server&#xFF0C;Agent &#x521B;&#x5EFA; Issues &#x5E76;&#x5206;&#x914D;&#x4E91;&#x7AEF; Coding Agent &#x5F02;&#x6B65;&#x5904;&#x7406;
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SECTION: CLI ========== -->
+<section class="slide section-slide" style="background:linear-gradient(135deg,var(--bg-primary),#081a10)">
+<div class="slide-content">
+    <span class="section-icon rv">&#x1F4BB;</span>
+    <h2 class="rv"><span style="color:var(--accent-green);text-shadow:0 0 20px rgba(34,197,94,0.3)">Copilot CLI &#x6700;&#x4F73;&#x5B9E;&#x8DF5;</span></h2>
+    <div class="neon-line rv"></div>
+    <p class="rv">&#x7EC8;&#x7AEF;&#x539F;&#x751F;&#x7684; Agentic &#x5F00;&#x53D1;&#x73AF;&#x5883;</p>
+</div>
+</section>
+
+<!-- ========== SLIDE: Env ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">1&#xFE0F;&#x20E3; &#x5B9A;&#x5236;&#x4F60;&#x7684;&#x73AF;&#x5883;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div>
+            <p class="rv"><strong>&#x6307;&#x4EE4;&#x6587;&#x4EF6;&#x4F18;&#x5148;&#x7EA7;</strong>&#xFF08;&#x7531;&#x4F4E;&#x5230;&#x9AD8;&#xFF09;</p>
+            <table class="rv">
+                <tr><td><code>~/.copilot/copilot-instructions.md</code></td><td>&#x5168;&#x5C40;</td></tr>
+                <tr><td><code>.github/copilot-instructions.md</code></td><td>&#x4ED3;&#x5E93;</td></tr>
+                <tr><td><code>.github/instructions/**</code></td><td>&#x6A21;&#x5757;&#x5316;</td></tr>
+                <tr><td><code>AGENTS.md</code></td><td>&#x4ED3;&#x5E93;</td></tr>
+            </table>
+        </div>
+        <div>
+            <p class="rv"><strong>&#x9009;&#x62E9;&#x5408;&#x9002;&#x7684;&#x6A21;&#x578B;</strong></p>
+            <table class="rv">
+                <tr><th>&#x6A21;&#x578B;</th><th>&#x573A;&#x666F;</th></tr>
+                <tr><td><strong style="color:var(--accent-purple)">Opus 4.5</strong></td><td>&#x590D;&#x6742;&#x67B6;&#x6784; &middot; &#x56F0;&#x96BE;&#x8C03;&#x8BD5;</td></tr>
+                <tr><td><strong style="color:var(--accent-cyan)">Sonnet 4.5</strong></td><td>&#x65E5;&#x5E38;&#x7F16;&#x7801; &middot; &#x5E38;&#x89C4;&#x4EFB;&#x52A1;</td></tr>
+                <tr><td><strong style="color:var(--accent-green)">Codex 5.2</strong></td><td>&#x4EE3;&#x7801;&#x751F;&#x6210; &middot; &#x5BA1;&#x67E5;</td></tr>
+            </table>
+            <div class="callout rv" style="margin-top:var(--content-gap)">
+                <strong>&#x1F4A1;</strong> &#x65E5;&#x5E38; <strong>Sonnet</strong>&#xFF0C;&#x96BE;&#x9898; <strong>Opus</strong>&#xFF0C;&#x5BA1;&#x67E5; <strong>Codex</strong>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Plan ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">2&#xFE0F;&#x20E3; &#x5148;&#x89C4;&#x5212;&#x518D;&#x7F16;&#x7801;</h2>
+    <p class="rv"><strong>&#x6709;&#x8BA1;&#x5212;&#x7684;&#x6A21;&#x578B;&#x6210;&#x529F;&#x7387;&#x66F4;&#x9AD8;</strong> &#x2014; Shift+Tab &#x5207;&#x6362; Plan Mode</p>
+    <div class="pipeline rv" style="margin-top:var(--content-gap)">
+        <div class="pipe-step"><span class="pipe-icon">&#x1F50D;</span><div class="pipe-label">Explore</div></div>
+        <div class="pipe-step"><span class="pipe-icon">&#x1F4CB;</span><div class="pipe-label">Plan</div></div>
+        <div class="pipe-step"><span class="pipe-icon">&#x1F440;</span><div class="pipe-label">Review</div></div>
+        <div class="pipe-step"><span class="pipe-icon">&#x26A1;</span><div class="pipe-label">Code</div></div>
+        <div class="pipe-step"><span class="pipe-icon">&#x2705;</span><div class="pipe-label">Verify</div></div>
+        <div class="pipe-step"><span class="pipe-icon">&#x1F4E6;</span><div class="pipe-label">Commit</div></div>
+    </div>
+    <div class="grid-2 rv" style="margin-top:var(--content-gap)">
+        <div class="card card-green"><h3>&#x2705; &#x4F7F;&#x7528; Plan Mode</h3><ul><li>&#x590D;&#x6742;&#x591A;&#x6587;&#x4EF6;&#x53D8;&#x66F4;</li><li>&#x591A;&#x5904;&#x91CD;&#x6784;</li><li>&#x65B0;&#x529F;&#x80FD;&#x5B9E;&#x73B0;</li></ul></div>
+        <div class="card card-orange"><h3>&#x274C; &#x4E0D;&#x9700;&#x8981;</h3><ul><li>&#x5FEB;&#x901F; Bug &#x4FEE;&#x590D;</li><li>&#x5355;&#x6587;&#x4EF6;&#x53D8;&#x66F4;</li></ul></div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Sessions ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">3&#xFE0F;&#x20E3; &#x65E0;&#x9650;&#x4F1A;&#x8BDD; & 4&#xFE0F;&#x20E3; &#x59D4;&#x6258;&#x5DE5;&#x4F5C;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div class="card card-cyan rv">
+            <h3>&#x267E;&#xFE0F; &#x65E0;&#x9650;&#x4F1A;&#x8BDD;</h3>
+            <p>&#x81EA;&#x52A8;&#x667A;&#x80FD;&#x538B;&#x7F29;&#xFF0C;&#x4E0A;&#x4E0B;&#x6587;&#x6C38;&#x4E0D;&#x6EA2;&#x51FA;</p>
+            <table style="margin-top:clamp(2px,0.3vw,4px)">
+                <tr><td><code>/session</code></td><td>&#x67E5;&#x770B;&#x4F1A;&#x8BDD;</td></tr>
+                <tr><td><code>/context</code></td><td>&#x4E0A;&#x4E0B;&#x6587;&#x53EF;&#x89C6;&#x5316;</td></tr>
+                <tr><td><code>/clear</code></td><td>&#x91CD;&#x7F6E;&#x4E0A;&#x4E0B;&#x6587;</td></tr>
+            </table>
+        </div>
+        <div class="card card-purple rv">
+            <h3>&#x1F4E4; /delegate &#x59D4;&#x6258;</h3>
+            <p>&#x5378;&#x8F7D;&#x4EFB;&#x52A1;&#x5230;&#x4E91;&#x7AEF; Coding Agent</p>
+            <table style="margin-top:clamp(2px,0.3vw,4px)">
+                <tr><th>&#x59D4;&#x6258;</th><th>&#x672C;&#x5730;</th></tr>
+                <tr><td>&#x5916;&#x56F4;&#x4EFB;&#x52A1;</td><td>&#x6838;&#x5FC3;&#x5F00;&#x53D1;</td></tr>
+                <tr><td>&#x6587;&#x6863;&#x66F4;&#x65B0;</td><td>&#x8C03;&#x8BD5;</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="callout rv" style="margin-top:var(--content-gap)">
+        <strong>&#x1F4A1;</strong> <code>&amp;</code> &#x524D;&#x7F00;&#x540E;&#x53F0;&#x59D4;&#x6258;&#xFF0C;<code>/resume</code> &#x5207;&#x6362;&#x672C;&#x5730;/&#x8FDC;&#x7A0B;&#x4F1A;&#x8BDD;
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Workflows ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">5&#xFE0F;&#x20E3; &#x5E38;&#x7528;&#x5DE5;&#x4F5C;&#x6D41;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div class="card card-cyan rv">
+            <h3>&#x1F195; &#x4EE3;&#x7801;&#x5E93;&#x4E0A;&#x624B;</h3>
+            <ul><li><em style="color:var(--accent-pink)">&ldquo;How is logging configured?&rdquo;</em></li><li><em style="color:var(--accent-pink)">&ldquo;Explain the auth flow&rdquo;</em></li></ul>
+        </div>
+        <div class="card card-green rv">
+            <h3>&#x1F9EA; &#x6D4B;&#x8BD5;&#x9A71;&#x52A8;&#x5F00;&#x53D1;</h3>
+            <ul><li>&#x8BA9; Copilot &#x5199;&#x5931;&#x8D25;&#x6D4B;&#x8BD5;</li><li>&#x5B9E;&#x73B0;&#x4EE3;&#x7801;&#x4F7F;&#x6D4B;&#x8BD5;&#x901A;&#x8FC7;</li></ul>
+        </div>
+        <div class="card card-purple rv">
+            <h3>&#x1F50D; Code Review</h3>
+            <p><code>/review</code> &#x5206;&#x6790;&#x53D8;&#x66F4;&#xFF0C;&#x4E13;&#x6CE8; Bug &#x548C;&#x5B89;&#x5168;</p>
+        </div>
+        <div class="card card-pink rv">
+            <h3>&#x1F41B; Bug &#x8C03;&#x67E5;</h3>
+            <p>&#x63CF;&#x8FF0;&#x75C7;&#x72B6;&#xFF0C;Copilot &#x641C;&#x7D22;&#x4EE3;&#x7801;&#x5B9A;&#x4F4D;&#x6839;&#x56E0;</p>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Advanced ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">6&#xFE0F;&#x20E3; &#x8FDB;&#x9636;&#x6A21;&#x5F0F;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div class="card card-cyan rv">
+            <h3>&#x1F310; &#x8DE8;&#x591A;&#x4ED3;&#x5E93;&#x5DE5;&#x4F5C;</h3>
+            <pre style="margin-top:clamp(2px,0.3vw,4px)"><code>cd ~/projects &amp;&amp; copilot
+/add-dir /path/to/backend
+/list-dirs</code></pre>
+        </div>
+        <div>
+            <div class="card card-pink rv" style="margin-bottom:clamp(3px,0.4vw,6px)">
+                <h3>&#x1F5BC;&#xFE0F; &#x56FE;&#x50CF;&#x9A71;&#x52A8; UI</h3>
+                <p>&#x62D6;&#x653E;&#x56FE;&#x50CF;&#x5230; CLI&#xFF1A;<code>@mockup.png</code></p>
+            </div>
+            <div class="card card-green rv">
+                <h3>&#x1F916; &#x81EA;&#x4E3B;&#x5B8C;&#x6210;</h3>
+                <ul><li><strong>Autopilot</strong> &#x2014; &#x5168;&#x81EA;&#x4E3B;&#x65E0;&#x5BA1;&#x6279;</li><li><strong>/fleet</strong> &#x2014; &#x5E76;&#x884C;&#x5B50;&#x4EFB;&#x52A1;</li></ul>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== SLIDE: Team ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv">7&#xFE0F;&#x20E3; &#x56E2;&#x961F;&#x5EFA;&#x8BAE;</h2>
+    <div class="grid-2" style="margin-top:var(--content-gap)">
+        <div class="card card-cyan rv">
+            <h3>&#x1F4C4; &#x63A8;&#x8350;&#x4ED3;&#x5E93;&#x914D;&#x7F6E;</h3>
+            <p>&#x521B;&#x5EFA; <code>.github/copilot-instructions.md</code></p>
+            <ul><li>&#x6784;&#x5EFA;&#x548C;&#x6D4B;&#x8BD5;&#x547D;&#x4EE4;</li><li>&#x4EE3;&#x7801;&#x98CE;&#x683C;&#x6307;&#x5357;</li><li>&#x67B6;&#x6784;&#x51B3;&#x7B56;&#x8BB0;&#x5F55;</li></ul>
+        </div>
+        <div class="card card-orange rv">
+            <h3>&#x1F512; &#x5B89;&#x5168; &amp; &#x1F4CA; &#x6307;&#x6807;</h3>
+            <ul><li>&#x7834;&#x574F;&#x6027;&#x64CD;&#x4F5C;&#x9700;&#x663E;&#x5F0F;&#x6279;&#x51C6;</li><li>&#x63A5;&#x53D7;&#x524D;&#x5BA1;&#x67E5;&#x6240;&#x6709;&#x53D8;&#x66F4;</li><li>&#x6C38;&#x8FDC;&#x4E0D;&#x8981;&#x63D0;&#x4EA4;&#x5BC6;&#x94A5;</li><li>&#x8FFD;&#x8E2A; Issue&rarr;PR &#x65F6;&#x95F4;</li></ul>
+        </div>
+    </div>
+    <div class="callout rv" style="margin-top:var(--content-gap)">
+        <strong>&#x1F3AF;</strong> &#x590D;&#x6742;&#x529F;&#x80FD;&#x5FC5;&#x987B; <code>/plan</code> &middot; &#x5916;&#x56F4;&#x4EFB;&#x52A1;&#x7528; <code>/delegate</code> &middot; &#x7EDF;&#x4E00;&#x6A21;&#x578B;&#x9009;&#x62E9;&#x7B56;&#x7565;
+    </div>
+</div>
+</section>
+
+<!-- ========== RESOURCES ========== -->
+<section class="slide">
+<div class="slide-content">
+    <h2 class="rv" style="text-align:center"><span class="gradient-text">&#x1F4DA; &#x8D44;&#x6E90;&#x94FE;&#x63A5;</span></h2>
+    <div class="neon-line rv"></div>
+    <div class="grid-4" style="margin-top:var(--content-gap)">
+        <div class="card card-cyan rv">
+            <h3>&#x1F4F0; &#x66F4;&#x65B0;</h3>
+            <ul style="list-style:none;margin-left:0"><li><a href="https://github.blog/changelog/?label=copilot" target="_blank">Changelog</a></li><li><a href="https://github.blog/changelog/2026-02-25-github-copilot-cli-is-now-generally-available/" target="_blank">CLI GA &#x516C;&#x544A;</a></li></ul>
+        </div>
+        <div class="card card-purple rv">
+            <h3>&#x1F3E2; &#x4F01;&#x4E1A;</h3>
+            <ul style="list-style:none;margin-left:0"><li><a href="https://github.com/DevExpGbb/ai-native-dev-lab" target="_blank">AI Native Lab</a></li><li><a href="https://danielmeppiel.github.io/awesome-ai-native/docs/concepts/" target="_blank">PROSE &#x6846;&#x67B6;</a></li></ul>
+        </div>
+        <div class="card card-green rv">
+            <h3>&#x1F4BB; CLI</h3>
+            <ul style="list-style:none;margin-left:0"><li><a href="https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-best-practices" target="_blank">Best Practices</a></li><li><a href="https://docs.github.com/en/copilot/reference/cli-command-reference" target="_blank">&#x547D;&#x4EE4;&#x53C2;&#x8003;</a></li></ul>
+        </div>
+        <div class="card card-pink rv">
+            <h3>&#x1F4D6; VS Code</h3>
+            <ul style="list-style:none;margin-left:0"><li><a href="https://code.visualstudio.com/docs/copilot/customization/overview" target="_blank">&#x5B9A;&#x5236;&#x5316;&#x6982;&#x89C8;</a></li><li><a href="https://code.visualstudio.com/docs/copilot/customization/custom-agents" target="_blank">&#x81EA;&#x5B9A;&#x4E49; Agents</a></li></ul>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ========== THANK YOU ========== -->
+<section class="slide hero-slide">
+<div class="slide-content">
+    <div class="rv" style="font-size:clamp(2.2rem,5.5vw,4rem)">&#x1F680;</div>
+    <h1 class="rv"><span class="gradient-text">Thank You</span></h1>
+    <div class="neon-line rv"></div>
+    <p class="rv" style="font-size:var(--h3-size)">GitHub Copilot &#x4FE1;&#x606F;&#x62A5;&#x544A; &middot; 2026 Q1</p>
+</div>
+</section>
+
+<!-- ===========================================
+     JAVASCRIPT
+     =========================================== -->
+<script>
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.currentSlide = 0;
+        this.isAnimating = false;
+        this.touchStartY = 0;
+        this.createNavDots();
+        this.setupIntersectionObserver();
+        this.setupKeyboard();
+        this.setupWheel();
+        this.setupTouch();
+        this.updateProgress();
+    }
+    createNavDots() {
+        const nav = document.getElementById('navDots');
+        this.slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+            dot.addEventListener('click', () => this.goTo(i));
+            nav.appendChild(dot);
+        });
+        this.dots = nav.querySelectorAll('.nav-dot');
+    }
+    setupIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    const idx = Array.from(this.slides).indexOf(entry.target);
+                    this.currentSlide = idx;
+                    this.updateDots();
+                    this.updateProgress();
+                }
+            });
+        }, { threshold: 0.5 });
+        this.slides.forEach(slide => observer.observe(slide));
+    }
+    setupKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault(); this.next();
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault(); this.prev();
+            }
+        });
+    }
+    setupWheel() {
+        let lastWheel = 0;
+        document.addEventListener('wheel', (e) => {
+            const now = Date.now();
+            if (now - lastWheel < 800) return;
+            lastWheel = now;
+            if (e.deltaY > 0) this.next(); else this.prev();
+        }, { passive: true });
+    }
+    setupTouch() {
+        document.addEventListener('touchstart', (e) => { this.touchStartY = e.touches[0].clientY; });
+        document.addEventListener('touchend', (e) => {
+            const dy = this.touchStartY - e.changedTouches[0].clientY;
+            if (Math.abs(dy) > 50) { dy > 0 ? this.next() : this.prev(); }
+        });
+    }
+    goTo(idx) {
+        if (idx >= 0 && idx < this.slides.length) {
+            this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+            this.currentSlide = idx;
+            this.updateDots();
+            this.updateProgress();
+        }
+    }
+    next() { this.goTo(this.currentSlide + 1); }
+    prev() { this.goTo(this.currentSlide - 1); }
+    updateDots() { this.dots.forEach((d, i) => d.classList.toggle('active', i === this.currentSlide)); }
+    updateProgress() {
+        const pct = ((this.currentSlide) / (this.slides.length - 1)) * 100;
+        document.getElementById('progressBar').style.width = pct + '%';
+    }
+}
+
+/* Particle System */
+class ParticleSystem {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        this.init();
+        this.animate();
+        window.addEventListener('resize', () => this.resize());
+    }
+    resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; }
+    init() {
+        const count = Math.min(35, Math.floor(window.innerWidth / 40));
+        for (let i = 0; i < count; i++) {
+            this.particles.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                vx: (Math.random() - 0.5) * 0.25,
+                vy: (Math.random() - 0.5) * 0.25,
+                size: Math.random() * 1.2 + 0.4,
+                opacity: Math.random() * 0.25 + 0.08,
+                color: Math.random() > 0.5 ? '0, 255, 204' : '255, 0, 170'
+            });
+        }
+    }
+    animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = this.canvas.width;
+            if (p.x > this.canvas.width) p.x = 0;
+            if (p.y < 0) p.y = this.canvas.height;
+            if (p.y > this.canvas.height) p.y = 0;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fillStyle = 'rgba(' + p.color + ', ' + p.opacity + ')';
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+            this.ctx.fillStyle = 'rgba(' + p.color + ', ' + (p.opacity * 0.12) + ')';
+            this.ctx.fill();
+        });
+        for (let i = 0; i < this.particles.length; i++) {
+            for (let j = i + 1; j < this.particles.length; j++) {
+                const dx = this.particles[i].x - this.particles[j].x;
+                const dy = this.particles[i].y - this.particles[j].y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 140) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
+                    this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
+                    this.ctx.strokeStyle = 'rgba(0, 255, 204, ' + (0.04 * (1 - dist / 140)) + ')';
+                    this.ctx.lineWidth = 0.5;
+                    this.ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(() => this.animate());
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    new SlidePresentation();
+    new ParticleSystem(document.getElementById('particles'));
+});
+</script>
+
+</body>
+</html>

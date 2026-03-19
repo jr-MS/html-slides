@@ -15,5 +15,22 @@
     "path": "slides/openclaw-team-share-v2.html",
     "featured": true,
     "updated": "2026-03-17"
+  },
+  {
+    "id": "github-copilot-report",
+    "title": "GitHub Copilot — 2026 Q1 Report",
+    "description": "A neon-styled quarterly report deck covering GitHub Copilot updates, AI-native development patterns, and CLI best practices.",
+    "category": "Report",
+    "tags": [
+      "GitHub Copilot",
+      "Quarterly Report",
+      "Q1 2026",
+      "Neon"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/github-copilot-report.html",
+    "featured": false,
+    "updated": "2026-03-19"
   }
 ]
