@@ -60,5 +60,20 @@
     "path": "slides/designer-discussion-report.html",
     "featured": false,
     "updated": "2026-03-20"
+  },
+  {
+    "id": "call-to-action-slide-full",
+    "title": "Call to Action",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Call",
+      "Action"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/call-to-action-slide-full.html",
+    "featured": false,
+    "updated": "2026-03-20"
   }
 ]

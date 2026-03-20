@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Call to Action</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050816;
+      --panel: rgba(7, 13, 34, 0.72);
+      --panel-strong: rgba(7, 14, 32, 0.9);
+      --line: rgba(171, 214, 255, 0.16);
+      --text: #eef5ff;
+      --muted: rgba(227, 239, 255, 0.72);
+      --cyan: #72efff;
+      --blue: #6d7cff;
+      --mint: #88ffce;
+      --glow: rgba(114, 239, 255, 0.35);
+      --gold: #f6e8c7;
+      --shadow: 0 32px 80px rgba(1, 6, 20, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 14% 20%, rgba(96, 120, 255, 0.25), transparent 34%),
+        radial-gradient(circle at 82% 18%, rgba(114, 239, 255, 0.16), transparent 28%),
+        radial-gradient(circle at 78% 82%, rgba(114, 166, 255, 0.12), transparent 26%),
+        linear-gradient(135deg, #02040b 0%, #050816 45%, #090f24 100%);
+      color: var(--text);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    body::before {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 84px 84px;
+      mask-image: radial-gradient(circle at center, black 48%, transparent 88%);
+      opacity: 0.45;
+    }
+
+    body::after {
+      background:
+        linear-gradient(115deg, transparent 0 38%, rgba(255, 255, 255, 0.06) 45%, transparent 53%),
+        radial-gradient(circle at center, transparent 58%, rgba(255, 255, 255, 0.05) 100%);
+      animation: sweep 12s linear infinite;
+      mix-blend-mode: screen;
+      opacity: 0.65;
+    }
+
+    .slide {
+      position: relative;
+      width: min(1440px, calc(100vw - 48px));
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background:
+        radial-gradient(circle at 20% 16%, rgba(123, 149, 255, 0.24), transparent 32%),
+        radial-gradient(circle at 78% 20%, rgba(114, 239, 255, 0.17), transparent 30%),
+        linear-gradient(180deg, rgba(7, 12, 27, 0.96) 0%, rgba(5, 8, 22, 0.98) 100%);
+      box-shadow: var(--shadow);
+      isolation: isolate;
+    }
+
+    .slide::before,
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .slide::before {
+      background:
+        radial-gradient(circle at 88% 22%, rgba(114, 239, 255, 0.14), transparent 22%),
+        radial-gradient(circle at 18% 72%, rgba(136, 255, 206, 0.12), transparent 20%),
+        linear-gradient(90deg, transparent 0, rgba(255, 255, 255, 0.05) 48%, transparent 52%);
+      opacity: 0.8;
+      animation: drift 16s ease-in-out infinite alternate;
+    }
+
+    .slide::after {
+      inset: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 22px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(18px);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .orb.one {
+      width: 240px;
+      height: 240px;
+      top: -80px;
+      right: 18%;
+      background: radial-gradient(circle, rgba(114, 239, 255, 0.42) 0%, rgba(114, 239, 255, 0.04) 70%, transparent 100%);
+    }
+
+    .orb.two {
+      width: 220px;
+      height: 220px;
+      left: -64px;
+      bottom: 8%;
+      background: radial-gradient(circle, rgba(111, 124, 255, 0.36) 0%, rgba(111, 124, 255, 0.05) 70%, transparent 100%);
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 34px;
+      height: 100%;
+      padding: 54px 56px 46px;
+    }
+
+    .left,
+    .right {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .eyebrow,
+    .tour-chip,
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(237, 245, 255, 0.86);
+    }
+
+    .eyebrow::before,
+    .tour-chip::before,
+    .meta-chip::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan), var(--mint));
+      box-shadow: 0 0 16px rgba(114, 239, 255, 0.75);
+    }
+
+    h1 {
+      margin: 26px 0 18px;
+      font-family: "Syne", "PingFang SC", sans-serif;
+      font-size: clamp(70px, 8.4vw, 124px);
+      line-height: 0.88;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      max-width: 680px;
+    }
+
+    h1 .outline {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(233, 242, 255, 0.58);
+      text-stroke: 1px rgba(233, 242, 255, 0.58);
+    }
+
+    .lead {
+      max-width: 600px;
+      margin: 0 0 28px;
+      font-size: 21px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .lead strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .copilot-panel {
+      position: relative;
+      margin-top: 8px;
+      padding: 28px 30px 26px;
+      border-radius: 26px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.03)),
+        linear-gradient(160deg, rgba(15, 28, 64, 0.9), rgba(6, 11, 27, 0.94));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 24px 40px rgba(4, 10, 24, 0.42);
+      overflow: hidden;
+    }
+
+    .copilot-panel::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      background:
+        linear-gradient(120deg, transparent 14%, rgba(114, 239, 255, 0.14) 34%, transparent 56%),
+        linear-gradient(90deg, rgba(136, 255, 206, 0.1), transparent 30%);
+      mix-blend-mode: screen;
+      animation: sheen 6.5s linear infinite;
+    }
+
+    .copilot-label {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .copilot-label span:first-child {
+      font-size: 15px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(240, 248, 255, 0.82);
+    }
+
+    .copilot-label span:last-child {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 18px;
+      color: var(--gold);
+    }
+
+    .copilot-cta {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 18px;
+      padding: 18px 24px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(114, 239, 255, 0.12), rgba(136, 255, 206, 0.14));
+      border: 1px solid rgba(136, 255, 206, 0.26);
+      box-shadow: 0 0 0 1px rgba(136, 255, 206, 0.06), 0 18px 34px rgba(15, 32, 42, 0.28);
+      font-family: "Syne", "PingFang SC", sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #f8fffc;
+      text-transform: none;
+    }
+
+    .copilot-cta::after {
+      content: ">";
+      font-size: 26px;
+      color: var(--mint);
+    }
+
+    .slogan {
+      position: relative;
+      z-index: 1;
+      margin: 18px 0 0;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(30px, 3vw, 46px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+      max-width: 580px;
+    }
+
+    .slogan span {
+      color: var(--cyan);
+    }
+
+    .left-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 24px;
+    }
+
+    .meta-chip {
+      letter-spacing: 0.1em;
+      font-size: 12px;
+      color: rgba(234, 241, 255, 0.76);
+    }
+
+    .right {
+      justify-content: flex-start;
+      min-height: 0;
+      gap: 12px;
+    }
+
+    .tour-chip {
+      margin-left: auto;
+    }
+
+    .tour-card {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 0;
+      border-radius: 30px;
+      padding: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+        rgba(7, 13, 34, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 26px 48px rgba(4, 11, 24, 0.46);
+      overflow: hidden;
+    }
+
+    .tour-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        linear-gradient(135deg, rgba(114, 239, 255, 0.12), transparent 36%),
+        linear-gradient(310deg, rgba(109, 124, 255, 0.16), transparent 42%);
+      pointer-events: none;
+    }
+
+    .tour-poster-wrap {
+      position: relative;
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 8px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background:
+        radial-gradient(circle at top, rgba(114, 239, 255, 0.14), transparent 34%),
+        linear-gradient(180deg, rgba(11, 19, 42, 0.96), rgba(8, 12, 28, 0.98));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      transform: none;
+    }
+
+    .tour-poster-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 12%, transparent 88%, rgba(255, 255, 255, 0.08) 100%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .tour-poster {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      filter: saturate(1.05) contrast(1.02);
+    }
+
+    .tour-copy {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 6px;
+      padding: 4px 4px 2px 2px;
+    }
+
+    .tour-title {
+      font-family: "Syne", "PingFang SC", sans-serif;
+      font-size: clamp(22px, 2.3vw, 30px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .tour-title span {
+      color: var(--cyan);
+    }
+
+    .tour-sub {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(231, 241, 255, 0.78);
+    }
+
+    .tour-note {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.3;
+      color: rgba(235, 244, 255, 0.8);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .tour-note strong {
+      color: #ffffff;
+    }
+
+    .line {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(114, 239, 255, 0.65), rgba(255, 255, 255, 0));
+      opacity: 0.7;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: rise 0.95s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+
+    .delay-1 { animation-delay: 0.08s; }
+    .delay-2 { animation-delay: 0.18s; }
+    .delay-3 { animation-delay: 0.28s; }
+    .delay-4 { animation-delay: 0.38s; }
+    .delay-5 { animation-delay: 0.48s; }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes sweep {
+      0% { transform: translateX(-12%) translateY(-2%); }
+      100% { transform: translateX(12%) translateY(2%); }
+    }
+
+    @keyframes drift {
+      0% { transform: scale(1) translate3d(0, 0, 0); }
+      100% { transform: scale(1.04) translate3d(12px, -10px, 0); }
+    }
+
+    @keyframes sheen {
+      0% { transform: translateX(-42%); }
+      100% { transform: translateX(42%); }
+    }
+
+    @media (max-width: 1180px) {
+      body {
+        overflow: auto;
+      }
+
+      .slide {
+        aspect-ratio: auto;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .tour-chip {
+        margin-left: 0;
+      }
+
+      .tour-poster-wrap {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="slide">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+
+    <section class="content">
+      <div class="left">
+        <div class="eyebrow reveal">Launch mode / one page / keynote energy</div>
+
+        <h1 class="reveal delay-1">
+          Call to<br>
+          <span class="outline">Action</span>
+        </h1>
+
+        <p class="lead reveal delay-2">
+          两个动作，马上发生：
+          <strong>开始尝试 GitHub Copilot</strong>，
+          然后来现场感受微软最大 AI 活动的真正密度。
+        </p>
+
+        <div class="copilot-panel reveal delay-3">
+          <div class="copilot-label">
+            <span>Start trying GitHub Copilot</span>
+            <span>Now feels faster.</span>
+          </div>
+
+          <div class="copilot-cta">开始尝试 GitHub Copilot</div>
+
+          <p class="slogan">Prompt the future.<br><span>Ship before it blinks.</span></p>
+        </div>
+
+        <div class="left-footer reveal delay-4">
+          <div class="meta-chip">Idea to shipping</div>
+          <div class="meta-chip">Think bigger</div>
+          <div class="meta-chip">Build at demo speed</div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="tour-chip reveal delay-1">Shanghai AI Tour / 04.21</div>
+
+        <article class="tour-card reveal delay-3">
+          <div class="tour-poster-wrap">
+            <img class="tour-poster" src="../assets/imported/call-to-action-slide-full/微信图片_20260320142905_35_2.jpg" alt="Microsoft AI Tour Shanghai poster">
+          </div>
+
+          <div class="tour-copy">
+            <h2 class="tour-title">Join <span>Shanghai</span> AI Tour</h2>
+            <p class="tour-note">Microsoft's biggest AI event · Sessions · Demos</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
