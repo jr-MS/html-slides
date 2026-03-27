@@ -75,5 +75,22 @@
     "path": "slides/call-to-action-slide-full.html",
     "featured": false,
     "updated": "2026-03-20"
+  },
+  {
+    "id": "pm-ai-exponential-slide",
+    "title": "PM on the AI Exponential — Slide Deck",
+    "description": "A shareable HTML slide deck published from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "PM",
+      "On",
+      "AI",
+      "Exponential"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/pm-ai-exponential-slide.html",
+    "featured": false,
+    "updated": "2026-03-27"
   }
 ]

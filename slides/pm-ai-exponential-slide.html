@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PM on the AI Exponential — Slide Deck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b0d0d;
+        --panel: rgba(20, 24, 23, 0.82);
+        --panel-2: rgba(27, 34, 31, 0.84);
+        --ink: #f4efe7;
+        --muted: #b9b1a3;
+        --line: rgba(255, 244, 222, 0.12);
+        --acid: #b7ff4a;
+        --amber: #d68b58;
+        --shadow: 0 30px 80px rgba(0, 0, 0, 0.34);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 15% 20%, rgba(214, 139, 88, 0.14), transparent 28%),
+          radial-gradient(circle at 80% 14%, rgba(183, 255, 74, 0.09), transparent 24%),
+          linear-gradient(135deg, #111513 0%, #0b0d0d 45%, #15130f 100%);
+        color: var(--ink);
+        font-family: "IBM Plex Sans", sans-serif;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      body::before {
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 82px 82px;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 94%);
+      }
+
+      body::after {
+        opacity: 0.1;
+        background-image:
+          radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.35) 0.6px, transparent 0.7px),
+          radial-gradient(circle at 72% 54%, rgba(255, 255, 255, 0.35) 0.6px, transparent 0.7px);
+        background-size: 18px 18px, 24px 24px;
+      }
+
+      .deck {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        padding: 44px 56px 82px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translate3d(42px, 0, 0) scale(0.985);
+        transition:
+          opacity 420ms ease,
+          transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
+          visibility 0s linear 420ms;
+      }
+
+      .slide.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translate3d(0, 0, 0) scale(1);
+        transition:
+          opacity 420ms ease,
+          transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
+          visibility 0s linear 0s;
+      }
+
+      .slide.active .shell {
+        animation: shellIn 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .shell {
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(14, 18, 17, 0.82), rgba(12, 14, 14, 0.9));
+        box-shadow: var(--shadow);
+        padding: 30px;
+        display: grid;
+        overflow: hidden;
+      }
+
+      .slide-number {
+        position: absolute;
+        top: 18px;
+        right: 24px;
+        font-size: 11px;
+        letter-spacing: 0.26em;
+        color: rgba(244, 239, 231, 0.42);
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--acid);
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 44px;
+        height: 1px;
+        background: currentColor;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-family: "Noto Serif SC", "Fraunces", serif;
+        font-size: clamp(48px, 5.4vw, 86px);
+        line-height: 0.98;
+        letter-spacing: -0.045em;
+      }
+
+      h2 {
+        font-size: clamp(28px, 2.6vw, 42px);
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+      }
+
+      .lead {
+        font-size: 18px;
+        line-height: 1.72;
+        color: var(--muted);
+      }
+
+      .accent {
+        color: var(--acid);
+      }
+
+      .cover-grid,
+      .two-col,
+      .img-grid,
+      .career-grid {
+        display: grid;
+        gap: 24px;
+      }
+
+      .cover-grid {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: stretch;
+      }
+
+      .cover-copy {
+        display: grid;
+        align-content: center;
+        gap: 18px;
+        padding-right: 12px;
+      }
+
+      .quote-card,
+      .panel,
+      .stat-card,
+      .image-card,
+      .takeaway {
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      .quote-card,
+      .panel,
+      .stat-card,
+      .takeaway {
+        padding: 22px;
+      }
+
+      .quote-card {
+        display: grid;
+        align-content: end;
+        background:
+          linear-gradient(180deg, rgba(183, 255, 74, 0.06), rgba(183, 255, 74, 0.015)),
+          var(--panel);
+      }
+
+      .quote-card p {
+        font-family: "Fraunces", serif;
+        font-size: 28px;
+        line-height: 1.28;
+      }
+
+      .quote-card small,
+      .caption,
+      .meta,
+      li {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .quote-card small {
+        display: block;
+        margin-top: 14px;
+        font-size: 14px;
+      }
+
+      .hero-image {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        min-height: 100%;
+        background: #141716;
+      }
+
+      .hero-image img,
+      .image-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .reveal-target {
+        opacity: 0;
+        transform: translate3d(0, 28px, 0) scale(0.985);
+        filter: blur(8px);
+        will-change: transform, opacity, filter;
+      }
+
+      .slide.active .reveal-target {
+        animation: revealUp 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        animation-delay: calc(80ms + var(--stagger, 0) * 90ms);
+      }
+
+      .slide.active .hero-image img,
+      .slide.active .image-card img {
+        animation: imageDrift 7.5s ease-out both;
+        transform-origin: center center;
+      }
+
+      .slide.active .panel,
+      .slide.active .stat-card,
+      .slide.active .takeaway,
+      .slide.active .quote-card {
+        box-shadow: 0 18px 36px rgba(0, 0, 0, 0.16);
+        border-color: rgba(183, 255, 74, 0.18);
+        transition:
+          box-shadow 900ms ease calc(220ms + var(--stagger, 0) * 40ms),
+          border-color 900ms ease calc(220ms + var(--stagger, 0) * 40ms);
+      }
+
+      .hero-overlay {
+        position: absolute;
+        inset: auto 18px 18px 18px;
+        padding: 16px 18px;
+        background: rgba(10, 12, 11, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        backdrop-filter: blur(10px);
+      }
+
+      .hero-overlay strong,
+      .mini-title,
+      .panel-label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--acid);
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      .hero-overlay p,
+      .panel p,
+      .takeaway p {
+        font-size: 15px;
+        line-height: 1.68;
+        color: var(--muted);
+      }
+
+      .two-col {
+        grid-template-columns: 0.9fr 1.1fr;
+      }
+
+      .stack,
+      .quad,
+      .career-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .quad {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panel h3,
+      .stat-card h3 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        line-height: 1.28;
+      }
+
+      .panel ul {
+        margin: 0;
+        padding-left: 18px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .img-grid {
+        grid-template-columns: 1.02fr 0.98fr;
+      }
+
+      .image-card {
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+        background: var(--panel-2);
+      }
+
+      .caption {
+        padding: 14px 16px 16px;
+        font-size: 13px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .stat-card strong {
+        display: block;
+        font-size: 36px;
+        line-height: 1;
+        color: var(--acid);
+        margin-bottom: 10px;
+      }
+
+      .career-grid {
+        grid-template-columns: 1.05fr 0.95fr;
+      }
+
+      .career-item {
+        padding: 16px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .career-item:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .career-item h4 {
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      .career-item p {
+        color: var(--muted);
+        line-height: 1.65;
+        font-size: 14px;
+      }
+
+      .takeaway {
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+
+      .sources a {
+        color: var(--ink);
+        text-decoration-color: rgba(183, 255, 74, 0.5);
+      }
+
+      .footer-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: end;
+        margin-top: auto;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: rgba(244, 239, 231, 0.65);
+        font-size: 13px;
+      }
+
+      .nav {
+        position: fixed;
+        left: 24px;
+        right: 24px;
+        bottom: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        z-index: 20;
+      }
+
+      .nav button {
+        border: 1px solid var(--line);
+        background: rgba(12, 15, 14, 0.86);
+        color: var(--ink);
+        padding: 12px 16px;
+        font: inherit;
+        cursor: pointer;
+        min-width: 86px;
+      }
+
+      .nav button:hover {
+        border-color: rgba(183, 255, 74, 0.45);
+      }
+
+      .dots {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+      }
+
+      .dot.active {
+        background: var(--acid);
+        border-color: var(--acid);
+      }
+
+      .hint {
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(244, 239, 231, 0.45);
+      }
+
+      @keyframes revealUp {
+        from {
+          opacity: 0;
+          transform: translate3d(0, 28px, 0) scale(0.985);
+          filter: blur(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translate3d(0, 0, 0) scale(1);
+          filter: blur(0);
+        }
+      }
+
+      @keyframes imageDrift {
+        from {
+          transform: scale(1.035) translate3d(0, 10px, 0);
+          filter: saturate(0.96) brightness(0.96);
+        }
+        to {
+          transform: scale(1.0) translate3d(0, 0, 0);
+          filter: saturate(1) brightness(1);
+        }
+      }
+
+      @keyframes shellIn {
+        from {
+          transform: scale(0.992);
+          filter: brightness(0.92);
+        }
+        to {
+          transform: scale(1);
+          filter: brightness(1);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+          scroll-behavior: auto !important;
+        }
+
+        .reveal-target {
+          opacity: 1;
+          transform: none;
+          filter: none;
+        }
+      }
+
+      @media (max-width: 1100px) {
+        .slide {
+          padding: 20px 20px 88px;
+        }
+
+        .shell {
+          padding: 20px;
+          overflow: auto;
+        }
+
+        .cover-grid,
+        .two-col,
+        .img-grid,
+        .career-grid,
+        .quad,
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        html,
+        body {
+          overflow: auto;
+        }
+
+        .slide {
+          position: relative;
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+          min-height: 100vh;
+        }
+
+        .nav {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck" id="deck">
+      <section class="slide active" data-title="Cover">
+        <div class="shell cover-grid">
+          <div class="slide-number">01 / 06</div>
+          <div class="cover-copy">
+            <div class="eyebrow">PM / AI / Exponential</div>
+            <h1>
+              产品经理，正在从
+              <span class="accent">roadmap keeper</span>
+              变成
+              <span class="accent">capability surfer</span>
+            </h1>
+            <p class="lead">
+              当模型能力以指数级提升，PM 的核心任务不再是提前把未来规划对，而是更快看见边界变化、推动实验、用原型验证方向，并在能力跃迁时重新组织产品。
+            </p>
+            <div class="quote-card">
+              <span class="panel-label">Cat Wu on X</span>
+              <p>
+                “The PM playbook was built on an assumption that the technology underneath
+                your product is roughly stable.”
+              </p>
+              <small>
+                这个假设在 AI 时代已经失效。新的 PM 节奏，是持续试验、持续 shipping、
+                持续用新模型重估旧判断。
+              </small>
+            </div>
+          </div>
+
+          <figure class="hero-image">
+            <img
+              src="https://cdn.prod.website-files.com/68a44d4040f98a4adf2207b6/69bc786ee19c0641392b77ad_og_product-management-on-the-ai-exponential.jpg"
+              alt="Product management on the AI exponential article cover"
+            />
+            <figcaption class="hero-overlay">
+              <strong>Article visual</strong>
+              <p>
+                这份 deck 基于 Cat Wu 的推文 framing、你补充的评论要点，以及 Anthropic
+                文章《Product management on the AI exponential》整理。
+              </p>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Why old PM breaks">
+        <div class="shell two-col">
+          <div class="slide-number">02 / 06</div>
+          <div class="stack">
+            <div class="eyebrow">Why the old playbook breaks</div>
+            <h2>旧式 PM 剧本失效，不是因为 PM 不重要，而是因为“稳定技术前提”不见了</h2>
+            <p class="lead">
+              过去可以先研究、写 PRD、排 roadmap、然后按季度交付。现在则要默认：
+              项目开始时做不到的事，可能会在项目推进中途突然变成可行。
+            </p>
+          </div>
+
+          <div class="quad">
+            <article class="panel">
+              <span class="panel-label">Shift 01</span>
+              <h3>角色边界正在混合</h3>
+              <p>设计师写代码、工程师做产品判断、PM 自己做 prototype 和 eval，分工不再线性。</p>
+            </article>
+            <article class="panel">
+              <span class="panel-label">Shift 02</span>
+              <h3>文档不再是最高保真度</h3>
+              <p>在 Claude Code 这类工具存在后，原型比文档更快、更真实地表达产品判断。</p>
+            </article>
+            <article class="panel">
+              <span class="panel-label">Shift 03</span>
+              <h3>Roadmap 周期被压缩</h3>
+              <p>长期路线图很容易在能力上行过程中失真，小实验和短 sprint 更有竞争力。</p>
+            </article>
+            <article class="panel">
+              <span class="panel-label">Shift 04</span>
+              <h3>发布不再意味着结束</h3>
+              <p>每次模型升级，都是一次重新检查功能、成本结构、交互方式的机会。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Cat Wu four moves">
+        <div class="shell">
+          <div class="slide-number">03 / 06</div>
+          <div class="eyebrow">Cat Wu's comment thread</div>
+          <h2 style="margin-bottom: 22px;">她在评论里强调的 4 条 PM 行动准则</h2>
+          <div class="quad">
+            <article class="panel">
+              <span class="panel-label">01</span>
+              <h3>Plan in short sprints</h3>
+              <p>
+                Long roadmaps can't compete with a high velocity of small experiments。很多功能不是 roadmap
+                规划出来的，而是团队先试、内部用户喜欢、再迅速上线。
+              </p>
+            </article>
+            <article class="panel">
+              <span class="panel-label">02</span>
+              <h3>Encourage demos and evals over docs</h3>
+              <p>
+                用 Opus 4.6 做出一个工作的原型，已经比写一篇说明文档更快、更高保真。产品讨论应围绕 demo 和 eval 展开。
+              </p>
+            </article>
+            <article class="panel">
+              <span class="panel-label">03</span>
+              <h3>Revisit features with new models</h3>
+              <p>
+                每次模型发布后，都应该回头重测那些上一代模型做不到的功能；同时删掉已经不再需要的 scaffolding。
+              </p>
+            </article>
+            <article class="panel">
+              <span class="panel-label">04</span>
+              <h3>Do the simple thing</h3>
+              <p>
+                在 agentic systems 里，系统越复杂，失败会层层放大。先找到最简单、但真的有效的路径，再去做优化。
+              </p>
+            </article>
+          </div>
+          <div class="footer-row">
+            <div>这四点，几乎定义了 AI 时代 PM 的“操作系统”。</div>
+            <div class="hint">Use ← → or click buttons to navigate</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Workflow stack">
+        <div class="shell img-grid">
+          <div class="slide-number">04 / 06</div>
+          <figure class="image-card">
+            <img
+              src="https://cdn.prod.website-files.com/68a44d4040f98a4adf2207b6/69bc295c981804a6cc75ded9_fig1-claude-code-pm-playbook-on-the-ai-exponential-v4%402x.png"
+              alt="Anthropic figure showing a new product management workflow across Claude.ai, Claude Code, and Cowork"
+            />
+            <figcaption class="caption">
+              文章中的 workflow 图：用聊天协作、agentic coding、knowledge work 工具分别承接思考、构建和执行。
+            </figcaption>
+          </figure>
+
+          <div class="stack">
+            <div class="eyebrow">New PM workflow</div>
+            <h2>新的 PM 工作流：想法、原型、执行，正在被 AI 重新接线</h2>
+            <article class="panel">
+              <span class="panel-label">Thought partner</span>
+              <p>先和模型一起拆策略、对齐非共识、压缩模糊问题的定义成本。</p>
+            </article>
+            <article class="panel">
+              <span class="panel-label">Prototype builder</span>
+              <p>把 spec 直接变脚本、demo、eval，让产品判断尽快从语言变成证据。</p>
+            </article>
+            <article class="panel">
+              <span class="panel-label">Knowledge operator</span>
+              <p>从文档、Slack、用户反馈、历史决策里持续提取上下文，帮助团队更快推进。</p>
+            </article>
+            <article class="takeaway">
+              <span class="panel-label">Implication</span>
+              <p>
+                PM 的竞争力，不再只是“想明白”，而是
+                <span class="accent">能不能把想明白的东西，在同一天做成能被看见、被试用、被质疑的原型</span>。
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Model progress">
+        <div class="shell">
+          <div class="slide-number">05 / 06</div>
+          <div class="eyebrow">Why revisiting matters</div>
+          <h2 style="margin-bottom: 18px;">模型进步速度，正在重写 PM 的节奏感</h2>
+          <div class="img-grid" style="margin-bottom: 18px;">
+            <figure class="image-card">
+              <img
+                src="https://cdn.prod.website-files.com/68a44d4040f98a4adf2207b6/69bc2f892ac8ae5b32d2ac32_Screenshot%202026-03-19%20at%201.16.39%E2%80%AFPM.png"
+                alt="METR chart on task completion time horizons of frontier AI models"
+              />
+              <figcaption class="caption">
+                文章引用的 METR 图：前沿模型可完成的软件任务时长在快速上升，这会直接改变功能可行性边界。
+              </figcaption>
+            </figure>
+            <article class="panel">
+              <span class="panel-label">What this means for PMs</span>
+              <ul>
+                <li>路线图要留出回看空间：上一代模型做不到，不代表这一代还不行。</li>
+                <li>先验证 capability，再优化 token / 成本；不要过早把能力阉割掉。</li>
+                <li>每天主动用新模型做“看起来还太难”的事，常常能提前发现下一波产品机会。</li>
+                <li>如果用户已经在手动拼接多个工具，那很可能就是产品该内建的功能。</li>
+              </ul>
+            </article>
+          </div>
+          <div class="stats">
+            <article class="stat-card">
+              <span class="panel-label">Roadmaps</span>
+              <strong>Shorter</strong>
+              <p>长期路线图更容易过时，短冲刺和 side quests 更适合当下节奏。</p>
+            </article>
+            <article class="stat-card">
+              <span class="panel-label">Validation</span>
+              <strong>Faster</strong>
+              <p>prototype-first 让错误更便宜，也让正确方向更快浮出水面。</p>
+            </article>
+            <article class="stat-card">
+              <span class="panel-label">Architecture</span>
+              <strong>Simpler</strong>
+              <p>越简单的系统，越能承接下一次模型升级；复杂 workaround 往往很快贬值。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Career map">
+        <div class="shell career-grid">
+          <div class="slide-number">06 / 06</div>
+          <div class="career-list">
+            <div class="eyebrow">Career development map</div>
+            <h2>AI 时代，PM 的成长路径不再只是“更会写 PRD”</h2>
+            <div class="career-item">
+              <h4>01 / 从需求定义者，升级为问题 framing 者</h4>
+              <p>把复杂、跨职能、模糊的问题压缩成一句清楚的判断，是新的基本功。</p>
+            </div>
+            <div class="career-item">
+              <h4>02 / 从协调者，升级为原型发起者</h4>
+              <p>不会只等排期，而是自己把概念做成 demo，让团队围绕真实对象协作。</p>
+            </div>
+            <div class="career-item">
+              <h4>03 / 从“凭经验”到“凭 eval”</h4>
+              <p>会设计反馈回路、识别失败模式、维护 capability map，像研究者一样推进产品。</p>
+            </div>
+            <div class="career-item">
+              <h4>04 / 从控制全流程，到守住少数非妥协项</h4>
+              <p>成熟的 PM 不是什么都要管，而是知道什么绝对不能退、什么应该让速度先跑。</p>
+            </div>
+          </div>
+
+          <aside class="takeaway">
+            <span class="mini-title">The line to remember</span>
+            <h2 style="font-size: clamp(28px, 2.2vw, 38px);">
+              好 PM 的核心，是
+              <span class="accent">最先看见变化、最先验证方向、最先组织团队跟上</span>
+            </h2>
+            <p>
+              如果一个 PM 只会写文档、不碰原型、不做评估、不跟模型能力一起迭代，那职业天花板会来得很快。
+            </p>
+            <div class="sources">
+              <p class="meta">
+                Sources<br />
+                <a href="https://x.com/_catwu/status/2035104384007422347">Cat Wu on X</a><br />
+                <a href="https://claude.com/blog/product-management-on-the-ai-exponential">Anthropic article</a>
+              </p>
+            </div>
+            <p class="meta">
+              说明：本 deck 包含文章配图、原帖 framing，以及你补充的 Cat Wu 评论要点；未虚构不可验证的额外评论内容。
+            </p>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <nav class="nav" aria-label="Slide navigation">
+      <button type="button" id="prevBtn">← Prev</button>
+      <div class="dots" id="dots"></div>
+      <button type="button" id="nextBtn">Next →</button>
+    </nav>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const dotsRoot = document.getElementById("dots");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      let index = 0;
+      let wheelLocked = false;
+
+      function registerRevealTargets() {
+        const selector = [
+          ".eyebrow",
+          "h1",
+          "h2",
+          ".lead",
+          ".quote-card",
+          ".hero-image",
+          ".panel",
+          ".image-card",
+          ".takeaway",
+          ".stat-card",
+          ".career-item",
+          ".footer-row",
+        ].join(",");
+
+        slides.forEach((slide) => {
+          const targets = Array.from(slide.querySelectorAll(selector));
+          targets.forEach((element, targetIndex) => {
+            element.classList.add("reveal-target");
+            element.style.setProperty("--stagger", String(targetIndex));
+          });
+        });
+      }
+
+      registerRevealTargets();
+
+      slides.forEach((slide, i) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "dot";
+        dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
+        dot.addEventListener("click", () => show(i));
+        dotsRoot.appendChild(dot);
+      });
+
+      const dots = Array.from(document.querySelectorAll(".dot"));
+
+      function show(nextIndex) {
+        index = Math.max(0, Math.min(slides.length - 1, nextIndex));
+        slides.forEach((slide, i) => {
+          slide.classList.toggle("active", i === index);
+        });
+        dots.forEach((dot, i) => {
+          dot.classList.toggle("active", i === index);
+        });
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === slides.length - 1;
+        document.title = `${slides[index].dataset.title} — PM on the AI Exponential`;
+      }
+
+      function next() {
+        show(index + 1);
+      }
+
+      function prev() {
+        show(index - 1);
+      }
+
+      prevBtn.addEventListener("click", prev);
+      nextBtn.addEventListener("click", next);
+
+      window.addEventListener("keydown", (event) => {
+        if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+          event.preventDefault();
+          next();
+        }
+        if (["ArrowLeft", "PageUp"].includes(event.key)) {
+          event.preventDefault();
+          prev();
+        }
+        if (event.key === "Home") {
+          show(0);
+        }
+        if (event.key === "End") {
+          show(slides.length - 1);
+        }
+      });
+
+      window.addEventListener(
+        "wheel",
+        (event) => {
+          if (window.innerWidth <= 1100 || wheelLocked) {
+            return;
+          }
+          if (Math.abs(event.deltaY) < 20) {
+            return;
+          }
+          wheelLocked = true;
+          if (event.deltaY > 0) {
+            next();
+          } else {
+            prev();
+          }
+          window.setTimeout(() => {
+            wheelLocked = false;
+          }, 520);
+        },
+        { passive: true }
+      );
+
+      show(0);
+    </script>
+  </body>
+</html>
