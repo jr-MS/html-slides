@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Insights Hub — Azure Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --azure:#0078d4;
+  --azure-dark:#005a9e;
+  --azure-glow:rgba(0,120,212,.12);
+  --bg:#050a14;
+  --surface:#0c1524;
+  --surface-2:#111d32;
+  --card:#0f1a2e;
+  --border:rgba(0,120,212,.18);
+  --text:#e2e8f0;
+  --text-dim:#7b8fa8;
+  --accent-green:#00d4aa;
+  --accent-amber:#f59e0b;
+  --accent-rose:#f43f5e;
+  --accent-purple:#a78bfa;
+  --radius:16px;
+}
+
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+/* ─── Grain overlay ─── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.03;
+}
+
+/* ─── Hero ─── */
+.hero{
+  position:relative;
+  min-height:92vh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;
+  padding:4rem 2rem;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 800px 600px at 20% 50%, rgba(0,120,212,.12) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 80% 30%, rgba(0,212,170,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 400px at 50% 80%, rgba(167,139,250,.05) 0%, transparent 70%);
+}
+.hero::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:200px;
+  background:linear-gradient(to top,var(--bg),transparent);
+}
+
+.hero-badge{
+  position:relative;z-index:1;
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.45rem 1.1rem;
+  border:1px solid var(--border);
+  border-radius:100px;
+  font-size:.78rem;font-weight:500;letter-spacing:.04em;
+  color:var(--azure);
+  background:rgba(0,120,212,.06);
+  margin-bottom:2rem;
+  text-transform:uppercase;
+}
+.hero-badge::before{
+  content:'';width:7px;height:7px;border-radius:50%;
+  background:var(--accent-green);
+  box-shadow:0 0 8px var(--accent-green);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.hero h1{
+  position:relative;z-index:1;
+  font-size:clamp(2.4rem,6vw,4.6rem);
+  font-weight:800;
+  letter-spacing:-.03em;
+  line-height:1.1;
+  max-width:900px;
+  background:linear-gradient(135deg,#fff 0%,#c0d8f0 50%,var(--azure) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero p{
+  position:relative;z-index:1;
+  margin-top:1.6rem;
+  font-size:1.15rem;
+  color:var(--text-dim);
+  max-width:640px;
+  font-weight:300;
+}
+
+.hero-cta{
+  position:relative;z-index:1;
+  margin-top:2.4rem;
+  display:inline-flex;align-items:center;gap:.6rem;
+  padding:.85rem 2rem;
+  background:var(--azure);
+  color:#fff;
+  font-weight:600;font-size:.95rem;
+  border:none;border-radius:100px;
+  cursor:pointer;
+  text-decoration:none;
+  transition:all .3s;
+  box-shadow:0 4px 24px rgba(0,120,212,.3);
+}
+.hero-cta:hover{background:var(--azure-dark);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,120,212,.4)}
+.hero-cta svg{width:18px;height:18px}
+
+/* ─── Section layout ─── */
+section{position:relative;padding:6rem 2rem}
+.container{max-width:1200px;margin:0 auto}
+
+.section-label{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--azure);
+  margin-bottom:1rem;
+}
+.section-label::before{content:'';width:20px;height:1px;background:var(--azure)}
+
+.section-title{
+  font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.02em;
+  line-height:1.2;
+  margin-bottom:1rem;
+}
+.section-desc{
+  font-size:1.05rem;color:var(--text-dim);max-width:640px;font-weight:300;
+  margin-bottom:3rem;
+}
+
+/* ─── Service mapping cards ─── */
+.mapping-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:1.5rem;
+}
+.map-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.6rem;
+  transition:all .35s;
+  position:relative;overflow:hidden;
+}
+.map-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--azure),var(--accent-green));
+  opacity:0;transition:opacity .35s;
+}
+.map-card:hover{border-color:rgba(0,120,212,.35);transform:translateY(-4px)}
+.map-card:hover::before{opacity:1}
+
+.map-card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.map-card-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;
+  flex-shrink:0;
+}
+.map-card-header h3{font-size:1rem;font-weight:600;line-height:1.3}
+
+.map-row{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.6rem 0;
+  font-size:.88rem;
+}
+.map-row+.map-row{border-top:1px solid rgba(255,255,255,.04)}
+.map-aws{
+  flex:1;
+  color:var(--text-dim);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;
+}
+.map-arrow{color:var(--azure);font-size:.9rem;flex-shrink:0}
+.map-azure{
+  flex:1;
+  font-weight:500;
+  color:var(--accent-green);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;
+}
+
+/* ─── Steps ─── */
+.steps-section{
+  background:linear-gradient(180deg,var(--bg) 0%,var(--surface) 50%,var(--bg) 100%);
+}
+
+.steps-timeline{
+  position:relative;
+  max-width:860px;
+  margin:0 auto;
+}
+.steps-timeline::before{
+  content:'';position:absolute;left:28px;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--azure),var(--accent-green),var(--accent-purple));
+  border-radius:2px;
+}
+
+.step{
+  position:relative;
+  padding-left:76px;
+  padding-bottom:3rem;
+}
+.step:last-child{padding-bottom:0}
+
+.step-number{
+  position:absolute;left:8px;top:0;
+  width:42px;height:42px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.82rem;font-weight:700;
+  color:#fff;
+  z-index:2;
+  box-shadow:0 0 0 4px var(--bg),0 0 20px rgba(0,120,212,.3);
+}
+
+.step-content{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.5rem 1.8rem;
+  transition:all .3s;
+}
+.step-content:hover{
+  border-color:rgba(0,120,212,.3);
+  box-shadow:0 8px 32px rgba(0,0,0,.3);
+}
+
+.step-title{font-size:1.05rem;font-weight:600;margin-bottom:.5rem;line-height:1.4}
+.step-desc{font-size:.92rem;color:var(--text-dim);line-height:1.7;font-weight:300}
+
+.step-services{
+  display:flex;flex-wrap:wrap;gap:.4rem;
+  margin-top:.8rem;
+}
+.step-tag{
+  display:inline-flex;align-items:center;gap:.3rem;
+  padding:.25rem .7rem;
+  border-radius:6px;
+  font-size:.72rem;font-weight:500;
+  letter-spacing:.02em;
+}
+.tag-blue{background:rgba(0,120,212,.12);color:#60a5fa}
+.tag-green{background:rgba(0,212,170,.1);color:#34d399}
+.tag-purple{background:rgba(167,139,250,.1);color:#a78bfa}
+.tag-amber{background:rgba(245,158,11,.1);color:#fbbf24}
+.tag-rose{background:rgba(244,63,94,.1);color:#fb7185}
+
+/* ─── Architecture diagram ─── */
+.arch-section{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+
+.arch-diagram-wrap{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:2rem;
+  overflow-x:auto;
+  margin-top:2rem;
+}
+
+.arch-svg-container{
+  min-width:1100px;
+  width:100%;
+}
+
+/* ─── Footer ─── */
+.footer{
+  text-align:center;
+  padding:3rem 2rem;
+  font-size:.82rem;
+  color:var(--text-dim);
+  border-top:1px solid var(--border);
+}
+
+/* ─── Animations ─── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.animate{animation:fadeUp .7s ease forwards;opacity:0}
+.delay-1{animation-delay:.1s}
+.delay-2{animation-delay:.2s}
+.delay-3{animation-delay:.3s}
+.delay-4{animation-delay:.4s}
+.delay-5{animation-delay:.5s}
+.delay-6{animation-delay:.6s}
+.delay-7{animation-delay:.7s}
+.delay-8{animation-delay:.8s}
+
+/* ─── Responsive ─── */
+@media(max-width:768px){
+  .mapping-grid{grid-template-columns:1fr}
+  .steps-timeline::before{left:18px}
+  .step{padding-left:56px}
+  .step-number{left:0;width:36px;height:36px;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero">
+  <span class="hero-badge animate">Cloud Migration · Healthcare AI</span>
+  <h1 class="animate delay-1">Medical Insights Hub</h1>
+  <p class="animate delay-2">从 AWS 到 Azure 的全架构迁移方案 — 完整保留原有 12 步骤数据流，以 Azure 原生服务实现医疗智能洞察平台</p>
+  <a href="#steps" class="hero-cta animate delay-3">
+    查看迁移步骤
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+  </a>
+</section>
+
+<!-- ═══════════ SERVICE MAPPING ═══════════ -->
+<section>
+  <div class="container">
+    <span class="section-label animate">Service Mapping</span>
+    <h2 class="section-title animate delay-1">AWS → Azure 服务映射</h2>
+    <p class="section-desc animate delay-2">每一个 AWS 服务都有对应的 Azure 原生服务，以下是完整的一对一映射关系</p>
+
+    <div class="mapping-grid">
+      <!-- CDN & Frontend -->
+      <div class="map-card animate delay-2">
+        <div class="map-card-header">
+          <div class="map-card-icon" style="background:rgba(0,120,212,.12);color:#60a5fa">🌐</div>
+          <h3>内容分发 & 前端</h3>
+        </div>
+        <div class="map-row"><span class="map-aws">CloudFront + S3</span><span class="map-arrow">→</span><span class="map-azure">Front Door + Static Web Apps</span></div>
+      </div>
+
+      <!-- Auth -->
+      <div class="map-card animate delay-3">
+        <div class="map-card-header">
+          <div class="map-card-icon" style="background:rgba(244,63,94,.1);color:#fb7185">🔐</div>
+          <h3>身份认证</h3>
+        </div>
+        <div class="map-row"><span class="map-aws">Amazon Cognito</span><span class="map-arrow">→</span><span class="map-azure">Microsoft Entra External ID</span></div>
+      </div>
+
+      <!-- API Gateway -->
+      <div class="map-card animate delay-4">
+        <div class="map-card-header">
+          <div class="map-card-icon" style="background:rgba(0,120,212,.12);color:#60a5fa">🔀</div>
+          <h3>API 网关</h3>
+        </div>
+        <div class="map-row"><span class="map-aws">API Gateway</span><span class="map-arrow">→</span><span class="map-azure">Azure API Management</span></div>
+      </div>
+
+      <!-- Compute -->
+      <div class="map-card animate delay-5">
+        <div class="map-card-header">
+          <div class="map-card-icon" style="background:rgba(0,212,170,.1);color:#34d399">⚡</div>
+          <h3>无服务器计算</h3>
+        </div>
+        <div class="map-row"><span class="map-aws">AWS Lambda</span><span class="map-arrow">→</span><span class="map-azure">Azure Functions</span></div>
+        <div class="map-row"><span class="map-aws">Amazon ECS</span><span class="map-arrow">→</span><span class="map-azure">Azure Container Apps</span></div>
+      </div>
+
+      <!-- Database -->
+      <div class="map-card animate delay-6">
+        <div class="map-card-header">
+          <div class="map-card-icon" style="background:rgba(167,139,250,.1);color:#a78bfa">💾</div>
+          <h3>数据库 & 存储</h3>
+        </div>
+        <div class="map-row"><span class="map-aws">Amazon RDS</span><span class="map-arrow">→</span><span class="map-azure">Azure SQL / PostgreSQL</span></div>
+        <div class="map-row"><span class="map-aws">Amazon S3</span><span class="map-arrow">→</span><span class="map-azure">Azure Blob Storage</span></div>
+        <div class="map-row"><span class="map-aws">Amazon DynamoDB</span><span class="map-arrow">→</span><span class="map-azure">Azure Cosmos DB</span></div>
+      </div>
+
+      <!-- Messaging -->
+      <div class="map-card animate delay-7">
+        <div class="map-card-header">
+          <div class="map-card-icon" style="background:rgba(245,158,11,.1);color:#fbbf24">📨</div>
+          <h3>消息 & 事件</h3>
+        </div>
+        <div class="map-row"><span class="map-aws">Amazon SQS</span><span class="map-arrow">→</span><span class="map-azure">Azure Service Bus</span></div>
+        <div class="map-row"><span class="map-aws">Amazon SNS</span><span class="map-arrow">→</span><span class="map-azure">Azure Event Grid</span></div>
+      </div>
+
+      <!-- AI / ML -->
+      <div class="map-card animate delay-8">
+        <div class="map-card-header">
+          <div class="map-card-icon" style="background:rgba(0,120,212,.12);color:#60a5fa">🧠</div>
+          <h3>AI & 机器学习</h3>
+        </div>
+        <div class="map-row"><span class="map-aws">Amazon SageMaker</span><span class="map-arrow">→</span><span class="map-azure">Azure Machine Learning</span></div>
+        <div class="map-row"><span class="map-aws">Amazon Translate</span><span class="map-arrow">→</span><span class="map-azure">Azure AI Translator</span></div>
+      </div>
+
+      <!-- Security -->
+      <div class="map-card animate delay-8">
+        <div class="map-card-header">
+          <div class="map-card-icon" style="background:rgba(244,63,94,.1);color:#fb7185">🛡️</div>
+          <h3>安全 & 密钥管理</h3>
+        </div>
+        <div class="map-row"><span class="map-aws">Secrets Manager</span><span class="map-arrow">→</span><span class="map-azure">Azure Key Vault</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 12 STEPS ═══════════ -->
+<section class="steps-section" id="steps">
+  <div class="container">
+    <span class="section-label">Architecture Flow</span>
+    <h2 class="section-title">12 步架构流程 — Azure 实现</h2>
+    <p class="section-desc">完全对标 AWS Medical Insights Hub 原始架构的每一步，以 Azure 原生服务实现</p>
+
+    <div class="steps-timeline">
+
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#0078d4,#00b4d8)">1</div>
+        <div class="step-content">
+          <div class="step-title">用户通过 Azure Front Door 和 Azure Static Web Apps 访问用户界面控制台</div>
+          <div class="step-desc">用户/临床医生/分析师通过 Azure Front Door（集成 WAF 和全球 CDN）访问托管在 Azure Static Web Apps 上的前端界面。Front Door 提供全局负载均衡、DDoS 防护和自定义域名支持。</div>
+          <div class="step-services">
+            <span class="step-tag tag-blue">Azure Front Door</span>
+            <span class="step-tag tag-green">Static Web Apps</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#0078d4,#00b4d8)">2</div>
+        <div class="step-content">
+          <div class="step-title">应用程序使用 Microsoft Entra External ID（或 Entra ID B2C）进行身份验证</div>
+          <div class="step-desc">前端通过 OIDC/OAuth 2.0 协议与 Microsoft Entra External ID 进行交互，实现用户注册、登录、多因子认证和条件访问策略。支持社交身份提供商集成及自定义用户流。</div>
+          <div class="step-services">
+            <span class="step-tag tag-rose">Microsoft Entra External ID</span>
+            <span class="step-tag tag-rose">Entra ID B2C</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#0078d4,#00b4d8)">3</div>
+        <div class="step-content">
+          <div class="step-title">应用程序访问通过 Azure API Management 提供的 RESTful API</div>
+          <div class="step-desc">已认证的请求经由 Azure API Management (APIM) 路由。APIM 提供策略引擎用于速率限制、JWT 验证、请求/响应转换、API 版本管理和开发者门户。</div>
+          <div class="step-services">
+            <span class="step-tag tag-blue">Azure API Management</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#00b4d8,#00d4aa)">4</div>
+        <div class="step-content">
+          <div class="step-title">Azure API Management 调用 Azure Functions</div>
+          <div class="step-desc">APIM 将验证过的 API 调用转发至 Azure Functions。Functions 以事件驱动的无服务器方式执行业务逻辑，支持 HTTP 触发器和 Durable Functions 编排。</div>
+          <div class="step-services">
+            <span class="step-tag tag-blue">API Management</span>
+            <span class="step-tag tag-green">Azure Functions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#00d4aa,#34d399)">5</div>
+        <div class="step-content">
+          <div class="step-title">Azure Functions 将持久性数据存储在 Azure SQL Database 中，将临时数据存储在 Azure Blob Storage 中</div>
+          <div class="step-desc">持久性的应用数据（用户数据、交易记录）存入 Azure SQL Database 或 Azure Database for PostgreSQL；临时数据和中间文件使用 Azure Blob Storage，支持热/冷/归档分层。</div>
+          <div class="step-services">
+            <span class="step-tag tag-purple">Azure SQL Database</span>
+            <span class="step-tag tag-purple">Azure Blob Storage</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#34d399,#00d4aa)">6</div>
+        <div class="step-content">
+          <div class="step-title">Azure Functions 从 Azure Key Vault 获取存储的 API 密钥，并调用 Insights Core</div>
+          <div class="step-desc">Functions 通过 Managed Identity 无密码访问 Azure Key Vault，获取 API 密钥、连接字符串和证书。使用 Key Vault References 实现零代码密钥轮换。</div>
+          <div class="step-services">
+            <span class="step-tag tag-rose">Azure Key Vault</span>
+            <span class="step-tag tag-green">Azure Functions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#00d4aa,#a78bfa)">7</div>
+        <div class="step-content">
+          <div class="step-title">Azure Container Apps 获取 API 密钥，并通过 Azure Functions 从外部源获取数据。临时数据存储在 Blob Storage 和 Cosmos DB 中</div>
+          <div class="step-desc">Azure Container Apps（替代 ECS）运行长时间运行的数据采集任务和批处理作业。Container Apps Jobs 用于一次性任务。所有临时数据存入 Blob Storage，工作流元数据和状态记录在 Cosmos DB 中。</div>
+          <div class="step-services">
+            <span class="step-tag tag-green">Container Apps</span>
+            <span class="step-tag tag-purple">Blob Storage</span>
+            <span class="step-tag tag-purple">Cosmos DB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#a78bfa,#c084fc)">8</div>
+        <div class="step-content">
+          <div class="step-title">Azure Container Apps 派发任务，并将消息推送到 Azure Service Bus</div>
+          <div class="step-desc">容器任务完成后，将处理结果和任务消息发送到 Azure Service Bus 队列。Service Bus 提供 FIFO、死信队列(DLQ)、会话和事务支持，确保消息可靠传递。</div>
+          <div class="step-services">
+            <span class="step-tag tag-green">Container Apps</span>
+            <span class="step-tag tag-amber">Azure Service Bus</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">9</div>
+        <div class="step-content">
+          <div class="step-title">Azure Service Bus 触发 Azure Functions 执行</div>
+          <div class="step-desc">Service Bus 队列中的新消息通过 Service Bus Trigger 自动触发 Azure Functions。Functions 处理每条消息并执行后续的推理和翻译流程。支持批量处理和并发控制。</div>
+          <div class="step-services">
+            <span class="step-tag tag-amber">Service Bus Trigger</span>
+            <span class="step-tag tag-green">Azure Functions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 10 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#0078d4,#60a5fa)">10</div>
+        <div class="step-content">
+          <div class="step-title">Azure Functions 调用托管在 Azure Machine Learning 上的模型进行推理，翻译任务调用 Azure AI Translator</div>
+          <div class="step-desc">Functions 调用 Azure ML Managed Online Endpoints 进行模型推理（或通过 ACA/AKS 自托管模型服务）。翻译任务使用 Azure AI Translator 进行医学术语的多语言翻译。</div>
+          <div class="step-services">
+            <span class="step-tag tag-blue">Azure Machine Learning</span>
+            <span class="step-tag tag-blue">ACA / AKS</span>
+            <span class="step-tag tag-blue">Azure AI Translator</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 11 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#f59e0b,#f43f5e)">11</div>
+        <div class="step-content">
+          <div class="step-title">Azure Functions 在推理完成后通知 Azure Event Grid</div>
+          <div class="step-desc">推理和翻译完成后，Azure Functions 向 Event Grid Topic 发布完成事件。Event Grid 以推送方式将事件分发给所有订阅者，支持过滤、重试和死信。</div>
+          <div class="step-services">
+            <span class="step-tag tag-green">Azure Functions</span>
+            <span class="step-tag tag-amber">Azure Event Grid</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 12 -->
+      <div class="step">
+        <div class="step-number" style="background:linear-gradient(135deg,#f43f5e,#a78bfa)">12</div>
+        <div class="step-content">
+          <div class="step-title">Azure Event Grid 触发 Azure Functions 执行，并返回推理结果</div>
+          <div class="step-desc">Event Grid 订阅触发另一组 Azure Functions，将推理结果写入数据库并通过 SignalR / WebSocket 推送给前端用户。完成端到端的医学洞察分析闭环。</div>
+          <div class="step-services">
+            <span class="step-tag tag-amber">Event Grid</span>
+            <span class="step-tag tag-green">Azure Functions</span>
+            <span class="step-tag tag-purple">Azure SQL / Cosmos DB</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ARCHITECTURE DIAGRAM ═══════════ -->
+<section class="arch-section" id="architecture">
+  <div class="container">
+    <span class="section-label">Architecture Diagram</span>
+    <h2 class="section-title">Azure 参考架构图</h2>
+    <p class="section-desc">完整展示 Medical Insights Hub 在 Azure 上的架构拓扑，包含所有服务间的数据流向</p>
+
+    <div class="arch-diagram-wrap">
+      <div class="arch-svg-container">
+        <svg viewBox="0 0 1200 720" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',system-ui,sans-serif">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#0078d4"/>
+            </marker>
+            <marker id="arrow-green" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#00d4aa"/>
+            </marker>
+            <marker id="arrow-amber" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#f59e0b"/>
+            </marker>
+            <marker id="arrow-purple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#a78bfa"/>
+            </marker>
+            <marker id="arrow-rose" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#f43f5e"/>
+            </marker>
+            <marker id="arrow-gray" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#666"/>
+            </marker>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0078d4" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#00b4d8" stop-opacity="0.05"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Background & zones -->
+          <rect x="2" y="2" width="1196" height="716" rx="12" fill="#0a1628" stroke="#1a2a44" stroke-width="1.5"/>
+          <text x="20" y="26" fill="#4a6a8a" font-size="11" font-weight="600">Azure Subscription / Landing Zone</text>
+
+          <!-- VNet zone -->
+          <rect x="410" y="40" width="770" height="520" rx="10" fill="none" stroke="#d6b656" stroke-width="1" stroke-dasharray="6 3" opacity="0.4"/>
+          <text x="425" y="60" fill="#d6b656" font-size="9" font-weight="500" opacity="0.7">Spoke VNet · Private Endpoints · NSGs</text>
+
+          <!-- ── Row 1: Entry ── -->
+          <!-- Users -->
+          <g transform="translate(40,120)">
+            <rect width="100" height="56" rx="8" fill="#1a2a44" stroke="#2a4a6a" stroke-width="1"/>
+            <text x="50" y="23" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">👤 Users</text>
+            <text x="50" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7.5">Clinicians / Analysts</text>
+          </g>
+
+          <!-- ① Front Door -->
+          <g transform="translate(200,110)">
+            <rect width="120" height="70" rx="8" fill="url(#grad-blue)" stroke="#0078d4" stroke-width="1.2"/>
+            <text x="60" y="22" text-anchor="middle" fill="#60a5fa" font-size="8" font-weight="700">①</text>
+            <text x="60" y="36" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Azure Front Door</text>
+            <text x="60" y="50" text-anchor="middle" fill="#7b8fa8" font-size="7">WAF + CDN</text>
+            <text x="60" y="62" text-anchor="middle" fill="#7b8fa8" font-size="7">Static Web Apps</text>
+          </g>
+
+          <!-- ② Entra ID -->
+          <g transform="translate(200,220)">
+            <rect width="120" height="56" rx="8" fill="rgba(244,63,94,0.06)" stroke="#f43f5e" stroke-width="1"/>
+            <text x="60" y="20" text-anchor="middle" fill="#fb7185" font-size="8" font-weight="700">②</text>
+            <text x="60" y="34" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Entra External ID</text>
+            <text x="60" y="47" text-anchor="middle" fill="#7b8fa8" font-size="7">Auth · OIDC</text>
+          </g>
+
+          <!-- ③ API Management -->
+          <g transform="translate(420,110)">
+            <rect width="120" height="70" rx="8" fill="url(#grad-blue)" stroke="#0078d4" stroke-width="1.2"/>
+            <text x="60" y="22" text-anchor="middle" fill="#60a5fa" font-size="8" font-weight="700">③</text>
+            <text x="60" y="36" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">API Management</text>
+            <text x="60" y="50" text-anchor="middle" fill="#7b8fa8" font-size="7">Policy + Auth</text>
+            <text x="60" y="62" text-anchor="middle" fill="#7b8fa8" font-size="7">Throttling</text>
+          </g>
+
+          <!-- ④⑤⑥ Azure Functions -->
+          <g transform="translate(620,100)">
+            <rect width="130" height="86" rx="8" fill="rgba(0,212,170,0.06)" stroke="#00d4aa" stroke-width="1.2"/>
+            <text x="65" y="20" text-anchor="middle" fill="#34d399" font-size="8" font-weight="700">④⑤⑥</text>
+            <text x="65" y="36" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">Azure Functions</text>
+            <text x="65" y="52" text-anchor="middle" fill="#7b8fa8" font-size="7">HTTP APIs</text>
+            <text x="65" y="64" text-anchor="middle" fill="#7b8fa8" font-size="7">Orchestration</text>
+            <text x="65" y="76" text-anchor="middle" fill="#7b8fa8" font-size="7">Key Vault Access</text>
+          </g>
+
+          <!-- ── Row 2: Processing ── -->
+          <!-- ⑦ Container Apps -->
+          <g transform="translate(420,280)">
+            <rect width="130" height="70" rx="8" fill="rgba(0,212,170,0.06)" stroke="#00d4aa" stroke-width="1"/>
+            <text x="65" y="20" text-anchor="middle" fill="#34d399" font-size="8" font-weight="700">⑦</text>
+            <text x="65" y="35" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Container Apps</text>
+            <text x="65" y="49" text-anchor="middle" fill="#7b8fa8" font-size="7">Data Acquisition</text>
+            <text x="65" y="61" text-anchor="middle" fill="#7b8fa8" font-size="7">Batch Processing</text>
+          </g>
+
+          <!-- ⑧ Service Bus -->
+          <g transform="translate(620,280)">
+            <rect width="120" height="70" rx="8" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" stroke-width="1"/>
+            <text x="60" y="20" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="700">⑧⑨</text>
+            <text x="60" y="35" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Service Bus</text>
+            <text x="60" y="49" text-anchor="middle" fill="#7b8fa8" font-size="7">Queues / Topics</text>
+            <text x="60" y="61" text-anchor="middle" fill="#7b8fa8" font-size="7">DLQ</text>
+          </g>
+
+          <!-- ⑪⑫ Event Grid -->
+          <g transform="translate(810,280)">
+            <rect width="120" height="70" rx="8" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" stroke-width="1"/>
+            <text x="60" y="20" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="700">⑪⑫</text>
+            <text x="60" y="35" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Event Grid</text>
+            <text x="60" y="49" text-anchor="middle" fill="#7b8fa8" font-size="7">Completion</text>
+            <text x="60" y="61" text-anchor="middle" fill="#7b8fa8" font-size="7">Notifications</text>
+          </g>
+
+          <!-- ── Row 3: Data ── -->
+          <!-- Blob Storage -->
+          <g transform="translate(420,420)">
+            <rect width="110" height="56" rx="8" fill="rgba(167,139,250,0.06)" stroke="#a78bfa" stroke-width="1"/>
+            <text x="55" y="22" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Blob Storage</text>
+            <text x="55" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7">Raw Files + Temp</text>
+            <text x="55" y="50" text-anchor="middle" fill="#7b8fa8" font-size="7">Objects</text>
+          </g>
+
+          <!-- Cosmos DB -->
+          <g transform="translate(580,420)">
+            <rect width="110" height="56" rx="8" fill="rgba(167,139,250,0.06)" stroke="#a78bfa" stroke-width="1"/>
+            <text x="55" y="22" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Cosmos DB</text>
+            <text x="55" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7">Workflow State</text>
+            <text x="55" y="50" text-anchor="middle" fill="#7b8fa8" font-size="7">Metadata</text>
+          </g>
+
+          <!-- Azure SQL -->
+          <g transform="translate(740,420)">
+            <rect width="120" height="56" rx="8" fill="rgba(167,139,250,0.06)" stroke="#a78bfa" stroke-width="1"/>
+            <text x="60" y="22" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Azure SQL</text>
+            <text x="60" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7">PostgreSQL</text>
+            <text x="60" y="50" text-anchor="middle" fill="#7b8fa8" font-size="7">Transactional Data</text>
+          </g>
+
+          <!-- ── Row 3: Security & AI ── -->
+          <!-- Key Vault -->
+          <g transform="translate(900,420)">
+            <rect width="100" height="56" rx="8" fill="rgba(244,63,94,0.06)" stroke="#f43f5e" stroke-width="1"/>
+            <text x="50" y="22" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Key Vault</text>
+            <text x="50" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7">Secrets + CMKs</text>
+            <text x="50" y="50" text-anchor="middle" fill="#7b8fa8" font-size="7">Certificates</text>
+          </g>
+
+          <!-- ── Row 4: AI ── -->
+          <!-- ⑩ Azure ML -->
+          <g transform="translate(580,530)">
+            <rect width="130" height="56" rx="8" fill="url(#grad-blue)" stroke="#0078d4" stroke-width="1"/>
+            <text x="65" y="20" text-anchor="middle" fill="#60a5fa" font-size="8" font-weight="700">⑩</text>
+            <text x="65" y="34" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Azure ML</text>
+            <text x="65" y="48" text-anchor="middle" fill="#7b8fa8" font-size="7">Managed Online Endpoints</text>
+          </g>
+
+          <!-- ACA/AKS -->
+          <g transform="translate(750,530)">
+            <rect width="120" height="56" rx="8" fill="url(#grad-blue)" stroke="#0078d4" stroke-width="1"/>
+            <text x="60" y="22" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">ACA / AKS</text>
+            <text x="60" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7">Model Serving</text>
+            <text x="60" y="50" text-anchor="middle" fill="#7b8fa8" font-size="7">Containerized Inference</text>
+          </g>
+
+          <!-- Azure AI Translator -->
+          <g transform="translate(910,530)">
+            <rect width="110" height="56" rx="8" fill="url(#grad-blue)" stroke="#0078d4" stroke-width="1"/>
+            <text x="55" y="22" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">AI Translator</text>
+            <text x="55" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7">Medical Insight</text>
+            <text x="55" y="50" text-anchor="middle" fill="#7b8fa8" font-size="7">Translation</text>
+          </g>
+
+          <!-- ── Monitor ── -->
+          <g transform="translate(470,630)">
+            <rect width="260" height="50" rx="8" fill="rgba(255,255,255,0.03)" stroke="#4a6a8a" stroke-width="1"/>
+            <text x="130" y="22" text-anchor="middle" fill="#e2e8f0" font-size="9" font-weight="600">Azure Monitor + Application Insights</text>
+            <text x="130" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7">Log Analytics · Alerts · Distributed Tracing</text>
+          </g>
+
+          <!-- Note -->
+          <g transform="translate(810,630)">
+            <rect width="370" height="50" rx="8" fill="rgba(214,182,86,0.06)" stroke="#d6b656" stroke-width="1"/>
+            <text x="185" y="22" text-anchor="middle" fill="#d6b656" font-size="8" font-weight="500">🔒 Private access recommended for data, secrets, and AI endpoints.</text>
+            <text x="185" y="38" text-anchor="middle" fill="#7b8fa8" font-size="7">Hub-spoke connectivity · Firewall policy · Egress control</text>
+          </g>
+
+          <!-- ═══════════ EDGES ═══════════ -->
+
+          <!-- Users → Front Door -->
+          <line x1="140" y1="148" x2="198" y2="148" stroke="#0078d4" stroke-width="1.8" marker-end="url(#arrow)"/>
+          <text x="168" y="142" text-anchor="middle" fill="#60a5fa" font-size="7">HTTPS</text>
+
+          <!-- Front Door → APIM -->
+          <line x1="320" y1="148" x2="418" y2="148" stroke="#0078d4" stroke-width="1.8" marker-end="url(#arrow)"/>
+          <text x="368" y="142" text-anchor="middle" fill="#60a5fa" font-size="7">API</text>
+
+          <!-- Front Door → Entra (OIDC) -->
+          <line x1="260" y1="180" x2="260" y2="218" stroke="#f43f5e" stroke-width="1.2" marker-end="url(#arrow-rose)"/>
+          <text x="272" y="202" fill="#fb7185" font-size="7">OIDC</text>
+
+          <!-- Entra → APIM (dashed) -->
+          <path d="M 320 248 L 380 248 L 380 148 L 418 148" fill="none" stroke="#f43f5e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-rose)"/>
+
+          <!-- APIM → Functions -->
+          <line x1="540" y1="148" x2="618" y2="148" stroke="#0078d4" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+          <!-- Functions → Container Apps -->
+          <path d="M 650 186 L 650 210 L 485 210 L 485 278" fill="none" stroke="#00d4aa" stroke-width="1.4" marker-end="url(#arrow-green)"/>
+
+          <!-- Functions → Service Bus -->
+          <path d="M 720 186 L 720 210 L 680 210 L 680 278" fill="none" stroke="#f59e0b" stroke-width="1.4" marker-end="url(#arrow-amber)"/>
+
+          <!-- Functions → Event Grid -->
+          <path d="M 750 143 L 790 143 L 790 315 L 808 315" fill="none" stroke="#f59e0b" stroke-width="1.2" marker-end="url(#arrow-amber)"/>
+
+          <!-- Service Bus → Functions (trigger, dashed back) -->
+          <path d="M 680 278 L 680 230 L 700 230 L 700 186" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-amber)"/>
+
+          <!-- Event Grid → Functions (trigger, dashed back) -->
+          <path d="M 870 278 L 870 95 L 750 95 L 750 100" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-amber)"/>
+
+          <!-- Container Apps → Blob -->
+          <path d="M 485 350 L 485 380 L 475 380 L 475 418" fill="none" stroke="#00d4aa" stroke-width="1.2" marker-end="url(#arrow-green)"/>
+
+          <!-- Container Apps → Cosmos DB -->
+          <path d="M 520 350 L 520 390 L 635 390 L 635 418" fill="none" stroke="#00d4aa" stroke-width="1.2" marker-end="url(#arrow-green)"/>
+
+          <!-- Container Apps → Service Bus -->
+          <path d="M 550 315 L 618 315" fill="none" stroke="#f59e0b" stroke-width="1.2" marker-end="url(#arrow-amber)"/>
+
+          <!-- Functions → Blob -->
+          <path d="M 640 186 L 640 400 L 475 400 L 475 418" fill="none" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arrow-purple)"/>
+
+          <!-- Functions → Cosmos DB -->
+          <path d="M 660 186 L 660 395 L 635 395 L 635 418" fill="none" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arrow-purple)"/>
+
+          <!-- Functions → Azure SQL -->
+          <path d="M 680 186 L 680 405 L 800 405 L 800 418" fill="none" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#arrow-purple)"/>
+
+          <!-- Functions → Key Vault -->
+          <path d="M 730 186 L 730 400 L 950 400 L 950 418" fill="none" stroke="#f43f5e" stroke-width="1.2" marker-end="url(#arrow-rose)"/>
+
+          <!-- Functions → Azure ML -->
+          <path d="M 700 186 L 700 500 L 645 500 L 645 528" fill="none" stroke="#0078d4" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+          <!-- Functions → ACA/AKS -->
+          <path d="M 710 186 L 710 510 L 810 510 L 810 528" fill="none" stroke="#0078d4" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+          <!-- Functions → Translator -->
+          <path d="M 735 186 L 735 515 L 965 515 L 965 528" fill="none" stroke="#0078d4" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+          <!-- Monitoring dashed lines -->
+          <line x1="480" y1="180" x2="480" y2="628" stroke="#4a6a8a" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.5"/>
+          <line x1="685" y1="186" x2="685" y2="628" stroke="#4a6a8a" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.4"/>
+
+          <!-- Step number legend at bottom-left -->
+          <g transform="translate(20,620)">
+            <rect width="200" height="70" rx="8" fill="rgba(0,120,212,0.06)" stroke="#0078d4" stroke-width="0.8"/>
+            <text x="12" y="18" fill="#60a5fa" font-size="8" font-weight="600">Flow Legend</text>
+            <line x1="12" y1="32" x2="40" y2="32" stroke="#0078d4" stroke-width="1.5"/>
+            <text x="45" y="36" fill="#7b8fa8" font-size="7">Primary data flow</text>
+            <line x1="12" y1="46" x2="40" y2="46" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="4 3"/>
+            <text x="45" y="50" fill="#7b8fa8" font-size="7">Event/Message trigger</text>
+            <line x1="12" y1="60" x2="40" y2="60" stroke="#4a6a8a" stroke-width="0.8" stroke-dasharray="3 3"/>
+            <text x="45" y="64" fill="#7b8fa8" font-size="7">Monitoring telemetry</text>
+          </g>
+
+        </svg>
+      </div>
+    </div>
+
+    <!-- Download drawio link -->
+    <div style="text-align:center;margin-top:1.5rem">
+      <p style="color:var(--text-dim);font-size:.85rem">
+        📥 完整可编辑的 draw.io 架构图已保存至：<code style="background:var(--surface-2);padding:.2rem .5rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent-green)">Desktop/Medical-Insights-Hub-Azure-Architecture-v2.drawio</code>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <p>Medical Insights Hub — AWS to Azure Migration Architecture</p>
+  <p style="margin-top:.4rem;opacity:.6">Reference: <a href="https://www.amazonaws.cn/en/solutions/industry/health/medical-insights-hub/" style="color:var(--azure);text-decoration:none" target="_blank">amazonaws.cn/solutions/medical-insights-hub</a></p>
+</footer>
+
+<!-- ═══════════ SCROLL ANIMATIONS ═══════════ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animationPlayState = 'running';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  document.querySelectorAll('.step, .map-card, .section-label, .section-title, .section-desc').forEach(el => {
+    el.style.opacity = '0';
+    el.style.animation = 'fadeUp .7s ease forwards';
+    el.style.animationPlayState = 'paused';
+    observer.observe(el);
+  });
+
+  // Smooth step number coloring
+  document.querySelectorAll('.step').forEach((step, i) => {
+    step.style.animationDelay = `${i * 0.08}s`;
+  });
+});
+</script>
+
+</body>
+</html>

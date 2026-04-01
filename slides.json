@@ -92,5 +92,22 @@
     "path": "slides/pm-ai-exponential-slide.html",
     "featured": false,
     "updated": "2026-03-27"
+  },
+  {
+    "id": "medical-insights-hub-azure",
+    "title": "Medical Insights Hub — Azure Architecture",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Medical",
+      "Insights",
+      "Hub",
+      "Azure"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/medical-insights-hub-azure.html",
+    "featured": false,
+    "updated": "2026-04-01"
   }
 ]
