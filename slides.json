@@ -109,5 +109,20 @@
     "path": "slides/medical-insights-hub-azure.html",
     "featured": false,
     "updated": "2026-04-01"
+  },
+  {
+    "id": "protected-presentation",
+    "title": "🔒 康龙化成 AI 基因组数据分析平台 - PoC 项目汇报",
+    "description": "Password-protected slide. Click to unlock.",
+    "category": "Protected",
+    "tags": [
+      "Protected"
+    ],
+    "audience": "team",
+    "visibility": "protected",
+    "path": "protected/presentation.html",
+    "featured": false,
+    "protected": true,
+    "updated": "2026-04-02"
   }
 ]
