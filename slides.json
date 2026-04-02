@@ -139,5 +139,20 @@
     "path": "slides/azure-translator-slides.html",
     "featured": false,
     "updated": "2026-04-02"
+  },
+  {
+    "id": "protected-architecture-review-slides",
+    "title": "🔒 康龙化成 AI 基因组数据平台 — Azure 双云架构 Review",
+    "description": "Password-protected slide. Click to unlock.",
+    "category": "Protected",
+    "tags": [
+      "Protected"
+    ],
+    "audience": "team",
+    "visibility": "protected",
+    "path": "protected/architecture-review-slides.html",
+    "featured": false,
+    "protected": true,
+    "updated": "2026-04-02"
   }
 ]
