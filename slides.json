@@ -109,5 +109,20 @@
     "path": "slides/medical-insights-hub-azure.html",
     "featured": false,
     "updated": "2026-04-01"
+  },
+  {
+    "id": "protected-call-to-action-slide-full",
+    "title": "🔒 E2E Protected Test",
+    "description": "Password-protected slide. Click to unlock.",
+    "category": "Protected",
+    "tags": [
+      "Protected"
+    ],
+    "audience": "team",
+    "visibility": "protected",
+    "path": "protected/call-to-action-slide-full.html",
+    "featured": false,
+    "protected": true,
+    "updated": "2026-04-02"
   }
 ]
