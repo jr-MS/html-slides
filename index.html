@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
   <style>
     :root{
       --bg:#f6f3ee;
@@ -73,14 +74,12 @@
     }
     .masthead{
       display:flex;
-      justify-content:space-between;
       align-items:center;
       gap:16px;
       margin-bottom:18px;
       padding:6px 4px;
     }
-    .brandmark,
-    .mastmeta{
+    .brandmark{
       display:inline-flex;
       align-items:center;
       gap:10px;
@@ -183,24 +182,21 @@
       position:relative;
       overflow:hidden;
       border-radius:var(--radius-xl);
-      padding:28px;
+      padding:24px;
       min-height:540px;
       background:
-        linear-gradient(160deg, rgba(255,255,255,.9), rgba(247,244,238,.72)),
-        radial-gradient(24rem 24rem at 18% 12%, rgba(145,202,210,.18), transparent 56%),
-        radial-gradient(20rem 20rem at 85% 8%, rgba(215,179,138,.18), transparent 52%);
+        linear-gradient(160deg, rgba(255,255,255,.92), rgba(247,244,238,.76)),
+        radial-gradient(26rem 26rem at 18% 12%, rgba(145,202,210,.13), transparent 58%),
+        radial-gradient(21rem 21rem at 85% 8%, rgba(215,179,138,.14), transparent 54%);
       isolation:isolate;
     }
     .heroStage::before{
       content:"";
       position:absolute;
-      inset:14px;
-      border-radius:30px;
+      inset:0;
       background:
-        linear-gradient(rgba(102,118,136,.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(102,118,136,.08) 1px, transparent 1px);
-      background-size:30px 30px;
-      mask-image:linear-gradient(180deg, rgba(0,0,0,.48), rgba(0,0,0,.04));
+        radial-gradient(18rem 18rem at 28% 74%, rgba(255,255,255,.58), transparent 58%),
+        radial-gradient(16rem 16rem at 72% 18%, rgba(255,255,255,.42), transparent 60%);
       pointer-events:none;
     }
     .heroStage::after{
@@ -218,6 +214,7 @@
     .stageOrbit{
       position:relative;
       min-height:100%;
+      isolation:isolate;
     }
     .deckMock{
       position:absolute;
@@ -325,12 +322,13 @@
       text-transform:uppercase;
     }
     .deckMock.editorial{
-      left:6%;
-      top:6%;
-      transform:rotate(-8deg);
+      left:5%;
+      top:8%;
+      transform:rotate(-9deg);
       animation:deckFloatA 8.6s ease-in-out infinite;
       background:linear-gradient(180deg, #fffdf8, #f7f0e7);
       color:#2f251d;
+      z-index:1;
     }
     .deckMock.editorial .deckLabel,
     .deckMock.editorial .deckFooter span{background:rgba(107,77,54,.08);color:#6b4d36}
@@ -342,12 +340,13 @@
     .deckMock.editorial .deckImage{background:linear-gradient(145deg, rgba(232,200,168,.75), rgba(255,247,235,.95))}
     .deckMock.editorial .deckImage::after{content:"";position:absolute;inset:16px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.15));box-shadow:inset 0 0 0 1px rgba(110,85,62,.08)}
     .deckMock.nocturne{
-      right:2%;
-      top:2%;
-      transform:rotate(9deg);
+      right:-1%;
+      top:1%;
+      transform:rotate(8deg);
       animation:deckFloatB 9.4s ease-in-out infinite;
       background:radial-gradient(circle at 15% 10%, rgba(117,139,255,.35), transparent 24%), linear-gradient(180deg, #121726, #1f1833 58%, #241e42);
       color:#eef1ff;
+      z-index:2;
     }
     .deckMock.nocturne .deckLabel,
     .deckMock.nocturne .deckFooter span{background:rgba(255,255,255,.08);color:#d8dcff}
@@ -359,12 +358,13 @@
     .deckMock.nocturne .deckImage{background:linear-gradient(145deg, rgba(130,173,255,.7), rgba(72,54,149,.35))}
     .deckMock.nocturne .deckImage::after{content:"";position:absolute;inset:10px;border-radius:18px;background:radial-gradient(circle at 30% 20%, rgba(255,255,255,.6), transparent 18%), radial-gradient(circle at 65% 60%, rgba(255,255,255,.18), transparent 24%), linear-gradient(180deg, rgba(255,255,255,.08), transparent)}
     .deckMock.botanical{
-      left:18%;
-      bottom:4%;
-      transform:rotate(-2deg);
+      left:12%;
+      bottom:10%;
+      transform:rotate(-4deg);
       animation:deckFloatC 7.8s ease-in-out infinite;
       background:linear-gradient(180deg, #f5f2ea, #edf3ee 52%, #eef6f0);
       color:#203126;
+      z-index:3;
     }
     .deckMock.botanical .deckLabel,
     .deckMock.botanical .deckFooter span{background:rgba(51,107,82,.08);color:#336b52}
@@ -376,12 +376,13 @@
     .deckMock.botanical .deckImage{background:linear-gradient(145deg, rgba(180,214,198,.72), rgba(243,249,245,.92))}
     .deckMock.botanical .deckImage::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 72% 18%, rgba(255,255,255,.7), transparent 24%), linear-gradient(135deg, transparent 14%, rgba(73,122,94,.18) 14% 18%, transparent 18% 100%), linear-gradient(40deg, transparent 44%, rgba(73,122,94,.14) 44% 48%, transparent 48% 100%)}
     .deckMock.signal{
-      right:14%;
-      bottom:12%;
+      right:16%;
+      bottom:8%;
       transform:rotate(6deg);
       animation:deckFloatD 8.8s ease-in-out infinite;
       background:linear-gradient(180deg, #fffaf1, #f8f6ff 54%, #eef2ff);
       color:#23263b;
+      z-index:4;
     }
     .deckMock.signal .deckLabel,
     .deckMock.signal .deckFooter span{background:rgba(103,96,182,.08);color:#6760b6}
@@ -408,11 +409,22 @@
       padding:15px 16px;
       font:inherit;
       color:var(--ink);
-      background:rgba(247,247,244,.84);
+      background:rgba(247,247,244,.88);
       border:1px solid rgba(36,43,54,.06);
       box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
     }
     input::placeholder{color:#8893a3}
+    select{
+      appearance:none;
+      -webkit-appearance:none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, rgba(86,98,114,.78) 50%),
+        linear-gradient(135deg, rgba(86,98,114,.78) 50%, transparent 50%);
+      background-position:calc(100% - 22px) calc(50% - 2px), calc(100% - 16px) calc(50% - 2px);
+      background-size:6px 6px, 6px 6px;
+      background-repeat:no-repeat;
+      padding-right:34px;
+    }
     .sectionTitle{
       display:flex;
       justify-content:space-between;
@@ -475,9 +487,15 @@
       border-color:rgba(80,123,141,.14);
       font-weight:700;
     }
+    .protectedChip span{
+      background:rgba(160,130,90,.1);
+      color:#9a8460;
+      border-color:rgba(160,130,90,.14);
+      font-weight:700;
+    }
     .title{
       font-family:var(--serif);
-      font-size:30px;
+      font-size:28px;
       line-height:1.08;
       letter-spacing:-.04em;
     }
@@ -616,11 +634,10 @@
       background:linear-gradient(180deg, rgba(255,255,255,.84), rgba(245,243,238,.74));
     }
     .ideaGlow,
-    .sceneCard,
-    .sceneBrowser,
-    .sceneCursor,
-    .sceneUpload,
-    .sceneRocket,
+    .sceneBuildShell,
+    .sceneBuildAccent,
+    .sceneLocalChip,
+    .scenePublishPill,
     .sceneSparkle,
     .miniHuman{
       position:absolute;
@@ -641,139 +658,42 @@
       border-radius:50%;
       background:#fff7ec;
     }
-    .sceneCard{
-      left:18px;
-      top:14px;
-      width:24px;
-      height:28px;
-      border-radius:8px;
-      background:linear-gradient(180deg, #f8f3eb, #ebddc9);
-      border:1px solid rgba(158,123,90,.18);
-      box-shadow:0 6px 14px rgba(158,123,90,.12);
-      animation:cardBob 3s ease-in-out infinite;
-    }
-    .sceneCard::before,
-    .sceneCard::after{
-      content:"";
-      position:absolute;
-      left:5px;
-      right:5px;
-      border-radius:999px;
-      background:rgba(91,68,48,.18);
-    }
-    .sceneCard::before{top:8px;height:3px}
-    .sceneCard::after{top:15px;height:3px;width:10px}
-    .sceneBrowser{
-      left:14px;
-      top:11px;
-      width:32px;
-      height:34px;
-      border-radius:10px;
-      background:linear-gradient(180deg, #274d63, #507b8d);
-      box-shadow:0 10px 18px rgba(35,71,95,.2);
-    }
-    .sceneBrowser::before{
-      content:"";
-      position:absolute;
-      left:0;
-      right:0;
-      top:0;
-      height:9px;
-      background:rgba(255,255,255,.16);
-    }
-    .sceneBrowser::after{
-      content:"";
-      position:absolute;
-      left:6px;
-      right:6px;
-      top:14px;
-      bottom:6px;
-      border-radius:6px;
-      background:rgba(255,255,255,.86);
-    }
-    .sceneCursor{
-      right:12px;
-      bottom:12px;
-      width:0;
-      height:0;
-      border-left:8px solid #23475f;
-      border-top:12px solid transparent;
-      border-bottom:3px solid transparent;
-      transform:rotate(18deg);
-      animation:cursorTap 2.6s ease-in-out infinite;
-    }
-    .sceneCursor::after{
-      content:"";
-      position:absolute;
-      left:-3px;
-      top:-2px;
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      border:1px solid rgba(35,71,95,.2);
-      transform:scale(0);
-      animation:cursorRing 2.6s ease-in-out infinite;
-    }
-    .sceneUpload{
-      left:16px;
-      top:14px;
-      width:30px;
-      height:24px;
-      border-radius:12px;
-      background:linear-gradient(180deg, #ebf2f4, #dbe8eb);
-      border:1px solid rgba(80,123,141,.14);
-    }
-    .sceneUpload::before{
-      content:"";
-      position:absolute;
-      left:11px;
-      top:5px;
-      width:8px;
-      height:8px;
-      border-left:3px solid #507b8d;
-      border-top:3px solid #507b8d;
-      transform:rotate(45deg);
-    }
-    .sceneUpload::after{
-      content:"";
-      position:absolute;
-      left:13px;
-      top:11px;
-      width:4px;
-      height:8px;
-      background:#507b8d;
-      border-radius:999px;
-      box-shadow:0 15px 0 10px rgba(80,123,141,.08);
-    }
-    .sceneRocket{
-      left:16px;
+    .sceneBuildShell{
+      left:12px;
       top:16px;
+      width:48px;
+      height:26px;
+      border-radius:10px;
+      background:linear-gradient(180deg, #faf5ed, #efe1cf);
+      border:1px solid rgba(158,123,90,.14);
+      box-shadow:0 8px 16px rgba(158,123,90,.1);
+    }
+    .sceneBuildAccent{
+      right:10px;
+      top:22px;
+      width:8px;
+      height:14px;
+      border-radius:3px;
+      background:#23475f;
+      transform:rotate(11deg);
+    }
+    .sceneLocalChip{
+      left:16px;
+      top:12px;
+      width:22px;
+      height:22px;
+      border-radius:7px;
+      background:linear-gradient(180deg, #507b8d, #23475f);
+      box-shadow:0 10px 18px rgba(35,71,95,.18);
+    }
+    .scenePublishPill{
+      left:12px;
+      top:20px;
       width:24px;
       height:14px;
-      border-radius:14px 14px 14px 4px;
-      background:linear-gradient(90deg, #23475f, #507b8d);
-      transform:rotate(-12deg);
-      animation:rocketLift 3.1s ease-in-out infinite;
-    }
-    .sceneRocket::before{
-      content:"";
-      position:absolute;
-      right:-7px;
-      top:3px;
-      border-left:8px solid #d7b38a;
-      border-top:4px solid transparent;
-      border-bottom:4px solid transparent;
-    }
-    .sceneRocket::after{
-      content:"";
-      position:absolute;
-      left:-6px;
-      top:4px;
-      width:7px;
-      height:6px;
       border-radius:999px;
-      background:linear-gradient(180deg, rgba(255,181,95,.88), rgba(255,120,73,.08));
-      filter:blur(.2px);
+      background:linear-gradient(90deg, #a4cad1, #507b8d);
+      box-shadow:0 8px 14px rgba(80,123,141,.16);
     }
     .sceneSparkle{
       right:16px;
@@ -795,7 +715,7 @@
     }
     .miniHuman{
       left:18px;
-      top:8px;
+      top:6px;
       width:34px;
       height:42px;
       animation:cheerBounce 3s ease-in-out infinite;
@@ -849,32 +769,24 @@
     }
     .miniHuman .leg-left{left:12px;transform:rotate(10deg)}
     .miniHuman .leg-right{left:19px;transform:rotate(-10deg)}
-    .miniHuman .vibe{
-      position:absolute;
-      right:-2px;
-      top:0;
-      font-size:15px;
-      color:#d7b38a;
-      animation:vibePop 2.4s ease-in-out infinite;
-    }
     .cheerDots{
       position:absolute;
       right:10px;
-      bottom:10px;
+      top:26px;
       width:24px;
       height:20px;
     }
     .cheerDots span{
       position:absolute;
-      width:5px;
-      height:5px;
-      border-radius:50%;
+      width:4px;
+      height:4px;
+      border-radius:2px;
       background:#d7b38a;
-      animation:dotBurst 2.5s ease-in-out infinite;
+      opacity:.34;
     }
-    .cheerDots span:nth-child(1){left:0;bottom:0}
-    .cheerDots span:nth-child(2){left:10px;top:2px;background:#507b8d;animation-delay:.15s}
-    .cheerDots span:nth-child(3){right:0;bottom:4px;background:#8ab6aa;animation-delay:.3s}
+    .cheerDots span:nth-child(1){left:0;top:15px}
+    .cheerDots span:nth-child(2){left:10px;top:2px;background:#507b8d;opacity:.3}
+    .cheerDots span:nth-child(3){left:19px;top:11px;background:#8ab6aa;opacity:.31}
     @keyframes atmosphere{
       0%{transform:translate3d(0,0,0) scale(1)}
       100%{transform:translate3d(0,-14px,0) scale(1.04)}
@@ -913,23 +825,6 @@
       0%,100%{transform:scale(.9);opacity:.78}
       50%{transform:scale(1.12);opacity:1}
     }
-    @keyframes cardBob{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-4px)}
-    }
-    @keyframes cursorTap{
-      0%,100%{transform:translateY(0) rotate(18deg)}
-      40%{transform:translateY(-3px) rotate(12deg)}
-    }
-    @keyframes cursorRing{
-      0%,100%{transform:scale(0);opacity:0}
-      45%{transform:scale(2);opacity:.6}
-      70%{transform:scale(2.8);opacity:0}
-    }
-    @keyframes rocketLift{
-      0%,100%{transform:translate3d(0,0,0) rotate(-12deg)}
-      50%{transform:translate3d(6px,-8px,0) rotate(-8deg)}
-    }
     @keyframes sparkleTwist{
       0%,100%{transform:scale(.9) rotate(0deg);opacity:.55}
       50%{transform:scale(1.1) rotate(24deg);opacity:1}
@@ -937,14 +832,6 @@
     @keyframes cheerBounce{
       0%,100%{transform:translateY(0)}
       50%{transform:translateY(-4px)}
-    }
-    @keyframes vibePop{
-      0%,100%{transform:scale(.9);opacity:.62}
-      50%{transform:scale(1.12);opacity:1}
-    }
-    @keyframes dotBurst{
-      0%,100%{transform:translateY(0) scale(.8);opacity:.3}
-      50%{transform:translateY(-5px) scale(1.05);opacity:1}
     }
     @media (max-width: 980px){
       .hero{grid-template-columns:1fr}
@@ -983,7 +870,6 @@
   <main class="shell">
     <div class="masthead">
       <div class="brandmark"><span class="dot"></span><strong>HTML Slide Atlas</strong></div>
-      <div class="mastmeta">Louise's collection</div>
     </div>
 
     <section class="hero">
@@ -1071,11 +957,11 @@
     <section id="collection">
       <div class="toolbar">
         <input id="search" type="search" placeholder="Search decks" />
-        <select id="categoryFilter">
-          <option value="all">Any category</option>
+        <select id="categoryFilter" aria-label="Filter by category">
+          <option value="all"></option>
         </select>
-        <select id="audienceFilter">
-          <option value="all">All decks</option>
+        <select id="audienceFilter" aria-label="Filter by visibility">
+          <option value="all"></option>
           <option value="team">Public</option>
           <option value="internal">Archive</option>
         </select>
@@ -1099,7 +985,6 @@
             <div class="journeyLabel">Idea</div>
             <div class="journeyScene" aria-hidden="true">
               <div class="ideaGlow"></div>
-              <div class="sceneSparkle" style="left:40px; top:18px;"></div>
             </div>
           </div>
         </div>
@@ -1108,8 +993,8 @@
           <div class="journeyCard">
             <div class="journeyLabel">Build</div>
             <div class="journeyScene" aria-hidden="true">
-              <div class="sceneCard"></div>
-              <div class="sceneCursor"></div>
+              <div class="sceneBuildShell"></div>
+              <div class="sceneBuildAccent"></div>
             </div>
           </div>
         </div>
@@ -1118,8 +1003,7 @@
           <div class="journeyCard">
             <div class="journeyLabel">Local</div>
             <div class="journeyScene" aria-hidden="true">
-              <div class="sceneBrowser"></div>
-              <div class="sceneSparkle"></div>
+              <div class="sceneLocalChip"></div>
             </div>
           </div>
         </div>
@@ -1128,15 +1012,14 @@
           <div class="journeyCard">
             <div class="journeyLabel">Publish</div>
             <div class="journeyScene" aria-hidden="true">
-              <div class="sceneUpload"></div>
-              <div class="sceneRocket"></div>
+              <div class="scenePublishPill"></div>
             </div>
           </div>
         </div>
 
         <div class="journeyStep">
           <div class="journeyCard">
-            <div class="journeyLabel">Yay</div>
+            <div class="journeyLabel">YAY</div>
             <div class="journeyScene" aria-hidden="true">
               <div class="miniHuman">
                 <span class="head"></span>
@@ -1145,7 +1028,6 @@
                 <span class="arm-right"></span>
                 <span class="leg-left"></span>
                 <span class="leg-right"></span>
-                <span class="vibe">✌</span>
               </div>
               <div class="cheerDots">
                 <span></span>
@@ -1178,19 +1060,21 @@
     function card(item){
       const tags = (item.tags || []).slice(0, 2).map(tag => `<span class="tag">${tag}</span>`).join('');
       const featured = item.featured ? '<span class="featuredChip"><span>Featured</span></span>' : '';
+      const locked = item.protected ? '<span class="protectedChip"><span>🔒 Protected</span></span>' : '';
+      const btnLabel = item.protected ? 'Unlock deck' : 'Open deck';
       return `
         <article class="card">
           <div class="toprow">
             <div class="kicker">
               <span>${item.category}</span>
             </div>
-            ${featured}
+            ${featured}${locked}
           </div>
           <div class="title">${item.title}</div>
           <div class="desc">${item.description}</div>
           <div class="tags">${tags}</div>
           <div class="actions">
-            <a class="btn primary" href="${item.path}" target="_blank" rel="noopener noreferrer">Open deck</a>
+            <a class="btn primary" href="${item.path}" target="_blank" rel="noopener noreferrer">${btnLabel}</a>
           </div>
         </article>`;
     }
