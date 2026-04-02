@@ -5,1369 +5,1114 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Azure Translator · 深度解析</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-  :root {
-    --bg-dark: #F8FAFC;
-    --bg-card: rgba(255,255,255,0.85);
-    --bg-card-hover: rgba(255,255,255,1);
-    --glass: rgba(255,255,255,0.7);
-    --glass-border: rgba(0,0,0,0.08);
-    --blue: #0078D4;
-    --blue-bright: #0066B8;
-    --purple: #7C3AED;
-    --pink: #DB2777;
-    --green: #059669;
-    --amber: #D97706;
-    --orange: #EA580C;
-    --red: #DC2626;
-    --cyan: #0891B2;
-    --text: #1E293B;
-    --text-dim: #475569;
-    --text-muted: #94A3B8;
-    --surface: #FFFFFF;
-    --surface-2: #F1F5F9;
-  }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+:root{
+  --bg:#fff;--bg2:#F5F5F7;--bg3:#FAFAFA;
+  --t1:#1D1D1F;--t2:#424245;--t3:#86868B;--t4:#AEAEB2;
+  --border:#E8E8ED;
+  --blue:#0071E3;--blue-l:#E3F0FF;
+  --green:#34C759;--green-l:#E8FAF0;
+  --purple:#AF52DE;--purple-l:#F3E8FC;
+  --orange:#FF9500;--orange-l:#FFF4E0;
+  --pink:#FF2D55;--pink-l:#FFE5EB;
+  --teal:#32ADE6;--teal-l:#E4F4FC;
+  --r:16px;--r-sm:12px;--r-xs:8px;
+  --shadow:0 4px 24px rgba(0,0,0,.06);
+}
 
-  body {
-    font-family: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
-    background: var(--bg-dark);
-    color: var(--text);
-    overflow: hidden;
-    height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
+html{font-size:16px}
+body{
+  font-family:'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--t1);overflow:hidden;height:100vh;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
 
-  /* ── Slide Engine ── */
-  .deck { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;opacity:0;pointer-events:none;
+  display:flex;flex-direction:column;
+  padding:40px 72px 72px;overflow:hidden;background:var(--bg);
+  transition:opacity .5s ease,transform .5s ease;
+  transform:scale(.98);
+}
+.slide.active{opacity:1;pointer-events:auto;transform:scale(1)}
 
-  .slide {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    opacity: 0; pointer-events: none;
-    transform: scale(0.97);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    padding: 56px 72px 80px;
-    overflow: hidden;
-    background: var(--bg-dark);
-  }
-  .slide.active {
-    opacity: 1; pointer-events: auto;
-    transform: scale(1);
-  }
+/* HERO */
+.slide-hero{
+  background:#fff;justify-content:center;align-items:center;text-align:center;
+  padding:40px 80px 80px;
+}
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:15px;font-weight:600;color:var(--blue);
+  letter-spacing:.5px;margin-bottom:24px;
+}
+.hero-title{
+  font-size:clamp(48px,7vw,80px);font-weight:800;letter-spacing:-3.5px;
+  line-height:1;color:var(--t1);margin-bottom:20px;
+}
+.hero-title span{
+  background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-sub{font-size:20px;font-weight:400;color:var(--t3);line-height:1.6;max-width:600px}
+.hero-chips{display:flex;gap:10px;margin-top:48px;flex-wrap:wrap;justify-content:center}
+.hero-chip{
+  padding:10px 20px;border-radius:100px;font-size:14px;font-weight:500;
+  color:var(--t2);background:var(--bg2);border:none;
+  transition:transform .2s,box-shadow .2s;
+}
+.hero-chip:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
 
-  /* ── Background system ── */
-  .slide::before {
-    content: ''; position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 10% 90%, rgba(0,120,212,0.04), transparent 50%),
-      radial-gradient(ellipse 60% 50% at 90% 10%, rgba(124,58,237,0.03), transparent 50%);
-    pointer-events: none;
-  }
+/* END */
+.slide-end{
+  background:linear-gradient(180deg,#1D1D1F 0%,#000 100%);
+  justify-content:center;align-items:center;text-align:center;color:#fff;
+}
+.slide-end h2{font-size:56px;font-weight:800;letter-spacing:-2px;line-height:1.1}
+.slide-end p{font-size:18px;color:rgba(255,255,255,.5);margin-top:16px;line-height:1.6}
+.slide-end .end-links{display:flex;gap:12px;margin-top:40px}
+.slide-end .end-link{
+  padding:12px 28px;border-radius:100px;font-size:14px;font-weight:600;
+  color:#fff;background:var(--blue);border:none;text-decoration:none;
+  transition:opacity .2s;cursor:pointer;
+}
+.slide-end .end-link:hover{opacity:.85}
+.slide-end .end-link.ghost{background:rgba(255,255,255,.12)}
 
-  .slide-hero {
-    background:
-      linear-gradient(135deg, #0078D4 0%, #005A9E 40%, #004578 100%);
-    justify-content: center; align-items: center; text-align: center;
-  }
-  .slide-hero::before {
-    background:
-      radial-gradient(ellipse 100% 70% at 20% 100%, rgba(80,230,255,0.2), transparent 55%),
-      radial-gradient(ellipse 80% 60% at 85% 0%, rgba(255,255,255,0.12), transparent 50%) !important;
-  }
+/* HEADER */
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:32px;flex-shrink:0}
+.hdr-icon{
+  width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;background:var(--bg2);
+}
+.hdr h2{font-size:26px;font-weight:700;letter-spacing:-.8px;color:var(--t1)}
+.hdr .hdr-num{margin-left:auto;font-size:11px;color:var(--t4);font-weight:600;letter-spacing:1.5px}
 
-  .slide-end {
-    background:
-      linear-gradient(135deg, #004578 0%, #0078D4 50%, #50E6FF 100%);
-    justify-content: center; align-items: center; text-align: center;
-  }
-  .slide-end::before {
-    background:
-      radial-gradient(ellipse 100% 80% at 50% 120%, rgba(255,255,255,0.15), transparent 60%) !important;
-  }
+.body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.body::-webkit-scrollbar{width:4px}
+.body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-  /* ── Typography ── */
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 6px 18px; border-radius: 100px;
-    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35);
-    font-size: 13px; font-weight: 600; color: #fff;
-    letter-spacing: 0.5px; margin-bottom: 28px;
-    position: relative; z-index: 1;
-  }
-  .hero-title {
-    font-size: 68px; font-weight: 900; letter-spacing: -2px;
-    line-height: 1.1; position: relative; z-index: 1;
-    color: #fff;
-    background: none; -webkit-background-clip: unset; -webkit-text-fill-color: unset;
-  }
-  .hero-sub {
-    font-size: 22px; font-weight: 400; color: rgba(255,255,255,0.85);
-    margin-top: 16px; line-height: 1.5; max-width: 680px;
-    position: relative; z-index: 1;
-  }
-  .hero-tags {
-    display: flex; gap: 10px; margin-top: 36px; flex-wrap: wrap;
-    justify-content: center; position: relative; z-index: 1;
-  }
-  .hero-tag {
-    padding: 8px 18px; border-radius: 10px;
-    font-size: 14px; font-weight: 600; color: #fff;
-    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
-    backdrop-filter: blur(10px);
-  }
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+.g23{display:grid;grid-template-columns:2fr 3fr;gap:24px}
+.g32{display:grid;grid-template-columns:3fr 2fr;gap:24px}
 
-  /* ── Slide header ── */
-  .s-header {
-    display: flex; align-items: center; gap: 14px;
-    margin-bottom: 32px; flex-shrink: 0;
-    position: relative; z-index: 1;
-  }
-  .s-header .s-icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    background: linear-gradient(135deg, #EBF5FF, #E8E0FF);
-    border: 1px solid rgba(0,120,212,0.15);
-  }
-  .s-header h2 {
-    font-size: 30px; font-weight: 800; letter-spacing: -0.5px;
-    color: var(--text);
-    background: none; -webkit-background-clip: unset; -webkit-text-fill-color: unset;
-  }
-  .s-header .s-num {
-    margin-left: auto; font-size: 13px; color: var(--text-muted);
-    font-weight: 600; letter-spacing: 1px;
-  }
+/* CARD */
+.card{
+  background:var(--bg2);border:none;border-radius:var(--r);padding:24px;
+  transition:transform .3s ease,box-shadow .3s ease;
+}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.card-icon{
+  width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;margin-bottom:14px;
+}
+.card h3{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--t1)}
+.card p,.card li{font-size:13.5px;line-height:1.65;color:var(--t2)}
+.card ul{padding-left:16px;margin-top:4px}
+.card li{margin-bottom:2px}
 
-  .s-body {
-    flex: 1; overflow-y: auto; position: relative; z-index: 1;
-    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
-  }
-  .s-body::-webkit-scrollbar { width: 4px; }
-  .s-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.card-blue .card-icon{background:var(--blue-l);color:var(--blue)}
+.card-green .card-icon{background:var(--green-l);color:var(--green)}
+.card-purple .card-icon{background:var(--purple-l);color:var(--purple)}
+.card-amber .card-icon{background:var(--orange-l);color:var(--orange)}
+.card-pink .card-icon{background:var(--pink-l);color:var(--pink)}
+.card-teal .card-icon{background:var(--teal-l);color:var(--teal)}
 
-  /* ── Grid ── */
-  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-  .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 18px; }
-  .g23 { display: grid; grid-template-columns: 2fr 3fr; gap: 28px; }
-  .g32 { display: grid; grid-template-columns: 3fr 2fr; gap: 28px; }
+/* STATS */
+.stats{display:flex;gap:12px;margin-bottom:28px}
+.stat{flex:1;text-align:center;padding:20px 8px;background:var(--bg2);border-radius:var(--r)}
+.stat-v{font-size:32px;font-weight:800;letter-spacing:-1.5px;color:var(--blue)}
+.stat-l{font-size:10px;color:var(--t4);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px}
 
-  /* ── Glass Card ── */
-  .gc {
-    background: #fff;
-    border: 1px solid #E2E8F0;
-    border-radius: 16px; padding: 24px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    transition: background 0.3s, border-color 0.3s, transform 0.2s, box-shadow 0.2s;
-  }
-  .gc:hover {
-    border-color: #CBD5E1;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  }
-  .gc .gc-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; margin-bottom: 14px;
-  }
-  .gc h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-  .gc p { font-size: 13.5px; line-height: 1.65; color: var(--text-dim); }
-  .gc ul { padding-left: 16px; margin-top: 6px; }
-  .gc li { font-size: 13.5px; line-height: 1.65; color: var(--text-dim); margin-bottom: 3px; }
+/* FEATURE ROW */
+.feat{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.feat:last-child{border-bottom:none}
+.feat-icon{
+  width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;background:var(--bg2);
+}
+.feat h4{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:2px}
+.feat p{font-size:13px;color:var(--t2);line-height:1.55}
 
-  .gc-blue .gc-icon { background: #EBF5FF; }
-  .gc-green .gc-icon { background: #ECFDF5; }
-  .gc-purple .gc-icon { background: #F3EEFF; }
-  .gc-amber .gc-icon { background: #FFFBEB; }
-  .gc-pink .gc-icon { background: #FDF2F8; }
-  .gc-cyan .gc-icon { background: #ECFEFF; }
+/* CODE */
+.code{
+  background:#1D1D1F;border-radius:var(--r-sm);padding:20px 24px;
+  font-family:'JetBrains Mono','SF Mono',monospace;font-size:12px;
+  line-height:1.75;overflow-x:auto;color:#E5E5E7;position:relative;
+}
+.code .tag{
+  position:absolute;top:10px;right:14px;padding:3px 10px;border-radius:6px;
+  font-size:10px;font-weight:700;letter-spacing:.5px;
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);
+  font-family:'Inter',sans-serif;
+}
+.ck{color:#FF6482}.cs{color:#A8D8FF}.cc{color:#6E6E73}
+.cf{color:#D4AAFF}.cn{color:#7EC8E3}.cp{color:#FFB74D}
 
-  /* ── Stats ── */
-  .stats { display: flex; gap: 16px; margin-bottom: 28px; }
-  .stat {
-    flex: 1; text-align: center; padding: 20px 12px;
-    background: #fff; border: 1px solid #E2E8F0;
-    border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .stat-val {
-    font-size: 36px; font-weight: 900; letter-spacing: -1px;
-    color: var(--blue);
-    background: none; -webkit-background-clip: unset; -webkit-text-fill-color: unset;
-  }
-  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+/* TABLE */
+.tb{
+  width:100%;border-collapse:separate;border-spacing:0;font-size:13px;
+  border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border);
+}
+.tb th{
+  text-align:left;padding:10px 16px;font-weight:600;font-size:11px;
+  color:var(--t3);text-transform:uppercase;letter-spacing:.8px;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+}
+.tb td{padding:10px 16px;border-bottom:1px solid var(--border);color:var(--t2)}
+.tb tr:last-child td{border-bottom:none}
+.tb tr:hover td{background:var(--bg3)}
+.tb .mono{font-family:'JetBrains Mono',monospace;font-size:11px}
 
-  /* ── Feature row ── */
-  .feat {
-    display: flex; gap: 14px; padding: 14px 0;
-    border-bottom: 1px solid #F1F5F9;
-  }
-  .feat:last-child { border-bottom: none; }
-  .feat-dot {
-    width: 36px; height: 36px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px; flex-shrink: 0;
-    background: #EBF5FF;
-  }
-  .feat h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-  .feat p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+/* CALLOUT */
+.callout{
+  padding:14px 18px;border-radius:var(--r-sm);font-size:13.5px;
+  line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start;
+}
+.callout-blue{background:var(--blue-l);color:#005BB5}
+.callout-green{background:var(--green-l);color:#1E8E3E}
+.callout-amber{background:var(--orange-l);color:#B25E00}
+.callout-purple{background:var(--purple-l);color:#7B2FBF}
 
-  /* ── Code ── */
-  .code {
-    background: #0D1117; border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 18px 22px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12.5px; line-height: 1.7; overflow-x: auto;
-    position: relative; color: #C9D1D9;
-  }
-  .code .tag {
-    position: absolute; top: 8px; right: 10px;
-    padding: 2px 10px; border-radius: 6px; font-size: 10px;
-    font-weight: 700; letter-spacing: 0.5px;
-    background: rgba(79,156,249,0.2); color: var(--blue-bright);
-    font-family: 'Inter', sans-serif;
-  }
-  .c-k { color: #FF7B72; } /* keyword */
-  .c-s { color: #A5D6FF; } /* string */
-  .c-c { color: #8B949E; } /* comment */
-  .c-f { color: #D2A8FF; } /* function */
-  .c-n { color: #79C0FF; } /* number */
-  .c-p { color: #FFA657; } /* property */
+/* PILLS */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{
+  padding:4px 12px;border-radius:100px;font-size:12px;font-weight:500;
+  background:var(--bg2);color:var(--t3);
+}
+.pill-b{background:var(--blue-l);color:var(--blue)}
+.pill-g{background:var(--green-l);color:var(--green)}
+.pill-p{background:var(--purple-l);color:var(--purple)}
+.pill-a{background:var(--orange-l);color:var(--orange)}
 
-  /* ── Table ── */
-  .tb { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .tb th {
-    text-align: left; padding: 10px 14px; font-weight: 700; font-size: 12px;
-    color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
-    border-bottom: none;
-    background: var(--blue);
-  }
-  .tb th:first-child { border-radius: 8px 0 0 0; }
-  .tb th:last-child { border-radius: 0 8px 0 0; }
-  .tb td {
-    padding: 10px 14px; border-bottom: 1px solid #F1F5F9;
-    color: var(--text-dim);
-  }
-  .tb tr:hover td { background: #F8FAFC; }
-  .tb .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+/* FLOW */
+.flow{display:flex;align-items:center;gap:8px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+.flow-box{
+  padding:8px 14px;border-radius:var(--r-xs);font-size:12px;font-weight:600;
+  background:var(--bg2);display:flex;align-items:center;gap:5px;
+}
+.flow-arr{color:var(--t4);font-size:16px}
 
-  /* ── Callout ── */
-  .callout {
-    padding: 14px 18px; border-radius: 10px; font-size: 13.5px;
-    line-height: 1.6; margin: 12px 0;
-    display: flex; gap: 10px; align-items: flex-start;
-  }
-  .callout-blue { background: #EBF5FF; border: 1px solid #BFDBFE; color: var(--blue); }
-  .callout-green { background: #ECFDF5; border: 1px solid #A7F3D0; color: var(--green); }
-  .callout-amber { background: #FFFBEB; border: 1px solid #FDE68A; color: var(--amber); }
-  .callout-purple { background: #F3EEFF; border: 1px solid #DDD6FE; color: var(--purple); }
+.sec-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--t4);margin-bottom:12px;
+}
 
-  /* ── Pill tags ── */
-  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
-  .pill {
-    padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
-    background: #F1F5F9; border: 1px solid #E2E8F0;
-    color: var(--text-dim);
-  }
-  .pill-blue { background: #EBF5FF; border-color: #BFDBFE; color: var(--blue); }
-  .pill-green { background: #ECFDF5; border-color: #A7F3D0; color: var(--green); }
-  .pill-purple { background: #F3EEFF; border-color: #DDD6FE; color: var(--purple); }
-  .pill-amber { background: #FFFBEB; border-color: #FDE68A; color: var(--amber); }
+/* BULLET LIST */
+.bl{list-style:none;padding:0}
+.bl li{
+  padding:4px 0 4px 18px;position:relative;
+  font-size:13.5px;line-height:1.65;color:var(--t2);
+}
+.bl li::before{
+  content:'';position:absolute;left:0;top:12px;
+  width:4px;height:4px;border-radius:50%;background:var(--blue);
+}
+.bl-g li::before{background:var(--green)}
+.bl-p li::before{background:var(--purple)}
+.bl-a li::before{background:var(--orange)}
 
-  /* ── Flow ── */
-  .flow { display: flex; align-items: center; gap: 8px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
-  .flow-box {
-    padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
-    background: #fff; border: 1px solid #E2E8F0;
-    display: flex; align-items: center; gap: 6px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  }
-  .flow-arr { color: var(--blue); font-size: 18px; }
+/* ARCH */
+.arch{background:var(--bg2);border-radius:var(--r);padding:20px;text-align:center}
+.arch-row{display:flex;justify-content:center;gap:8px;margin:4px 0;flex-wrap:wrap}
+.arch-node{
+  padding:8px 14px;border-radius:var(--r-xs);font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:4px;min-width:100px;justify-content:center;
+}
+.arch-node.n-b{background:var(--blue-l);color:var(--blue)}
+.arch-node.n-g{background:var(--green-l);color:var(--green)}
+.arch-node.n-p{background:var(--purple-l);color:var(--purple)}
+.arch-node.n-a{background:var(--orange-l);color:var(--orange)}
+.arch-node.n-k{background:var(--pink-l);color:var(--pink)}
+.arch-conn{color:var(--t4);font-size:13px;padding:2px 0}
 
-  /* ── Section label ── */
-  .sec-label {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 12px;
-  }
+/* VS */
+.vs-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch}
+.vs-col{padding:20px;border-radius:var(--r);background:var(--bg2)}
+.vs-div{display:flex;align-items:center;justify-content:center;padding:0 14px;font-size:14px;font-weight:800;color:var(--t4)}
+.vs-col h3{font-size:15px;font-weight:700;margin-bottom:12px}
 
-  /* ── VS comparison ── */
-  .vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; align-items: stretch; }
-  .vs-col {
-    padding: 24px; border-radius: 14px;
-    background: #fff; border: 1px solid #E2E8F0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
-  .vs-divider {
-    display: flex; align-items: center; justify-content: center;
-    padding: 0 16px; font-size: 18px; font-weight: 900; color: var(--text-muted);
-  }
-  .vs-col h3 { font-size: 17px; font-weight: 800; margin-bottom: 14px; }
+.sep{height:1px;background:var(--border);margin:20px 0}
 
-  /* ── Bullet ── */
-  .bl { list-style: none; padding: 0; }
-  .bl li {
-    padding: 6px 0 6px 20px; position: relative;
-    font-size: 14px; line-height: 1.6; color: var(--text-dim);
-  }
-  .bl li::before {
-    content: ''; position: absolute; left: 0; top: 14px;
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--blue);
-  }
+.hl{color:var(--blue);font-weight:600}
+.hl-g{color:var(--green);font-weight:600}
+.hl-p{color:var(--purple);font-weight:600}
+.hl-a{color:var(--orange);font-weight:600}
 
-  .bl-green li::before { background: var(--green); }
-  .bl-purple li::before { background: var(--purple); }
-  .bl-amber li::before { background: var(--amber); }
+/* NAV */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;display:flex;align-items:center;gap:14px;
+  padding:12px 40px;z-index:999;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-top:.5px solid rgba(0,0,0,.06);
+}
+.nav-btn{
+  padding:7px 18px;border-radius:100px;border:none;
+  font-size:13px;font-weight:600;cursor:pointer;
+  background:var(--t1);color:#fff;
+  transition:opacity .15s;font-family:inherit;
+}
+.nav-btn:hover{opacity:.8}
+.nav-btn:disabled{opacity:.15;cursor:default}
+.nav-btn:disabled:hover{opacity:.15}
+.nav-bar{flex:1;height:2px;background:rgba(0,0,0,.06);border-radius:1px;overflow:hidden}
+.nav-fill{height:100%;border-radius:1px;transition:width .4s ease;background:var(--t1)}
+.nav-info{font-size:12px;color:var(--t4);font-weight:500;min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+.kbd{position:fixed;bottom:52px;right:40px;z-index:998;font-size:10px;color:var(--t4);opacity:.3}
 
-  /* ── Arch diagram ── */
-  .arch {
-    background: #fff; border: 1px solid #E2E8F0;
-    border-radius: 14px; padding: 24px; text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
-  .arch-row { display: flex; justify-content: center; gap: 12px; margin: 6px 0; flex-wrap: wrap; }
-  .arch-node {
-    padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
-    display: flex; align-items: center; gap: 6px; min-width: 110px; justify-content: center;
-  }
-  .arch-node.n-blue { background: #EBF5FF; color: var(--blue); border: 1px solid #BFDBFE; }
-  .arch-node.n-green { background: #ECFDF5; color: var(--green); border: 1px solid #A7F3D0; }
-  .arch-node.n-purple { background: #F3EEFF; color: var(--purple); border: 1px solid #DDD6FE; }
-  .arch-node.n-amber { background: #FFFBEB; color: var(--amber); border: 1px solid #FDE68A; }
-  .arch-node.n-pink { background: #FDF2F8; color: var(--pink); border: 1px solid #FBCFE8; }
-  .arch-conn { color: var(--text-muted); font-size: 16px; padding: 2px 0; }
-
-  /* ── Glow line for accent ── */
-  .glow-line {
-    height: 2px; border-radius: 1px; margin: 20px 0;
-    background: linear-gradient(90deg, var(--blue), var(--purple), var(--pink), #E2E8F0);
-  }
-
-  /* ── Nav bar ── */
-  .nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    display: flex; align-items: center; gap: 16px;
-    padding: 14px 32px;
-    background: rgba(255,255,255,0.92); backdrop-filter: blur(20px);
-    border-top: 1px solid #E2E8F0;
-    z-index: 999;
-  }
-  .nav-btn {
-    padding: 7px 18px; border-radius: 8px; border: none;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    background: var(--blue); color: #fff;
-    border: 1px solid var(--blue);
-    transition: background 0.2s;
-    font-family: inherit;
-  }
-  .nav-btn:hover { background: #005A9E; }
-  .nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .nav-btn:disabled:hover { background: var(--blue); }
-  .nav-progress {
-    flex: 1; height: 3px; background: #E2E8F0;
-    border-radius: 2px; overflow: hidden;
-  }
-  .nav-progress-fill {
-    height: 100%; border-radius: 2px; transition: width 0.4s ease;
-    background: linear-gradient(90deg, var(--blue), var(--purple));
-  }
-  .nav-info { font-size: 12px; color: var(--text-muted); font-weight: 600; min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
-
-  /* ── Kbd hint ── */
-  .kbd-hint {
-    position: fixed; bottom: 58px; right: 32px; z-index: 998;
-    font-size: 11px; color: var(--text-muted); opacity: 0.5;
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 1100px) {
-    .slide { padding: 36px 40px 72px; }
-    .g3 { grid-template-columns: 1fr 1fr; }
-    .g4 { grid-template-columns: 1fr 1fr; }
-    .hero-title { font-size: 48px; }
-    .stats { flex-wrap: wrap; }
-    .stat { min-width: 120px; }
-  }
-
-  /* highlight text */
-  .hl { color: var(--blue); font-weight: 700; }
-  .hl-g { color: var(--green); font-weight: 700; }
-  .hl-p { color: var(--purple); font-weight: 700; }
-  .hl-a { color: var(--amber); font-weight: 700; }
+@media(max-width:1100px){
+  .slide{padding:28px 32px 68px}
+  .g3{grid-template-columns:1fr 1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .hero-title{font-size:48px;letter-spacing:-2px}
+  .stats{flex-wrap:wrap}.stat{min-width:110px}
+}
 </style>
 </head>
 <body>
 <div class="deck" id="deck">
 
-<!-- ═══════════ 0 · HERO ═══════════ -->
+<!-- 0 HERO -->
 <div class="slide slide-hero active">
-  <div class="hero-badge">☁️ Azure AI Foundry Tools</div>
-  <h1 class="hero-title">Azure Translator</h1>
-  <p class="hero-sub">云端神经机器翻译服务 — 让您的应用覆盖全球 130+ 种语言，<br>支持文本翻译、文档翻译、自定义模型与自适应翻译</p>
-  <div class="hero-tags">
-    <span class="hero-tag">💬 文本翻译 v3 + LLM Preview</span>
-    <span class="hero-tag">📄 文档翻译 (批量 / 同步)</span>
-    <span class="hero-tag">🎯 Custom Translator</span>
-    <span class="hero-tag">⚡ Adaptive Custom Translation</span>
-    <span class="hero-tag">📦 容器化离线部署</span>
+  <div class="hero-kicker">Azure AI Foundry Tools</div>
+  <h1 class="hero-title">Azure <span>Translator</span></h1>
+  <p class="hero-sub">云端神经机器翻译服务 — 覆盖全球 130+ 种语言，<br>支持文本翻译、文档翻译、自定义模型与自适应翻译</p>
+  <div class="hero-chips">
+    <span class="hero-chip">💬 文本翻译 v3</span>
+    <span class="hero-chip">📄 文档翻译</span>
+    <span class="hero-chip">🎯 Custom Translator</span>
+    <span class="hero-chip">⚡ Adaptive CT</span>
+    <span class="hero-chip">📦 容器化部署</span>
   </div>
 </div>
 
-<!-- ═══════════ 1 · OVERVIEW ═══════════ -->
+<!-- 1 OVERVIEW -->
 <div class="slide">
-  <div class="s-header">
-    <div class="s-icon">📖</div>
-    <h2>服务总览</h2>
-    <span class="s-num">01</span>
-  </div>
-  <div class="s-body">
+  <div class="hdr"><div class="hdr-icon">📖</div><h2>服务总览</h2><span class="hdr-num">01</span></div>
+  <div class="body">
     <div class="stats">
-      <div class="stat"><div class="stat-val">130+</div><div class="stat-label">支持语言</div></div>
-      <div class="stat"><div class="stat-val">NMT</div><div class="stat-label">神经翻译引擎</div></div>
-      <div class="stat"><div class="stat-val">10B+</div><div class="stat-label">日翻译量</div></div>
-      <div class="stat"><div class="stat-val">REST+SDK</div><div class="stat-label">开发接口</div></div>
-      <div class="stat"><div class="stat-val">Free</div><div class="stat-label">免费层可用</div></div>
+      <div class="stat"><div class="stat-v">130+</div><div class="stat-l">支持语言</div></div>
+      <div class="stat"><div class="stat-v">NMT</div><div class="stat-l">神经翻译</div></div>
+      <div class="stat"><div class="stat-v">10B+</div><div class="stat-l">日翻译量</div></div>
+      <div class="stat"><div class="stat-v">REST</div><div class="stat-l">API 接口</div></div>
+      <div class="stat"><div class="stat-v">Free</div><div class="stat-l">免费层</div></div>
     </div>
     <div class="g2">
       <div>
         <div class="sec-label">什么是 Azure Translator？</div>
         <ul class="bl">
-          <li>基于云的 <span class="hl">神经机器翻译 (NMT)</span> 服务，属于 Azure AI Foundry Tools 家族</li>
-          <li>驱动 Microsoft 众多产品（Teams、Office、Edge 等），服务全球数千家企业</li>
+          <li>基于云的 <span class="hl">神经机器翻译 (NMT)</span> 服务，属于 Azure AI Foundry Tools</li>
+          <li>驱动 Microsoft 众多产品（Teams、Office、Edge），服务全球数千家企业</li>
           <li>提供 <span class="hl">REST API</span> + 多语言 SDK（Python / .NET / Java / JS）</li>
-          <li>可通过 <span class="hl-p">Azure AI Foundry Portal</span> 无代码界面使用</li>
-          <li>支持 <span class="hl-g">容器化部署</span>（连接 / 断开模式）满足数据驻留合规</li>
-          <li>2025 Preview：<span class="hl-a">LLM 翻译</span> + 自适应自定义翻译 (AdaptCT)</li>
+          <li>可通过 <span class="hl-p">Azure AI Foundry Portal</span> 无代码使用</li>
+          <li>支持 <span class="hl-g">容器化部署</span> 满足数据驻留合规</li>
+          <li>2025 Preview：<span class="hl-a">LLM 翻译</span> + 自适应自定义翻译</li>
         </ul>
       </div>
       <div class="arch">
-        <div class="sec-label" style="text-align:center;">产品定位</div>
-        <div class="arch-row"><div class="arch-node n-blue" style="min-width:260px;">☁️ Azure AI Foundry Tools</div></div>
+        <div class="sec-label" style="text-align:center">产品定位</div>
+        <div class="arch-row"><div class="arch-node n-b" style="min-width:240px">☁️ Azure AI Foundry Tools</div></div>
         <div class="arch-conn">↓</div>
         <div class="arch-row">
-          <div class="arch-node n-green">🗣️ Speech</div>
-          <div class="arch-node n-purple" style="border-width:2px;font-weight:800;">🌐 Translator</div>
-          <div class="arch-node n-green">👁️ Vision</div>
-          <div class="arch-node n-green">📝 Language</div>
+          <div class="arch-node n-g">🗣️ Speech</div>
+          <div class="arch-node n-p" style="font-weight:800">🌐 Translator</div>
+          <div class="arch-node n-g">👁️ Vision</div>
+          <div class="arch-node n-g">📝 Language</div>
         </div>
         <div class="arch-conn">↓</div>
         <div class="arch-row">
-          <div class="arch-node n-amber">💬 文本翻译</div>
-          <div class="arch-node n-amber">📄 文档翻译</div>
-          <div class="arch-node n-pink">🎯 自定义翻译</div>
-          <div class="arch-node n-pink">⚡ AdaptCT</div>
+          <div class="arch-node n-a">💬 文本翻译</div>
+          <div class="arch-node n-a">📄 文档翻译</div>
+          <div class="arch-node n-a">🎯 自定义翻译</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ 2 · CORE FEATURES ═══════════ -->
+<!-- 2 CORE FEATURES -->
 <div class="slide">
-  <div class="s-header">
-    <div class="s-icon">⚡</div>
-    <h2>核心功能矩阵</h2>
-    <span class="s-num">02</span>
-  </div>
-  <div class="s-body">
-    <div class="g2" style="gap:20px;">
-      <div class="gc gc-blue">
-        <div class="gc-icon" style="background:#EBF5FF;">💬</div>
+  <div class="hdr"><div class="hdr-icon">🧩</div><h2>核心功能一览</h2><span class="hdr-num">02</span></div>
+  <div class="body">
+    <div class="g3">
+      <div class="card card-blue">
+        <div class="card-icon">💬</div>
         <h3>文本翻译 (Text Translation)</h3>
-        <ul>
-          <li>实时翻译，单请求支持<span class="hl">多目标语言</span></li>
-          <li>自动语言检测 / 音译 / 句子边界检测</li>
-          <li>词典查找 & 上下文示例</li>
-          <li>动态词典 & 防止翻译标记</li>
-          <li><strong>Preview：</strong>LLM 翻译 (GPT-4o) + 自适应定制</li>
-          <li>每请求最大 <span class="hl">50,000 字符</span>，数组最大 1,000 元素</li>
-        </ul>
+        <p>实时翻译文本字符串，支持 130+ 语言对，单次最大 50,000 字符。内置语言检测、音译和词典查询。</p>
       </div>
-      <div class="gc gc-green">
-        <div class="gc-icon" style="background:#ECFDF5;">📄</div>
+      <div class="card card-green">
+        <div class="card-icon">📄</div>
         <h3>文档翻译 (Document Translation)</h3>
-        <ul>
-          <li><strong>异步批量：</strong>多文件并行翻译，保留原始格式</li>
-          <li><strong>同步单文件：</strong>直接返回翻译文件，无需 Blob Storage</li>
-          <li>支持 Word / Excel / PDF / HTML / PowerPoint 等</li>
-          <li>扫描 PDF & 图片 OCR 翻译</li>
-          <li>术语表 (Glossary) 自定义</li>
-          <li>批量限制：单文件 ≤40MB，总量 ≤250MB</li>
-        </ul>
+        <p>批量翻译整个文档（PDF、DOCX、PPTX 等），保留原始格式和排版。支持异步批量和同步单文件模式。</p>
       </div>
-      <div class="gc gc-purple">
-        <div class="gc-icon" style="background:#F3EEFF;">🎯</div>
-        <h3>自定义翻译 (Custom Translator)</h3>
-        <ul>
-          <li>上传平行语料训练<span class="hl-p">领域 NMT 模型</span></li>
-          <li>需要 10,000+ 句对，训练周期 1-数天</li>
-          <li>BLEU 评分提升 <span class="hl-p">5-10 点</span></li>
-          <li>通过 API v3 <code>category</code> 参数无缝调用</li>
-          <li>适合高频、大量、稳定的领域内容</li>
-          <li>支持团队协作工作空间</li>
-        </ul>
+      <div class="card card-purple">
+        <div class="card-icon">🎯</div>
+        <h3>Custom Translator</h3>
+        <p>上传行业平行语料训练专属 NMT 模型。支持 Training / Dictionary / Tuning 三类文档。</p>
       </div>
-      <div class="gc gc-amber">
-        <div class="gc-icon" style="background:#FFFBEB;">⚡</div>
-        <h3>自适应翻译 (Adaptive CT) <span class="pill pill-amber" style="font-size:10px;padding:2px 8px;">NEW</span></h3>
-        <ul>
-          <li>基于 LLM + few-shot learning 的新范式</li>
-          <li>仅需 <span class="hl-a">5-500 句对</span>即可生效</li>
-          <li>分钟级索引创建，<span class="hl-a">无需重新训练</span></li>
-          <li>适合快速变化、低量的动态内容</li>
-          <li>通过 dataset index ID 调用</li>
-          <li>与 GPT-4o / GPT-4o-mini 结合</li>
-        </ul>
+      <div class="card card-amber">
+        <div class="card-icon">⚡</div>
+        <h3>Adaptive CT (Preview)</h3>
+        <p>调用时传入上下文参考句对，模型实时自适应。无需训练，即时生效，按需付费。</p>
       </div>
+      <div class="card card-teal">
+        <div class="card-icon">🗣️</div>
+        <h3>语音翻译 (Speech Translation)</h3>
+        <p>与 Azure Speech 集成，实现实时语音到语音翻译。适用于会议、客服、直播等场景。</p>
+      </div>
+      <div class="card card-pink">
+        <div class="card-icon">📦</div>
+        <h3>容器化部署</h3>
+        <p>Docker 容器离线运行翻译引擎。连接 / 断开两种模式，满足政府、金融等高安全需求。</p>
+      </div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:18px">
+      <span>💡</span>
+      <span>2025 Preview API 新增：<strong>LLM 翻译引擎</strong>（GPT-4o 驱动）、<strong>性别/语气控制</strong>、AdaptCT 自适应翻译</span>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ 3 · ARCHITECTURE ═══════════ -->
+<!-- 3 ARCHITECTURE -->
 <div class="slide">
-  <div class="s-header">
-    <div class="s-icon">🏗️</div>
-    <h2>架构 & 开发选项</h2>
-    <span class="s-num">03</span>
-  </div>
-  <div class="s-body">
-    <div class="arch" style="margin-bottom:24px;">
-      <div class="sec-label" style="text-align:center;">Azure Translator 开发生态</div>
-      <div class="arch-row"><div class="arch-node n-blue" style="min-width:280px;">📱 应用 / 工作流 / 网站 / Bot</div></div>
-      <div class="arch-conn">↕ REST API / SDK / Power Automate</div>
-      <div class="arch-row">
-        <div class="arch-node n-green">💬 Text v3 (GA)</div>
-        <div class="arch-node n-green">💬 Text Preview (LLM)</div>
-        <div class="arch-node n-green">📄 Doc Translation</div>
-      </div>
-      <div class="arch-conn">↕</div>
-      <div class="arch-row">
-        <div class="arch-node n-purple">🎯 Custom Translator Portal</div>
-        <div class="arch-node n-pink">⚡ AdaptCT (Index)</div>
-        <div class="arch-node n-amber">📦 Docker 容器</div>
-      </div>
-      <div class="arch-conn">↕</div>
-      <div class="arch-row">
-        <div class="arch-node n-blue">🐍 Python</div>
-        <div class="arch-node n-blue">🔷 .NET</div>
-        <div class="arch-node n-blue">☕ Java</div>
-        <div class="arch-node n-blue">🟨 JS/TS</div>
-        <div class="arch-node n-blue">🖥️ AI Foundry Portal</div>
-      </div>
-    </div>
-    <table class="tb">
-      <thead><tr><th>功能</th><th>REST API</th><th>SDK</th><th>Portal</th><th>容器</th></tr></thead>
-      <tbody>
-        <tr><td>文本翻译 v3 (GA)</td><td class="hl">✅</td><td>✅ Python/.NET/Java/JS</td><td>✅ Foundry</td><td>✅</td></tr>
-        <tr><td>文本翻译 Preview (LLM + AdaptCT)</td><td class="hl">✅</td><td>—</td><td>✅ Foundry</td><td>—</td></tr>
-        <tr><td>文档翻译 (异步批量)</td><td class="hl">✅</td><td>✅ .NET/Python</td><td>—</td><td>✅</td></tr>
-        <tr><td>文档翻译 (同步)</td><td class="hl">✅</td><td>—</td><td>✅ Foundry</td><td>✅</td></tr>
-        <tr><td>Custom Translator</td><td>—</td><td>—</td><td class="hl-p">✅ 专属 Portal</td><td>—</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ═══════════ 4 · TEXT TRANSLATION DETAIL ═══════════ -->
-<div class="slide">
-  <div class="s-header">
-    <div class="s-icon">💬</div>
-    <h2>文本翻译 · 功能详解</h2>
-    <span class="s-num">04</span>
-  </div>
-  <div class="s-body">
-    <div class="g32">
-      <div>
-        <div class="feat"><div class="feat-dot">🔄</div><div><h4>实时翻译 (Translate)</h4><p>130+ 语言，单次请求可翻译至多个目标语言，最大 50,000 字符/请求</p></div></div>
-        <div class="feat"><div class="feat-dot">🔍</div><div><h4>自动语言检测 (Detect)</h4><p>自动识别源文本语言，无需手动指定 from 参数，支持 100 元素数组</p></div></div>
-        <div class="feat"><div class="feat-dot">🔤</div><div><h4>音译 (Transliterate)</h4><p>跨脚本转换：中文简↔繁、日文→拉丁、阿拉伯语↔拉丁等 30+ 种语言</p></div></div>
-        <div class="feat"><div class="feat-dot">📚</div><div><h4>词典查找 (Dictionary)</h4><p>显示替代翻译及上下文示例，辅助理解词义，支持英语双向查询</p></div></div>
-        <div class="feat"><div class="feat-dot">🛡️</div><div><h4>动态词典 & 防翻译</h4><p>通过标记指定特定翻译或保留原文（品牌名、代码变量等）</p></div></div>
-        <div class="feat"><div class="feat-dot">🧠</div><div><h4>Preview: LLM 翻译</h4><p>2025-10-01 预览版：选用 GPT-4o 等 LLM，自适应自定义翻译 (AdaptCT)</p></div></div>
+  <div class="hdr"><div class="hdr-icon">🏗️</div><h2>技术架构</h2><span class="hdr-num">03</span></div>
+  <div class="body">
+    <div class="g2">
+      <div class="arch" style="padding:24px">
+        <div class="sec-label" style="text-align:center">翻译服务架构</div>
+        <div class="arch-row"><div class="arch-node n-b">📱 客户端应用</div></div>
+        <div class="arch-conn">↓ HTTPS / REST API</div>
+        <div class="arch-row"><div class="arch-node n-p" style="min-width:220px">🌐 Azure Translator Endpoint</div></div>
+        <div class="arch-conn">↓</div>
+        <div class="arch-row">
+          <div class="arch-node n-g">NMT 引擎</div>
+          <div class="arch-node n-a">LLM 引擎</div>
+          <div class="arch-node n-k">Custom 模型</div>
+        </div>
+        <div class="arch-conn">↓</div>
+        <div class="arch-row">
+          <div class="arch-node n-b">Azure Blob Storage</div>
+          <div class="arch-node n-b">Azure AI Foundry</div>
+        </div>
       </div>
       <div>
-        <div class="sec-label">主要支持语言</div>
-        <div class="pills" style="margin-bottom:16px;">
-          <span class="pill pill-blue">🇨🇳 中文简体</span>
-          <span class="pill pill-blue">🇨🇳 中文繁体</span>
-          <span class="pill pill-blue">🇬🇧 English</span>
-          <span class="pill pill-blue">🇯🇵 日本語</span>
-          <span class="pill pill-blue">🇰🇷 한국어</span>
-          <span class="pill pill-blue">🇫🇷 Français</span>
-          <span class="pill pill-blue">🇩🇪 Deutsch</span>
-          <span class="pill pill-blue">🇪🇸 Español</span>
-          <span class="pill pill-blue">🇷🇺 Русский</span>
-          <span class="pill pill-blue">🇸🇦 العربية</span>
-          <span class="pill pill-blue">🇮🇳 हिन्दी</span>
-          <span class="pill pill-blue">🇹🇭 ไทย</span>
-          <span class="pill pill-blue">🇻🇳 Tiếng Việt</span>
-          <span class="pill pill-green">+ 120 更多</span>
+        <div class="sec-label">关键设计特点</div>
+        <div class="feat">
+          <div class="feat-icon">🔐</div>
+          <div><h4>企业级安全</h4><p>AES-256 加密 + No-Trace（翻译文本不留存）+ CMK + Private Endpoint</p></div>
         </div>
-        <div class="callout callout-blue">
-          <span>💡</span>
-          <span>支持<strong>动态词典</strong>（指定特定翻译）和<strong>防止翻译标记</strong>（保留品牌名等不翻译的内容）</span>
+        <div class="feat">
+          <div class="feat-icon">🌍</div>
+          <div><h4>全球可用性</h4><p>Azure 全球数据中心部署，可指定地理区域路由（如 East US、West Europe）</p></div>
         </div>
-        <div class="sec-label" style="margin-top:16px;">API 端点</div>
-        <div class="code" style="font-size:12px;">
-<span class="c-c"># 全局端点</span>
-https://api.cognitive.microsofttranslator.com
-
-<span class="c-c"># 区域端点（数据驻留）</span>
-https://{resource}.cognitiveservices.azure.com
+        <div class="feat">
+          <div class="feat-icon">📈</div>
+          <div><h4>弹性扩展</h4><p>从 Free 层到 S1-S4，按需扩容。单请求最大 50,000 字符，批量支持百万级</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🔄</div>
+          <div><h4>多模式接入</h4><p>REST API / SDK / Azure Portal / 容器 / Power Platform 连接器</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">⚡</div>
+          <div><h4>低延迟</h4><p>NMT 引擎通常 50-200ms 响应，LLM 引擎略高但质量更优</p></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ 5 · CODE EXAMPLE ═══════════ -->
+<!-- 4 TEXT TRANSLATION -->
 <div class="slide">
-  <div class="s-header">
-    <div class="s-icon">🐍</div>
-    <h2>代码示例 · Python 文本翻译</h2>
-    <span class="s-num">05</span>
+  <div class="hdr"><div class="hdr-icon">💬</div><h2>文本翻译 API 详解</h2><span class="hdr-num">04</span></div>
+  <div class="body">
+    <div class="g23">
+      <div>
+        <div class="sec-label">API 端点</div>
+        <div class="feat">
+          <div class="feat-icon">🔤</div>
+          <div><h4>Translate</h4><p>核心翻译接口，支持一对多语言翻译</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🔍</div>
+          <div><h4>Detect</h4><p>自动识别输入文本语言</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🔠</div>
+          <div><h4>Transliterate</h4><p>文字音译（如中文→拼音）</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">📖</div>
+          <div><h4>Dictionary Lookup</h4><p>双语词典查询，获取翻译候选</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">📝</div>
+          <div><h4>Dictionary Examples</h4><p>查看词典翻译的上下文例句</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🌐</div>
+          <div><h4>Languages</h4><p>获取支持的语言列表（无需认证）</p></div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-label">核心参数</div>
+        <table class="tb">
+          <tr><th>参数</th><th>说明</th></tr>
+          <tr><td class="mono">from</td><td>源语言（可省略，自动检测）</td></tr>
+          <tr><td class="mono">to</td><td>目标语言（可多个，如 to=de&amp;to=ja）</td></tr>
+          <tr><td class="mono">textType</td><td>plain / html</td></tr>
+          <tr><td class="mono">category</td><td>Custom Translator 模型 Category ID</td></tr>
+          <tr><td class="mono">profanityAction</td><td>脏话处理策略</td></tr>
+          <tr><td class="mono">includeAlignment</td><td>返回源/目标对齐信息</td></tr>
+        </table>
+        <div class="callout callout-blue" style="margin-top:14px">
+          <span>📏</span>
+          <span>单次请求上限 <strong>50,000 字符</strong>，Body 数组最多 <strong>100 个元素</strong>，Body 总大小 ≤ <strong>50,000 字符</strong></span>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="s-body">
+</div>
+
+<!-- 5 CODE EXAMPLE -->
+<div class="slide">
+  <div class="hdr"><div class="hdr-icon">🐍</div><h2>Python 代码示例</h2><span class="hdr-num">05</span></div>
+  <div class="body">
     <div class="g2">
       <div>
-        <div class="sec-label">Python REST API 调用</div>
-        <div class="code">
-          <span class="tag">Python</span>
-<span class="c-k">import</span> requests, uuid, json
+        <div class="sec-label">文本翻译 — 基础调用</div>
+        <div class="code"><span class="tag">Python</span>
+<span class="ck">import</span> requests, uuid, json
 
-<span class="c-c"># Azure Translator 配置</span>
-key = <span class="c-s">"&lt;YOUR-TRANSLATOR-KEY&gt;"</span>
-endpoint = <span class="c-s">"https://api.cognitive.microsofttranslator.com"</span>
-location = <span class="c-s">"&lt;YOUR-RESOURCE-LOCATION&gt;"</span>
-
-params = {
-    <span class="c-s">'api-version'</span>: <span class="c-s">'3.0'</span>,
-    <span class="c-s">'from'</span>: <span class="c-s">'en'</span>,
-    <span class="c-s">'to'</span>: [<span class="c-s">'zh-Hans'</span>, <span class="c-s">'ja'</span>]  <span class="c-c"># 多目标语言</span>
-}
+key = <span class="cs">"YOUR_KEY"</span>
+endpoint = <span class="cs">"https://api.cognitive.microsofttranslator.com"</span>
 
 headers = {
-    <span class="c-s">'Ocp-Apim-Subscription-Key'</span>: key,
-    <span class="c-s">'Ocp-Apim-Subscription-Region'</span>: location,
-    <span class="c-s">'Content-type'</span>: <span class="c-s">'application/json'</span>,
-    <span class="c-s">'X-ClientTraceId'</span>: <span class="c-f">str</span>(uuid.<span class="c-f">uuid4</span>())
+    <span class="cs">"Ocp-Apim-Subscription-Key"</span>: key,
+    <span class="cs">"Ocp-Apim-Subscription-Region"</span>: <span class="cs">"eastasia"</span>,
+    <span class="cs">"Content-type"</span>: <span class="cs">"application/json"</span>,
+    <span class="cs">"X-ClientTraceId"</span>: <span class="cf">str</span>(uuid.<span class="cf">uuid4</span>())
 }
 
-body = [{<span class="c-s">'text'</span>: <span class="c-s">'Hello, friend!'</span>}]
+body = [{<span class="cs">"text"</span>: <span class="cs">"患者血压偏高，建议调整用药方案。"</span>}]
 
-resp = requests.<span class="c-f">post</span>(
-    endpoint + <span class="c-s">'/translate'</span>,
-    params=params, headers=headers, json=body
+resp = requests.<span class="cf">post</span>(
+    endpoint + <span class="cs">"/translate?api-version=3.0&amp;to=en"</span>,
+    headers=headers, json=body
 )
-<span class="c-f">print</span>(json.<span class="c-f">dumps</span>(resp.<span class="c-f">json</span>(),
-    ensure_ascii=<span class="c-k">False</span>, indent=<span class="c-n">2</span>))
-        </div>
+<span class="cf">print</span>(json.<span class="cf">dumps</span>(resp.<span class="cf">json</span>(), indent=2))
+</div>
       </div>
       <div>
-        <div class="sec-label">响应示例</div>
-        <div class="code">
-          <span class="tag">JSON Response</span>
-[{
-  <span class="c-p">"detectedLanguage"</span>: {
-    <span class="c-p">"language"</span>: <span class="c-s">"en"</span>,
-    <span class="c-p">"score"</span>: <span class="c-n">1.0</span>
-  },
-  <span class="c-p">"translations"</span>: [
-    {
-      <span class="c-p">"text"</span>: <span class="c-s">"你好，朋友！"</span>,
-      <span class="c-p">"to"</span>: <span class="c-s">"zh-Hans"</span>
+        <div class="sec-label">使用 Custom Translator 模型</div>
+        <div class="code"><span class="tag">Python</span>
+<span class="cc"># 指定 category 参数使用自定义模型</span>
+category_id = <span class="cs">"YOUR_CATEGORY_ID"</span>
+
+resp = requests.<span class="cf">post</span>(
+    endpoint + <span class="cs">"/translate"</span>,
+    params={
+        <span class="cs">"api-version"</span>: <span class="cs">"3.0"</span>,
+        <span class="cs">"to"</span>: <span class="cs">"en"</span>,
+        <span class="cs">"category"</span>: category_id
     },
-    {
-      <span class="c-p">"text"</span>: <span class="c-s">"こんにちは、友達！"</span>,
-      <span class="c-p">"to"</span>: <span class="c-s">"ja"</span>
-    }
-  ]
-}]
-        </div>
-        <div class="sec-label" style="margin-top:16px;">cURL 快速示例</div>
-        <div class="code" style="font-size:11.5px;">
-          <span class="tag">Bash</span>
-curl -X POST \
- <span class="c-s">"https://api.cognitive.microsofttranslator.com\
-/translate?api-version=3.0&from=en&to=de"</span> \
- -H <span class="c-s">"Ocp-Apim-Subscription-Key: $KEY"</span> \
- -H <span class="c-s">"Content-Type: application/json"</span> \
- -d <span class="c-s">'[{"text":"How much for coffee?"}]'</span>
-        </div>
-        <div class="callout callout-green" style="margin-top:12px;">
-          <span>✅</span>
-          <span><strong>一次请求多语言</strong> — <code>to</code> 参数支持数组，一次调用获取多种语言翻译</span>
-        </div>
+    headers=headers,
+    json=[{<span class="cs">"text"</span>: <span class="cs">"临床试验数据符合预期。"</span>}]
+)
+</div>
+        <div class="sep"></div>
+        <div class="sec-label">Dictionary Lookup 示例</div>
+        <div class="code"><span class="tag">Python</span>
+resp = requests.<span class="cf">post</span>(
+    endpoint + <span class="cs">"/dictionary/lookup"</span>,
+    params={<span class="cs">"api-version"</span>: <span class="cs">"3.0"</span>,
+            <span class="cs">"from"</span>: <span class="cs">"zh-Hans"</span>, <span class="cs">"to"</span>: <span class="cs">"en"</span>},
+    headers=headers,
+    json=[{<span class="cs">"text"</span>: <span class="cs">"药物"</span>}]
+)
+<span class="cc"># 返回候选翻译：drug, medicine, medication...</span>
+</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ 6 · DOCUMENT TRANSLATION ═══════════ -->
+<!-- 6 DOCUMENT TRANSLATION -->
 <div class="slide">
-  <div class="s-header">
-    <div class="s-icon">📄</div>
-    <h2>文档翻译 · 保留格式的整文件翻译</h2>
-    <span class="s-num">06</span>
-  </div>
-  <div class="s-body">
-    <div class="vs-grid" style="margin-bottom:20px;">
-      <div class="vs-col">
-        <h3 style="color:var(--blue);">📦 异步批量翻译</h3>
-        <ul class="bl">
-          <li>批量处理<strong>多个大文件</strong>（最多 1,000 个文件）</li>
-          <li>需要 Azure Blob Storage 存储源/目标文件</li>
-          <li>单文件最大 <span class="hl">40 MB</span>，批次总量 ≤ 250 MB</li>
-          <li>支持最多 <span class="hl">10 个目标语言</span></li>
-          <li>Managed Identity / SAS Token 认证</li>
-          <li>术语表文件最大 10 MB</li>
-        </ul>
-        <div class="flow" style="margin-top:12px;">
-          <div class="flow-box">📁 Blob 源容器</div>
-          <div class="flow-arr">→</div>
-          <div class="flow-box" style="border-color:#BFDBFE;">🌐 Translator</div>
-          <div class="flow-arr">→</div>
-          <div class="flow-box">📂 Blob 目标容器</div>
-        </div>
-      </div>
-      <div class="vs-divider">VS</div>
-      <div class="vs-col">
-        <h3 style="color:var(--green);">⚡ 同步单文件翻译</h3>
-        <ul class="bl bl-green">
-          <li>翻译<strong>单个文档</strong>，直接返回翻译结果</li>
-          <li><strong>无需</strong> Blob Storage</li>
-          <li>单文件最大 <span class="hl-g">10 MB</span></li>
-          <li>支持术语表（最大 1 MB）</li>
-          <li>字符限制：<span class="hl-g">6M 字符/分钟</span></li>
-          <li>适合实时文档翻译场景</li>
-        </ul>
-        <div class="flow" style="margin-top:12px;">
-          <div class="flow-box">📄 上传文件</div>
-          <div class="flow-arr">→</div>
-          <div class="flow-box" style="border-color:#A7F3D0;">🌐 API</div>
-          <div class="flow-arr">→</div>
-          <div class="flow-box">📄 返回翻译</div>
-        </div>
-      </div>
-    </div>
-    <div class="sec-label">支持的文档格式</div>
-    <div class="pills">
-      <span class="pill pill-blue">📝 Word (.docx)</span>
-      <span class="pill pill-blue">📊 Excel (.xlsx)</span>
-      <span class="pill pill-blue">📊 PowerPoint (.pptx)</span>
-      <span class="pill pill-green">📄 PDF</span>
-      <span class="pill pill-green">🖼️ 扫描 PDF / 图片 (OCR)</span>
-      <span class="pill pill-purple">🌐 HTML / HTM</span>
-      <span class="pill pill-purple">📋 CSV / TSV</span>
-      <span class="pill pill-amber">🔄 XLIFF / XLF</span>
-      <span class="pill pill-amber">📝 TXT / Markdown</span>
-      <span class="pill">🔄 TMX</span>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ 7 · CUSTOM TRANSLATOR ═══════════ -->
-<div class="slide">
-  <div class="s-header">
-    <div class="s-icon">🎯</div>
-    <h2>Custom Translator · 领域专属翻译</h2>
-    <span class="s-num">07</span>
-  </div>
-  <div class="s-body">
+  <div class="hdr"><div class="hdr-icon">📄</div><h2>文档翻译</h2><span class="hdr-num">06</span></div>
+  <div class="body">
     <div class="g2">
       <div>
-        <div class="callout callout-purple" style="margin-top:0;">
-          <span>🎯</span>
-          <span>用行业术语和领域数据训练定制化 NMT 模型，获得比通用翻译 <strong>高 5-10 个 BLEU 分</strong> 的翻译质量</span>
+        <div class="sec-label">两种翻译模式</div>
+        <div class="card card-blue" style="margin-bottom:14px">
+          <h3>📦 异步批量翻译</h3>
+          <ul>
+            <li>从 Azure Blob 批量读取文档 → 翻译 → 写回 Blob</li>
+            <li>适合大量文档定期翻译场景</li>
+            <li>单文件 ≤ 40 MB，单次请求总量 ≤ 250 MB</li>
+            <li>支持长时间运行，API 返回操作 ID 轮询状态</li>
+          </ul>
         </div>
-        <div class="sec-label">为什么需要自定义翻译？</div>
-        <ul class="bl bl-purple">
-          <li>通用翻译无法理解<strong>行业专属术语</strong>（医药 / 法律 / 制造业）</li>
-          <li>确保品牌名称、产品名的<strong>一致翻译</strong></li>
-          <li>遵循企业特定的<strong>翻译风格和语气</strong></li>
-          <li>NMT 全句上下文理解，提供更流畅的人工级翻译</li>
-        </ul>
-        <div class="sec-label" style="margin-top:14px;">关键特性</div>
-        <ul class="bl bl-purple">
-          <li>支持 <strong>ALIGN / PDF / TMX / XLIFF / DOCX / XLSX</strong> 等格式</li>
-          <li>文档级平行数据<strong>自动匹配</strong></li>
-          <li>可用纯<strong>词典数据</strong>训练（Dictionary-only）</li>
-          <li>团队协作工作空间 & BLEU 评分评估</li>
-          <li>训练部署<strong>无需编程</strong>，通过 Portal 完成</li>
-        </ul>
+        <div class="card card-green">
+          <h3>⚡ 同步单文件翻译</h3>
+          <ul>
+            <li>直接 POST 文件内容 → 返回翻译后文件</li>
+            <li>适合实时按需翻译，无需 Blob 存储</li>
+            <li>文件 ≤ 20 MB</li>
+          </ul>
+        </div>
       </div>
+      <div>
+        <div class="sec-label">支持文档格式</div>
+        <table class="tb">
+          <tr><th>类型</th><th>格式</th></tr>
+          <tr><td>Office</td><td>DOCX, PPTX, XLSX</td></tr>
+          <tr><td>PDF</td><td>标准 PDF（扫描件需先 OCR）</td></tr>
+          <tr><td>文本</td><td>TXT, CSV, TSV, Markdown</td></tr>
+          <tr><td>本地化</td><td>XLIFF (.xlf), HTML, MHTML</td></tr>
+          <tr><td>其他</td><td>MSG (Outlook), SRT/VTT (字幕)</td></tr>
+        </table>
+        <div class="callout callout-green" style="margin-top:14px">
+          <span>✅</span>
+          <span>文档翻译 <strong>保留原始排版和格式</strong>，输出文件与源文件结构一致。表格、图表、页眉页脚均保留。</span>
+        </div>
+        <div class="callout callout-purple" style="margin-top:6px">
+          <span>🔗</span>
+          <span>批量翻译中 "总量 ≤ 250 MB" 指<strong>一次批量请求中所有源文档的大小之和</strong>。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 CUSTOM TRANSLATOR -->
+<div class="slide">
+  <div class="hdr"><div class="hdr-icon">🎯</div><h2>Custom Translator 自定义翻译</h2><span class="hdr-num">07</span></div>
+  <div class="body">
+    <div class="g32">
       <div>
         <div class="sec-label">训练流程</div>
-        <div class="arch">
-          <div class="arch-row"><div class="arch-node n-blue" style="width:85%;">① 创建工作空间 (Workspace)</div></div>
-          <div class="arch-conn">↓</div>
-          <div class="arch-row"><div class="arch-node n-green" style="width:85%;">② 上传平行语料 (Training / Tuning / Testing)</div></div>
-          <div class="arch-conn">↓</div>
-          <div class="arch-row"><div class="arch-node n-purple" style="width:85%;">③ 训练 NMT 模型 (1-数天)</div></div>
-          <div class="arch-conn">↓</div>
-          <div class="arch-row"><div class="arch-node n-amber" style="width:85%;">④ BLEU 评分评估 (Evaluate)</div></div>
-          <div class="arch-conn">↓</div>
-          <div class="arch-row"><div class="arch-node n-pink" style="width:85%;">⑤ 部署 & 通过 category 参数调用</div></div>
+        <div class="flow">
+          <div class="flow-box" style="background:var(--blue-l);color:var(--blue)">📂 上传平行语料</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-box" style="background:var(--purple-l);color:var(--purple)">⚙️ 训练模型</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-box" style="background:var(--green-l);color:var(--green)">🚀 发布部署</div>
+          <span class="flow-arr">→</span>
+          <div class="flow-box" style="background:var(--orange-l);color:var(--orange)">🔗 API 调用</div>
         </div>
-        <div class="sec-label" style="margin-top:14px;">调用方式</div>
-        <div class="code" style="font-size:11.5px;">
-          <span class="tag">REST API</span>
-<span class="c-c"># 添加 category 参数使用自定义模型</span>
-GET /translate?api-version=3.0
-    &from=en&to=de
-    &<span class="c-k">category=&lt;your-category-id&gt;</span>
+        <div class="sep"></div>
+        <div class="sec-label">三种文档类型</div>
+        <div class="card card-blue" style="margin-bottom:10px">
+          <h3>📚 Training 训练文档</h3>
+          <p>大量平行语料（源+目标），模型从中学习领域翻译模式。建议 ≥ 10,000 对齐句对。</p>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ 8 · ADAPTIVE CT ═══════════ -->
-<div class="slide">
-  <div class="s-header">
-    <div class="s-icon">⚡</div>
-    <h2>Adaptive Custom Translation (AdaptCT)</h2>
-    <span class="s-num">08</span>
-  </div>
-  <div class="s-body">
-    <div class="callout callout-amber" style="margin-top:0;margin-bottom:20px;">
-      <span>🚀</span>
-      <span><strong>全新范式：</strong>不再从头训练模型，而是利用现有 LLM (GPT-4o) + 小数据集 + 智能索引，实现即时领域翻译定制。"把法拉利调校为适合你赛道的赛车"</span>
-    </div>
-    <div class="g2" style="margin-bottom:20px;">
-      <div>
-        <div class="sec-label">核心优势</div>
-        <div class="gc gc-amber" style="margin-bottom:12px;">
-          <h3>⚡ 极速上线</h3>
-          <p>仅需 <span class="hl-a">5-500 句对</span>即可创建索引，<strong>分钟级</strong>生效。传统方式需 10,000+ 句对 + 24-48小时训练</p>
+        <div class="card card-purple" style="margin-bottom:10px">
+          <h3>📖 Dictionary 词典文档</h3>
+          <p><strong>强制精确翻译</strong>。模型必须按词典映射翻译指定术语。适合专有名词、品牌名等。<br>文件限制 100 MB（约 200-500 万对）。</p>
         </div>
-        <div class="gc gc-amber" style="margin-bottom:12px;">
-          <h3>🔄 即时更新</h3>
-          <p>更新数据集 → 重建索引 → 立即生效。<strong>无需重训练、无需重部署</strong>，实现翻译的持续迭代</p>
-        </div>
-        <div class="gc gc-amber">
-          <h3>🎯 Few-Shot Learning</h3>
-          <p>提交翻译请求时，系统检索最相关句对作为 few-shot 示例，引导 LLM 生成领域精准翻译</p>
+        <div class="card card-green">
+          <h3>📝 Tuning 调优文档</h3>
+          <p>验证集，训练过程中用于评估模型质量、防止过拟合。建议 2,500 句对。</p>
         </div>
       </div>
       <div>
-        <div class="sec-label">工作流程</div>
-        <div class="arch" style="margin-bottom:16px;">
-          <div class="arch-row"><div class="arch-node n-blue" style="width:90%;">① 创建工作空间 & 上传句对 (TMX/TSV)</div></div>
-          <div class="arch-conn">↓</div>
-          <div class="arch-row"><div class="arch-node n-amber" style="width:90%;">② 创建 Dataset Index（分钟级）</div></div>
-          <div class="arch-conn">↓</div>
-          <div class="arch-row"><div class="arch-node n-purple" style="width:90%;">③ 调用 Translate API + index ID</div></div>
-          <div class="arch-conn">↓</div>
-          <div class="arch-row"><div class="arch-node n-green" style="width:90%;">④ LLM few-shot 检索 → 精准翻译</div></div>
-        </div>
-        <div class="sec-label">数据格式示例 (TMX)</div>
-        <div class="code" style="font-size:11px;">
-          <span class="tag">TMX</span>
-<span class="c-k">&lt;tmx</span> <span class="c-p">version</span>=<span class="c-s">"1.4"</span><span class="c-k">&gt;</span>
- <span class="c-k">&lt;body&gt;</span>
-  <span class="c-k">&lt;tu&gt;</span>
-   <span class="c-k">&lt;tuv</span> <span class="c-p">xml:lang</span>=<span class="c-s">"en"</span><span class="c-k">&gt;</span>
-    <span class="c-k">&lt;seg&gt;</span>Click the submit button<span class="c-k">&lt;/seg&gt;</span>
-   <span class="c-k">&lt;/tuv&gt;</span>
-   <span class="c-k">&lt;tuv</span> <span class="c-p">xml:lang</span>=<span class="c-s">"fr"</span><span class="c-k">&gt;</span>
-    <span class="c-k">&lt;seg&gt;</span>Cliquez sur soumettre<span class="c-k">&lt;/seg&gt;</span>
-   <span class="c-k">&lt;/tuv&gt;</span>
-  <span class="c-k">&lt;/tu&gt;</span>
- <span class="c-k">&lt;/body&gt;</span>
-<span class="c-k">&lt;/tmx&gt;</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ 9 · ADAPTCT vs CUSTOM ═══════════ -->
-<div class="slide">
-  <div class="s-header">
-    <div class="s-icon">⚖️</div>
-    <h2>AdaptCT vs Custom Translator · 如何选择</h2>
-    <span class="s-num">09</span>
-  </div>
-  <div class="s-body">
-    <table class="tb" style="margin-bottom:24px;">
-      <thead><tr><th>维度</th><th style="color:var(--amber);">⚡ Adaptive CT (AdaptCT)</th><th style="color:var(--purple);">🎯 Custom Translator</th></tr></thead>
-      <tbody>
-        <tr><td><strong>数据量要求</strong></td><td class="hl-a">5 - 10,000 句对</td><td>10,000+ 句对</td></tr>
-        <tr><td><strong>上线速度</strong></td><td class="hl-a">分钟级（索引创建）</td><td>1-数天（模型训练）</td></tr>
-        <tr><td><strong>更新方式</strong></td><td class="hl-a">更新数据集 → 重建索引 → 即刻生效</td><td>重新训练 → 重新部署</td></tr>
-        <tr><td><strong>技术原理</strong></td><td>LLM + Few-Shot Learning + 索引检索</td><td>NMT 模型全量训练</td></tr>
-        <tr><td><strong>维护成本</strong></td><td class="hl-a">零维护（上传 → 索引 → 调用）</td><td>需管理训练、调优、测试数据集</td></tr>
-        <tr><td><strong>适用内容</strong></td><td>动态、快速变化、低频内容</td><td>稳定、高频、大量内容</td></tr>
-        <tr><td><strong>典型场景</strong></td><td>客服工单 / 产品文档 / 动态内容</td><td>法律合同 / 医学报告 / 标准规程</td></tr>
-        <tr><td><strong>API 调用</strong></td><td>Preview API + dataset index ID</td><td>v3 API + category 参数</td></tr>
-      </tbody>
-    </table>
-    <div class="g2">
-      <div class="callout callout-amber">
-        <span>⚡</span>
-        <div>
-          <strong>选 AdaptCT：</strong> 数据量少 (< 10K) · 需快速迭代 · 动态内容 · 客服/SaaS/电商 · 快速原型验证
-        </div>
-      </div>
-      <div class="callout callout-purple">
-        <span>🎯</span>
-        <div>
-          <strong>选 Custom Translator：</strong> 数据量充足 (> 10K) · 内容稳定 · 严格术语控制 · 法律/医药/制造
-        </div>
-      </div>
-    </div>
-    <div class="glow-line"></div>
-    <div class="sec-label">AdaptCT 最佳实践</div>
-    <div class="g3">
-      <div class="gc" style="padding:16px;"><h3 style="font-size:14px;">🎯 从小开始</h3><p>先用 50-100 高价值句对测试效果，再逐步扩展</p></div>
-      <div class="gc" style="padding:16px;"><h3 style="font-size:14px;">📂 按领域分索引</h3><p>customer-support-index、product-docs-index 分域管理</p></div>
-      <div class="gc" style="padding:16px;"><h3 style="font-size:14px;">✨ 质量 > 数量</h3><p>5 个完美句对比 500 个平庸句对更有效，聚焦高影响术语</p></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ 10 · SERVICE LIMITS ═══════════ -->
-<div class="slide">
-  <div class="s-header">
-    <div class="s-icon">📊</div>
-    <h2>服务限制 & 配额</h2>
-    <span class="s-num">10</span>
-  </div>
-  <div class="s-body">
-    <div class="g2">
-      <div>
-        <div class="sec-label">文本翻译 · 请求限制</div>
-        <table class="tb" style="margin-bottom:18px;">
-          <thead><tr><th>操作</th><th>数组元素上限</th><th>字符上限</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Translate</strong></td><td class="mono">1,000</td><td class="mono">50,000</td></tr>
-            <tr><td><strong>Transliterate</strong></td><td class="mono">10</td><td class="mono">5,000</td></tr>
-            <tr><td><strong>Detect</strong></td><td class="mono">100</td><td class="mono">50,000</td></tr>
-            <tr><td><strong>BreakSentence</strong></td><td class="mono">100</td><td class="mono">50,000</td></tr>
-            <tr><td><strong>Dictionary Lookup</strong></td><td class="mono">10</td><td class="mono">1,000</td></tr>
-            <tr><td><strong>Dictionary Examples</strong></td><td class="mono">10</td><td class="mono">2,000</td></tr>
-          </tbody>
-        </table>
-        <div class="sec-label">文本翻译 · 每小时配额</div>
+        <div class="sec-label">Training vs Dictionary</div>
         <table class="tb">
-          <thead><tr><th>层级</th><th>字符限制 / 小时</th></tr></thead>
-          <tbody>
-            <tr><td class="hl">F0 (免费)</td><td class="mono">2,000,000</td></tr>
-            <tr><td>S1 / Multi-service</td><td class="mono">40,000,000</td></tr>
-            <tr><td>S2 / C2</td><td class="mono">40,000,000</td></tr>
-            <tr><td>S3 / C3</td><td class="mono">120,000,000</td></tr>
-            <tr><td class="hl-a">S4 / C4</td><td class="mono hl-a">200,000,000</td></tr>
-          </tbody>
+          <tr><th>对比项</th><th>Training</th><th>Dictionary</th></tr>
+          <tr><td>作用</td><td>学习翻译风格</td><td>强制精确映射</td></tr>
+          <tr><td>灵活性</td><td>模型自主推断</td><td>逐字匹配</td></tr>
+          <tr><td>数据量</td><td>≥ 10K 句对</td><td>不限（100MB）</td></tr>
+          <tr><td>适用</td><td>行业通用语料</td><td>术语、名词</td></tr>
         </table>
-      </div>
-      <div>
-        <div class="sec-label">文档翻译 · 限制</div>
-        <div class="g2" style="gap:12px;margin-bottom:18px;">
-          <div class="gc" style="padding:16px;">
-            <h3 style="font-size:14px;color:var(--blue);">📦 异步批量</h3>
-            <ul style="font-size:12.5px;">
-              <li>单文件 ≤ <strong>40 MB</strong></li>
-              <li>图片文件 ≤ 5 MB (Preview)</li>
-              <li>总文件数 ≤ <strong>1,000</strong></li>
-              <li>批次总量 ≤ <strong>250 MB</strong></li>
-              <li>目标语言 ≤ <strong>10</strong></li>
-              <li>术语表 ≤ 10 MB</li>
-            </ul>
-          </div>
-          <div class="gc" style="padding:16px;">
-            <h3 style="font-size:14px;color:var(--green);">⚡ 同步单文件</h3>
-            <ul style="font-size:12.5px;">
-              <li>单文件 ≤ <strong>10 MB</strong></li>
-              <li>文件数：<strong>1</strong></li>
-              <li>目标语言：<strong>1</strong></li>
-              <li>术语表 ≤ <strong>1 MB</strong></li>
-              <li>速率 <strong>6M 字符/分钟</strong></li>
-            </ul>
-          </div>
-        </div>
-        <div class="sec-label">延迟 & 性能</div>
-        <div class="gc" style="padding:16px;">
-          <table class="tb" style="margin:0;">
-            <tbody>
-              <tr><td>标准模型延迟</td><td class="hl">最大 15 秒</td></tr>
-              <tr><td>自定义模型延迟</td><td>最大 120 秒</td></tr>
-              <tr><td>100字符内响应</td><td class="hl-g">150-300 毫秒</td></tr>
-              <tr><td>自定义模型速率</td><td class="mono">3,600 字符/秒/模型</td></tr>
-              <tr><td>并发请求</td><td class="hl-g">无限制</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="callout callout-blue" style="margin-top:12px;font-size:12.5px;">
+        <div class="callout callout-amber" style="margin-top:14px">
           <span>💡</span>
-          <span>配额需在每小时内<strong>均匀消耗</strong>。F0 层每分钟不超过 ~33,300 字符，突发请求可能触发限流</span>
+          <span><strong>医疗场景推荐</strong>：同时上传 Training（医学论文、临床报告平行语料）+ Dictionary（药物名、疾病名精确映射）。一个项目中可同时包含两种文档类型。</span>
+        </div>
+        <div class="callout callout-blue" style="margin-top:6px">
+          <span>📌</span>
+          <span>Custom Translator 训练的是 <strong>Text Translation 引擎</strong>。Document Translation 底层也调用 Text Translation 引擎，所以自定义模型在文档翻译中同样生效。</span>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ 11 · ADVANTAGES ═══════════ -->
+<!-- 8 ADAPTIVE CT -->
 <div class="slide">
-  <div class="s-header">
-    <div class="s-icon">🏆</div>
-    <h2>核心优势</h2>
-    <span class="s-num">11</span>
-  </div>
-  <div class="s-body">
-    <div class="g3">
-      <div class="gc gc-blue"><div class="gc-icon">🧠</div><h3>NMT 引擎</h3><p>深度学习神经翻译，捕获全句上下文，提供流畅、高质量的类人翻译</p></div>
-      <div class="gc gc-green"><div class="gc-icon">🌍</div><h3>130+ 种语言</h3><p>覆盖全球主要市场，含 LLM 翻译、音译、词典查询等多维度语言能力</p></div>
-      <div class="gc gc-purple"><div class="gc-icon">⚡</div><h3>高性能可扩展</h3><p>日处理 100 亿+ 翻译，Azure 全球基础设施保障高可用与低延迟</p></div>
-      <div class="gc gc-amber"><div class="gc-icon">🔒</div><h3>企业级安全</h3><p>Azure 合规认证、传输加密、VNet / Private Endpoint、容器数据驻留</p></div>
-      <div class="gc gc-pink"><div class="gc-icon">📦</div><h3>灵活部署</h3><p>云端 API + 本地容器（连接/离线），满足各类数据合规与离线需求</p></div>
-      <div class="gc gc-cyan"><div class="gc-icon">🎯</div><h3>双重定制化</h3><p>Custom Translator (NMT 精训) + AdaptCT (LLM 轻定制) 满足不同场景</p></div>
-      <div class="gc gc-blue"><div class="gc-icon">🔌</div><h3>生态集成</h3><p>REST API / SDK / Power Automate / Logic Apps / Bot / Speech 无缝对接</p></div>
-      <div class="gc gc-green"><div class="gc-icon">💰</div><h3>灵活计费</h3><p>免费层 2M 字符/月、标准层按用量、批量折扣、容器承诺年付</p></div>
-      <div class="gc gc-purple"><div class="gc-icon">📄</div><h3>格式保留</h3><p>文档翻译保留 Word/Excel/PDF/HTML 原始排版，支持 OCR 扫描翻译</p></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ 12 · CONTAINERS ═══════════ -->
-<div class="slide">
-  <div class="s-header">
-    <div class="s-icon">📦</div>
-    <h2>容器化部署 · 本地 & 离线</h2>
-    <span class="s-num">12</span>
-  </div>
-  <div class="s-body">
+  <div class="hdr"><div class="hdr-icon">⚡</div><h2>Adaptive Custom Translation (Preview)</h2><span class="hdr-num">08</span></div>
+  <div class="body">
     <div class="g2">
       <div>
-        <div class="sec-label">Connected（连接模式）</div>
-        <div class="gc gc-blue" style="margin-bottom:16px;">
-          <ul>
-            <li>本地部署处理，数据<strong>不离开环境</strong></li>
-            <li>需网络连接传输<strong>计费元数据</strong>（内容不上传）</li>
-            <li>按月按用量计费</li>
-          </ul>
-        </div>
-        <div class="code" style="font-size:11px;">
-          <span class="tag">Docker</span>
-docker run --rm -it -p <span class="c-n">5000</span>:<span class="c-n">5000</span> \
-  --memory <span class="c-n">12g</span> --cpus <span class="c-n">4</span> \
-  -v /mnt/models:/usr/local/models \
-  -e apikey=<span class="c-s">{API_KEY}</span> \
-  -e eula=accept \
-  -e billing=<span class="c-s">{ENDPOINT}</span> \
-  -e Languages=<span class="c-s">en,zh-Hans,ja,fr</span> \
-  mcr.microsoft.com/azure-cognitive-services\
-/translator/text-translation:latest
-        </div>
-        <div class="sec-label" style="margin-top:14px;">本地调用</div>
-        <div class="code" style="font-size:11px;">
-          <span class="tag">cURL</span>
-curl -X POST <span class="c-s">"http://localhost:5000/translate\
-?api-version=3.0&from=en&to=zh-HANS"</span> \
-  -H <span class="c-s">"Content-Type: application/json"</span> \
-  -d <span class="c-s">"[{'Text':'Hello, what is your name?'}]"</span>
-        </div>
-      </div>
-      <div>
-        <div class="sec-label">Disconnected（断开 / 离线模式）</div>
-        <div class="gc gc-amber" style="margin-bottom:16px;">
-          <ul>
-            <li><strong>完全离线运行</strong>，运行时无需网络</li>
-            <li>年度承诺许可 (Commitment Tier)，预购计费</li>
-            <li>适合<strong>高安全 & 隔离环境</strong></li>
-          </ul>
-        </div>
-        <div class="sec-label">容器计费单位</div>
-        <table class="tb" style="margin-bottom:14px;">
-          <thead><tr><th>操作</th><th>计费单位</th></tr></thead>
-          <tbody>
-            <tr><td>文本翻译</td><td class="mono">1 字符 = 1 billedUnit</td></tr>
-            <tr><td>文档翻译</td><td class="mono">1 字符 = 1.5 billedUnit</td></tr>
-          </tbody>
-        </table>
-        <div class="sec-label">容器优势</div>
-        <ul class="bl bl-amber">
-          <li>文本翻译 + 音译 + 文档翻译全支持</li>
-          <li>Docker 镜像部署，分配 12G 内存 + 4 CPU 即可运行</li>
-          <li>支持多容器多语言同时运行</li>
-          <li>满足<strong>最严格的数据治理与合规</strong>要求</li>
+        <div class="sec-label">什么是 AdaptCT？</div>
+        <ul class="bl">
+          <li><span class="hl">无需训练</span> — 在 API 请求中直接传入参考句对</li>
+          <li>模型实时自适应，翻译风格向参考对齐</li>
+          <li>适合 <span class="hl-p">快速迭代</span> 场景，术语随时可更新</li>
+          <li>按需计费，无训练成本</li>
+          <li>Preview API：<code style="font-size:12px;background:var(--bg2);padding:2px 6px;border-radius:4px">2025-05-01-preview</code></li>
         </ul>
-        <div class="callout callout-green" style="margin-top:10px;font-size:12.5px;">
-          <span>🔒</span><span>所有翻译在本地完成，数据永远不离开您的环境</span>
-        </div>
-      </div>
-    </div>
-  </div>
+        <div class="sep"></div>
+        <div class="sec-label">API 调用示例</div>
+        <div class="code"><span class="tag">JSON</span>
+{
+  <span class="cs">"translationContext"</span>: {
+    <span class="cs">"references"</span>: [
+      {
+        <span class="cs">"source"</span>: <span class="cs">"药物不良反应"</span>,
+        <span class="cs">"target"</span>: <span class="cs">"Adverse Drug Reaction"</span>
+      },
+      {
+        <span class="cs">"source"</span>: <span class="cs">"临床试验"</span>,
+        <span class="cs">"target"</span>: <span class="cs">"Clinical Trial"</span>
+      }
+    ]
+  }
+}
 </div>
-
-<!-- ═══════════ 13 · PREVIEW API DEMO ═══════════ -->
-<div class="slide">
-  <div class="s-header">
-    <div class="s-icon">🧪</div>
-    <h2>Preview API · 演示效果</h2>
-    <span class="s-num">13</span>
-  </div>
-  <div class="s-body">
-    <div class="callout callout-purple" style="margin-top:0;margin-bottom:18px;">
-      <span>🧪</span>
-      <span><strong>2025-10-01-preview</strong> 新增能力：LLM 翻译 (GPT-4o/4o-mini) · 性别/语气控制 · AdaptCT 自适应翻译 · 内联参考对</span>
-    </div>
-    <div class="g2">
-      <div>
-        <div class="sec-label">示例 1：LLM 翻译 + 性别/语气控制</div>
-        <div class="code" style="font-size:11px;margin-bottom:14px;">
-          <span class="tag">请求</span>
-{
-  <span class="c-p">"inputs"</span>: [{
-    <span class="c-p">"text"</span>: <span class="c-s">"Doctor is available next Monday.
-     Do you want to schedule an
-     appointment?"</span>,
-    <span class="c-p">"language"</span>: <span class="c-s">"en"</span>,
-    <span class="c-p">"targets"</span>: [{
-      <span class="c-p">"language"</span>: <span class="c-s">"es"</span>,
-      <span class="c-p">"deploymentName"</span>: <span class="c-s">"gpt-4o-mini"</span>,
-      <span class="c-p">"tone"</span>: <span class="c-s">"formal"</span>,
-      <span class="c-p">"gender"</span>: <span class="c-s">"female"</span>
-    }]
-  }]
-}
-        </div>
-        <div class="code" style="font-size:11px;">
-          <span class="tag">响应 (女性 + 正式)</span>
-{
-  <span class="c-p">"text"</span>: <span class="c-s">"<strong>La médica</strong> estará disponible
-   el próximo lunes. ¿Desea programar
-   una cita?"</span>
-}
-<span class="c-c">// "La médica" = 女性医生 (阴性形式)</span>
-<span class="c-c">// 若 gender: "male" → "El médico"</span>
-        </div>
       </div>
       <div>
-        <div class="sec-label">示例 2：AdaptCT 自适应翻译（内联参考对）</div>
-        <div class="code" style="font-size:11px;margin-bottom:14px;">
-          <span class="tag">请求</span>
-{
-  <span class="c-p">"inputs"</span>: [{
-    <span class="c-p">"text"</span>: <span class="c-s">"Click the submit button
-     to upload your file"</span>,
-    <span class="c-p">"language"</span>: <span class="c-s">"en"</span>,
-    <span class="c-p">"targets"</span>: [{
-      <span class="c-p">"language"</span>: <span class="c-s">"fr"</span>,
-      <span class="c-k">"referenceTextPairs"</span>: [
-        {
-          <span class="c-p">"source"</span>: <span class="c-s">"submit button"</span>,
-          <span class="c-p">"target"</span>: <span class="c-s">"bouton soumettre"</span>
-        },
-        {
-          <span class="c-p">"source"</span>: <span class="c-s">"upload your file"</span>,
-          <span class="c-p">"target"</span>: <span class="c-s">"téléchargez votre fichier"</span>
-        }
-      ]
-    }]
-  }]
-}
-        </div>
-        <div class="callout callout-amber" style="font-size:12.5px;">
-          <span>⚡</span>
-          <div>
-            <strong>两种 AdaptCT 调用方式：</strong><br>
-            ① <code>adaptiveDatasetId</code> — 引用预建索引<br>
-            ② <code>referenceTextPairs</code> — 请求中内联参考对（最多 5 对）<br>
-            无需训练，即时生效！
+        <div class="sec-label">AdaptCT vs Custom Translator</div>
+        <div class="vs-grid">
+          <div class="vs-col">
+            <h3 style="color:var(--blue)">⚡ AdaptCT</h3>
+            <ul class="bl">
+              <li>无需训练，即时生效</li>
+              <li>参考句对随请求传入</li>
+              <li>灵活性极高</li>
+              <li>按请求计费</li>
+              <li>适合术语频繁变化场景</li>
+              <li>Preview 阶段</li>
+            </ul>
+          </div>
+          <div class="vs-div">VS</div>
+          <div class="vs-col">
+            <h3 style="color:var(--purple)">🎯 Custom Translator</h3>
+            <ul class="bl bl-p">
+              <li>需要训练（数小时-天）</li>
+              <li>模型持久化部署</li>
+              <li>翻译质量更稳定</li>
+              <li>训练免费 + 按请求计费</li>
+              <li>适合稳定领域模型</li>
+              <li>GA 正式版</li>
+            </ul>
           </div>
         </div>
-        <div class="sec-label" style="margin-top:14px;">Preview API 新增参数一览</div>
-        <table class="tb" style="font-size:12px;">
-          <thead><tr><th>参数</th><th>说明</th></tr></thead>
-          <tbody>
-            <tr><td class="mono hl-p">deploymentName</td><td>GPT-4o / 4o-mini 部署名 或 categoryID</td></tr>
-            <tr><td class="mono hl-a">tone</td><td>formal / informal / neutral</td></tr>
-            <tr><td class="mono hl-a">gender</td><td>female / male / neutral</td></tr>
-            <tr><td class="mono hl-g">adaptiveDatasetId</td><td>AdaptCT 数据集索引 ID</td></tr>
-            <tr><td class="mono hl-g">referenceTextPairs</td><td>内联参考对（最多 5 对）</td></tr>
-          </tbody>
+        <div class="callout callout-green" style="margin-top:14px">
+          <span>🔑</span>
+          <span><strong>选择建议</strong>：术语固定且语料丰富 → Custom Translator；术语变化频繁或数据不足 → AdaptCT；两者可组合使用。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 SERVICE LIMITS -->
+<div class="slide">
+  <div class="hdr"><div class="hdr-icon">📏</div><h2>服务限制与配额</h2><span class="hdr-num">09</span></div>
+  <div class="body">
+    <div class="g2">
+      <div>
+        <div class="sec-label">文本翻译 API 限制</div>
+        <table class="tb">
+          <tr><th>项目</th><th>限制</th></tr>
+          <tr><td>单次请求字符</td><td class="mono">50,000</td></tr>
+          <tr><td>Body 数组元素</td><td class="mono">100</td></tr>
+          <tr><td>请求频率 (S1)</td><td class="mono">~100 req/s</td></tr>
+          <tr><td>每小时字符 (Free)</td><td class="mono">2,000,000</td></tr>
+          <tr><td>每小时字符 (S1)</td><td class="mono">40,000,000</td></tr>
+          <tr><td>Dictionary 数组</td><td class="mono">最多 10 个</td></tr>
+        </table>
+        <div class="callout callout-blue" style="margin-top:10px">
+          <span>📌</span>
+          <span>Dictionary Lookup/Examples 中 Body 数组 <strong>最多 10 个元素</strong>，每元素 ≤ 100 字符。这是内联词典查询的限制，非 Custom Translator 词典。</span>
+        </div>
+      </div>
+      <div>
+        <div class="sec-label">文档翻译限制</div>
+        <table class="tb">
+          <tr><th>项目</th><th>限制</th></tr>
+          <tr><td>单文件大小</td><td class="mono">≤ 40 MB</td></tr>
+          <tr><td>批量总大小</td><td class="mono">≤ 250 MB</td></tr>
+          <tr><td>同步单文件</td><td class="mono">≤ 20 MB</td></tr>
+          <tr><td>支持格式数</td><td class="mono">18+</td></tr>
+        </table>
+        <div class="sep"></div>
+        <div class="sec-label">Custom Translator 限制</div>
+        <table class="tb">
+          <tr><th>项目</th><th>限制</th></tr>
+          <tr><td>工作区数量</td><td class="mono">不限</td></tr>
+          <tr><td>项目数 / 工作区</td><td class="mono">不限</td></tr>
+          <tr><td>文档类型</td><td>Training / Dictionary / Tuning / Testing / Phrase Dictionary / Sentence Dictionary</td></tr>
+          <tr><td>Dictionary 文件</td><td class="mono">≤ 100 MB</td></tr>
+          <tr><td>最少训练句对</td><td class="mono">10,000</td></tr>
         </table>
       </div>
     </div>
+    <div class="stats" style="margin-top:18px;margin-bottom:0">
+      <div class="stat"><div class="stat-v">Free</div><div class="stat-l">200 万字符/月</div></div>
+      <div class="stat"><div class="stat-v">S1</div><div class="stat-l">按量付费</div></div>
+      <div class="stat"><div class="stat-v">S2</div><div class="stat-l">按量付费</div></div>
+      <div class="stat"><div class="stat-v">S3</div><div class="stat-l">按量付费</div></div>
+      <div class="stat"><div class="stat-v">S4</div><div class="stat-l">按量付费</div></div>
+      <div class="stat"><div class="stat-v">D3</div><div class="stat-l">文档翻译</div></div>
+    </div>
   </div>
 </div>
 
-<!-- ═══════════ 14 · CASE STUDIES ═══════════ -->
+<!-- 10 ADVANTAGES -->
 <div class="slide">
-  <div class="s-header">
-    <div class="s-icon">🏢</div>
-    <h2>客户案例 & 行业实践</h2>
-    <span class="s-num">14</span>
-  </div>
-  <div class="s-body">
-    <div class="g2" style="margin-bottom:20px;">
-      <div class="gc" style="border: 2px solid #BFDBFE;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <div class="gc-icon" style="background:#EBF5FF;margin:0;">🏦</div>
-          <div>
-            <h3 style="margin:0;">Lloyds Banking Group (英国)</h3>
-            <div style="font-size:11px;color:var(--text-muted);">英国最大数字银行 · 2800万客户 · 1500+ 网点</div>
-          </div>
-        </div>
-        <p><strong>挑战：</strong>英国 9% 人口英语非母语，16.1万人缺乏英语能力，银行网点沟通困难</p>
-        <p style="margin-top:6px;"><strong>方案：</strong>基于 <span class="hl">Power Apps + Azure AI Speech + Translator</span> 构建实时翻译应用</p>
-        <ul style="margin-top:6px;">
-          <li>员工说英语 → 实时翻译为客户母语</li>
-          <li>语音转文字 + 文字翻译 + 语音合成</li>
-          <li>集成 PII 识别保护客户隐私</li>
-          <li>集成 OpenAI 推荐相关银行服务</li>
-        </ul>
-        <p style="margin-top:8px;"><strong>成效：</strong><span class="hl-g">8 周</span>完成开发测试，部署至全部网点，显著提升多元文化区域服务满意度</p>
+  <div class="hdr"><div class="hdr-icon">🏆</div><h2>核心优势</h2><span class="hdr-num">10</span></div>
+  <div class="body">
+    <div class="g4">
+      <div class="card card-blue">
+        <div class="card-icon">🌐</div>
+        <h3>语言覆盖广</h3>
+        <p>130+ 语言，覆盖全球 99% 人口的母语</p>
       </div>
-      <div class="gc" style="border: 2px solid #DDD6FE;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <div class="gc-icon" style="background:#F3EEFF;margin:0;">🎓</div>
-          <div>
-            <h3 style="margin:0;">Berlitz (全球)</h3>
-            <div style="font-size:11px;color:var(--text-muted);">全球语言教育领导者 · 50万+学员</div>
-          </div>
+      <div class="card card-green">
+        <div class="card-icon">🔐</div>
+        <h3>企业级安全</h3>
+        <p>No-Trace + AES-256 + CMK + Private Endpoint + HIPAA</p>
+      </div>
+      <div class="card card-purple">
+        <div class="card-icon">🎯</div>
+        <h3>行业定制</h3>
+        <p>Custom Translator + AdaptCT 满足垂直领域精准翻译</p>
+      </div>
+      <div class="card card-amber">
+        <div class="card-icon">📄</div>
+        <h3>格式保留</h3>
+        <p>文档翻译保留原始排版、表格、图表、页眉页脚</p>
+      </div>
+      <div class="card card-teal">
+        <div class="card-icon">📦</div>
+        <h3>灵活部署</h3>
+        <p>云端 / 容器 / 断开模式，满足各类合规需求</p>
+      </div>
+      <div class="card card-pink">
+        <div class="card-icon">⚡</div>
+        <h3>性能卓越</h3>
+        <p>毫秒级响应，自动扩展，日均处理 100 亿+ 翻译</p>
+      </div>
+      <div class="card card-blue">
+        <div class="card-icon">🤖</div>
+        <h3>LLM 增强</h3>
+        <p>2025 Preview：GPT-4o 驱动翻译 + 语气/性别控制</p>
+      </div>
+      <div class="card card-green">
+        <div class="card-icon">💰</div>
+        <h3>灵活定价</h3>
+        <p>Free 层免费起步，按字符量付费，训练免费</p>
+      </div>
+    </div>
+    <div class="callout callout-blue" style="margin-top:18px">
+      <span>🏢</span>
+      <span>Microsoft 全产品线（Teams / Office / Edge / Bing / Xbox）均使用 Azure Translator 驱动翻译功能，日均翻译量超 <strong>100 亿次</strong>。</span>
+    </div>
+  </div>
+</div>
+
+<!-- 11 CONTAINERS -->
+<div class="slide">
+  <div class="hdr"><div class="hdr-icon">📦</div><h2>容器化部署</h2><span class="hdr-num">11</span></div>
+  <div class="body">
+    <div class="g2">
+      <div>
+        <div class="sec-label">部署模式</div>
+        <div class="card card-blue" style="margin-bottom:14px">
+          <h3>☁️ Connected 连接模式</h3>
+          <ul>
+            <li>容器在本地运行翻译，定期向 Azure 发送计量数据</li>
+            <li>需要网络连接用于授权和计费</li>
+            <li>翻译数据不出本地</li>
+          </ul>
         </div>
-        <p><strong>场景：</strong>使用 <span class="hl-p">Azure Speech + Translator</span> 为全球 50 万语言学习者提供 AI 辅助学习</p>
-        <ul style="margin-top:6px;">
-          <li>实时语音翻译辅助跨语言教学</li>
-          <li>多语言课程内容即时翻译</li>
-          <li>学员发音评估与翻译反馈</li>
-        </ul>
-        <div class="callout callout-purple" style="margin-top:10px;font-size:12px;padding:10px 14px;">
-          <span>🏆</span><span>Microsoft 官方认可的 AI 赋能语言教育标杆案例</span>
+        <div class="card card-purple">
+          <h3>🔒 Disconnected 断开模式</h3>
+          <ul>
+            <li>完全离线运行，无需任何网络连接</li>
+            <li>需要提前申请并签署承诺计划</li>
+            <li>适合高安全/涉密环境（军事、政府）</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="sec-label">典型场景</div>
+        <div class="feat">
+          <div class="feat-icon">🏥</div>
+          <div><h4>医疗合规</h4><p>患者数据不出院内网络，满足 HIPAA 等法规</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🏦</div>
+          <div><h4>金融安全</h4><p>交易文档、风控报告在银行内部翻译</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🏛️</div>
+          <div><h4>政府机密</h4><p>涉密文件翻译不经过公网</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🏭</div>
+          <div><h4>边缘计算</h4><p>工厂、船舶等网络受限环境</p></div>
+        </div>
+        <div class="sep"></div>
+        <div class="sec-label">技术要求</div>
+        <div class="pills">
+          <span class="pill pill-b">Docker CE/EE</span>
+          <span class="pill pill-b">8+ GB RAM</span>
+          <span class="pill pill-b">4+ CPU</span>
+          <span class="pill pill-p">GPU 推荐 (NVIDIA)</span>
+          <span class="pill pill-g">Linux x64</span>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- 12 SECURITY -->
+<div class="slide">
+  <div class="hdr"><div class="hdr-icon">🔐</div><h2>安全合规与隐私</h2><span class="hdr-num">12</span></div>
+  <div class="body">
     <div class="g3">
-      <div class="gc" style="border: 1px solid #A7F3D0;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <div class="gc-icon" style="background:#ECFDF5;margin:0;width:32px;height:32px;font-size:16px;">💬</div>
-          <h3 style="margin:0;font-size:14px;">Teams 集成翻译</h3>
-        </div>
-        <p>咨询公司将 Custom Translator 集成到 Teams Bot，实现内部消息和文件的即时多语言翻译，消除跨国团队沟通障碍</p>
+      <div class="card card-blue">
+        <div class="card-icon">🚫</div>
+        <h3>No-Trace 策略</h3>
+        <p>翻译文本不被 Microsoft 留存、记录或用于改进模型。提交的数据仅用于实时翻译并立即丢弃。</p>
       </div>
-      <div class="gc" style="border: 1px solid #FDE68A;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <div class="gc-icon" style="background:#FFFBEB;margin:0;width:32px;height:32px;font-size:16px;">🌐</div>
-          <h3 style="margin:0;font-size:14px;">Appen 语言数据</h3>
-        </div>
-        <p>与 Microsoft Translator 合作，快速扩展至 100+ 种语言支持，帮助保护濒危语言，让知识获取更公平</p>
+      <div class="card card-green">
+        <div class="card-icon">🔒</div>
+        <h3>传输与存储加密</h3>
+        <p>TLS 1.2+ 传输加密，静态数据 AES-256 加密，支持客户管理密钥 (CMK)。</p>
       </div>
-      <div class="gc" style="border: 1px solid #FBCFE8;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <div class="gc-icon" style="background:#FDF2F8;margin:0;width:32px;height:32px;font-size:16px;">🏥</div>
-          <h3 style="margin:0;font-size:14px;">医疗健康翻译</h3>
-        </div>
-        <p>医疗机构使用 Custom Translator 训练医学领域模型，安全翻译多语言患者信息，满足 HIPAA 合规</p>
+      <div class="card card-purple">
+        <div class="card-icon">🏥</div>
+        <h3>HIPAA 合规</h3>
+        <p>Azure 平台提供 BAA 协议支持。配合容器部署 + Private Endpoint 满足医疗合规要求。</p>
       </div>
+      <div class="card card-amber">
+        <div class="card-icon">🌐</div>
+        <h3>Private Endpoint</h3>
+        <p>通过 VNet 私有链接访问 Translator API，数据完全不经过公网。</p>
+      </div>
+      <div class="card card-teal">
+        <div class="card-icon">📦</div>
+        <h3>容器隔离</h3>
+        <p>在客户自有基础设施上运行容器，数据完全不离开客户环境，最高级别数据主权。</p>
+      </div>
+      <div class="card card-pink">
+        <div class="card-icon">🛡️</div>
+        <h3>PII 保护</h3>
+        <p>配合 Azure AI Language 的 PII Detection 服务，先脱敏再翻译，保护患者/客户个人信息。</p>
+      </div>
+    </div>
+    <div class="callout callout-green" style="margin-top:14px">
+      <span>✅</span>
+      <span>Azure Translator 满足 SOC 2 Type 2、ISO 27001、HIPAA (via BAA)、GDPR、FedRAMP 等主要合规标准。</span>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ 15 · USE CASES ═══════════ -->
+<!-- 13 PREVIEW API -->
 <div class="slide">
-  <div class="s-header">
-    <div class="s-icon">💡</div>
-    <h2>应用场景 & 生态集成</h2>
-    <span class="s-num">15</span>
-  </div>
-  <div class="s-body">
-    <div class="g3" style="margin-bottom:20px;">
-      <div class="gc gc-blue"><div class="gc-icon">🌐</div><h3>多语言 App</h3><p>实时翻译 API 嵌入应用，为全球用户提供母语体验</p></div>
-      <div class="gc gc-green"><div class="gc-icon">📋</div><h3>企业文档翻译</h3><p>批量翻译合同/手册/报告，保留格式，大幅降低翻译成本</p></div>
-      <div class="gc gc-purple"><div class="gc-icon">🤖</div><h3>智能客服</h3><p>与 Bot Service 集成，客服机器人实时多语言翻译</p></div>
-      <div class="gc gc-amber"><div class="gc-icon">🏭</div><h3>制造业技术文档</h3><p>Custom Translator 定制领域模型，精准翻译技术规格书</p></div>
-      <div class="gc gc-pink"><div class="gc-icon">🔬</div><h3>医药研发</h3><p>临床报告/药品说明书专业翻译，确保监管合规性</p></div>
-      <div class="gc gc-cyan"><div class="gc-icon">🎮</div><h3>游戏本地化</h3><p>AdaptCT 快速定制游戏术语，保持世界观和角色语气一致</p></div>
-    </div>
-    <div class="glow-line"></div>
-    <div class="sec-label">集成生态</div>
-    <div class="flow">
-      <div class="flow-box">🔄 Power Automate</div>
-      <div class="flow-box">⚡ Logic Apps</div>
-      <div class="flow-box">🤖 Bot Service</div>
-      <div class="flow-box">🧠 AI Foundry</div>
-      <div class="flow-box">📊 Fabric / Synapse</div>
-      <div class="flow-box">🗣️ Speech Service</div>
-      <div class="flow-box">🔗 SharePoint</div>
+  <div class="hdr"><div class="hdr-icon">🔮</div><h2>2025 Preview API 新功能</h2><span class="hdr-num">13</span></div>
+  <div class="body">
+    <div class="g2">
+      <div>
+        <div class="sec-label">LLM 翻译引擎</div>
+        <div class="code"><span class="tag">Python</span>
+<span class="cc"># 使用 GPT-4o 驱动的 LLM 翻译引擎</span>
+resp = requests.<span class="cf">post</span>(
+    endpoint + <span class="cs">"/translate"</span>,
+    params={
+        <span class="cs">"api-version"</span>: <span class="cs">"2025-05-01-preview"</span>,
+        <span class="cs">"to"</span>: <span class="cs">"en"</span>,
+        <span class="cs">"translationEngine"</span>: <span class="cs">"llm"</span>
+    },
+    headers=headers,
+    json=[{<span class="cs">"text"</span>: <span class="cs">"这是一款创新产品。"</span>}]
+)
+</div>
+        <div class="sep"></div>
+        <div class="sec-label">性别 / 语气控制</div>
+        <div class="code"><span class="tag">JSON</span>
+{
+  <span class="cs">"gender"</span>: <span class="cs">"feminine"</span>,
+  <span class="cs">"tone"</span>: <span class="cs">"formal"</span>
+}
+<span class="cc">// 支持: masculine/feminine/neutral</span>
+<span class="cc">// 语气: formal/informal</span>
+</div>
+      </div>
+      <div>
+        <div class="sec-label">Preview 功能总览</div>
+        <div class="feat">
+          <div class="feat-icon" style="background:var(--blue-l)">🤖</div>
+          <div><h4>LLM Translation Engine</h4><p>GPT-4o 驱动，翻译质量更自然流畅，特别适合创意/营销文本</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon" style="background:var(--purple-l)">👤</div>
+          <div><h4>Gender Control</h4><p>控制翻译中的性别表达（masculine/feminine/neutral）</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon" style="background:var(--green-l)">🎭</div>
+          <div><h4>Tone Control</h4><p>正式/非正式语气切换，适配不同沟通场景</p></div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon" style="background:var(--orange-l)">⚡</div>
+          <div><h4>Adaptive CT</h4><p>无需训练，传入参考句对即时自适应翻译</p></div>
+        </div>
+        <div class="callout callout-amber" style="margin-top:14px">
+          <span>⚠️</span>
+          <span>Preview 功能需使用 <code style="font-size:12px;background:rgba(0,0,0,.05);padding:2px 6px;border-radius:4px">api-version=2025-05-01-preview</code>，目前支持部分语言对。</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ 16 · END ═══════════ -->
+<!-- 14 CASE STUDIES -->
+<div class="slide">
+  <div class="hdr"><div class="hdr-icon">📊</div><h2>客户案例</h2><span class="hdr-num">14</span></div>
+  <div class="body">
+    <div class="g2">
+      <div class="card card-blue" style="margin-bottom:14px">
+        <h3>🏦 Lloyds Banking Group</h3>
+        <p>英国最大零售银行之一。使用 Azure Translator + Power Apps 构建实时分行翻译应用，支持客户以母语沟通银行业务。</p>
+        <div class="pills" style="margin-top:10px"><span class="pill pill-b">金融</span> <span class="pill pill-g">Power Apps</span> <span class="pill pill-p">实时翻译</span></div>
+      </div>
+      <div class="card card-green" style="margin-bottom:14px">
+        <h3>🌍 Berlitz</h3>
+        <p>全球领先语言教育机构。将 Azure Translator 集成到学习平台，为 20+ 种语言的学员提供即时翻译辅助和词汇学习功能。</p>
+        <div class="pills" style="margin-top:10px"><span class="pill pill-b">教育</span> <span class="pill pill-g">多语言</span> <span class="pill pill-a">学习平台</span></div>
+      </div>
+      <div class="card card-purple" style="margin-bottom:14px">
+        <h3>📊 Appen</h3>
+        <p>全球 AI 数据标注领先企业。利用 Azure Translator 处理多语言标注数据，加速跨语言 AI 模型训练流程。</p>
+        <div class="pills" style="margin-top:10px"><span class="pill pill-b">AI/ML</span> <span class="pill pill-p">数据标注</span> <span class="pill pill-a">多语言</span></div>
+      </div>
+      <div class="card card-amber" style="margin-bottom:14px">
+        <h3>💬 Microsoft Teams</h3>
+        <p>内置实时消息翻译功能，支持 60+ 语言。用户在聊天中直接翻译收到的消息，实现跨语言团队协作。</p>
+        <div class="pills" style="margin-top:10px"><span class="pill pill-b">协作</span> <span class="pill pill-g">实时翻译</span> <span class="pill pill-p">60+ 语言</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 USE CASES -->
+<div class="slide">
+  <div class="hdr"><div class="hdr-icon">🎯</div><h2>行业应用场景</h2><span class="hdr-num">15</span></div>
+  <div class="body">
+    <div class="g3">
+      <div class="card card-blue">
+        <div class="card-icon">🏥</div>
+        <h3>医疗健康</h3>
+        <ul>
+          <li>多语言患者信息翻译</li>
+          <li>医学文献批量翻译</li>
+          <li>Custom Translator 训练医学模型</li>
+          <li>容器部署满足 HIPAA</li>
+        </ul>
+      </div>
+      <div class="card card-green">
+        <div class="card-icon">💊</div>
+        <h3>制药 CRO</h3>
+        <ul>
+          <li>临床试验报告翻译</li>
+          <li>药物说明书多语言化</li>
+          <li>Dictionary 锁定药物名称</li>
+          <li>FDA/EMA 提交文档翻译</li>
+        </ul>
+      </div>
+      <div class="card card-purple">
+        <div class="card-icon">⚖️</div>
+        <h3>法律合同</h3>
+        <ul>
+          <li>合同条款精确翻译</li>
+          <li>法律术语词典定制</li>
+          <li>跨境诉讼文档处理</li>
+          <li>格式保留，无需重排版</li>
+        </ul>
+      </div>
+      <div class="card card-amber">
+        <div class="card-icon">🏭</div>
+        <h3>制造业</h3>
+        <ul>
+          <li>技术手册多语言翻译</li>
+          <li>质检报告批量处理</li>
+          <li>供应链文档翻译</li>
+          <li>边缘容器离线翻译</li>
+        </ul>
+      </div>
+      <div class="card card-teal">
+        <div class="card-icon">🛒</div>
+        <h3>电商零售</h3>
+        <ul>
+          <li>商品描述多语言化</li>
+          <li>客户评论翻译分析</li>
+          <li>客服对话实时翻译</li>
+          <li>品牌名称 Dictionary 保护</li>
+        </ul>
+      </div>
+      <div class="card card-pink">
+        <div class="card-icon">🎮</div>
+        <h3>游戏娱乐</h3>
+        <ul>
+          <li>游戏内文本本地化</li>
+          <li>玩家聊天实时翻译</li>
+          <li>游戏术语自定义模型</li>
+          <li>批量字幕翻译 (SRT/VTT)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 16 END -->
 <div class="slide slide-end">
-  <div class="hero-badge" style="margin-bottom:20px;">🚀 Summary</div>
-  <h1 class="hero-title" style="font-size:48px;">Azure Translator · 总结</h1>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;max-width:1000px;margin-top:36px;text-align:left;position:relative;z-index:1;">
-    <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:18px;border-radius:14px;">
-      <div style="font-size:24px;margin-bottom:6px;">💬</div>
-      <div style="font-size:14px;font-weight:700;color:#fff;">文本翻译</div>
-      <div style="font-size:11.5px;color:rgba(255,255,255,0.8);margin-top:4px;line-height:1.5;">130+ 语言 · 实时 · 检测 · 音译 · LLM Preview</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:18px;border-radius:14px;">
-      <div style="font-size:24px;margin-bottom:6px;">📄</div>
-      <div style="font-size:14px;font-weight:700;color:#fff;">文档翻译</div>
-      <div style="font-size:11.5px;color:rgba(255,255,255,0.8);margin-top:4px;line-height:1.5;">批量/同步 · 格式保留 · OCR · 术语表</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:18px;border-radius:14px;">
-      <div style="font-size:24px;margin-bottom:6px;">🎯</div>
-      <div style="font-size:14px;font-weight:700;color:#fff;">Custom Translator</div>
-      <div style="font-size:11.5px;color:rgba(255,255,255,0.8);margin-top:4px;line-height:1.5;">NMT 精训 · BLEU+5~10 · Portal · 大数据</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:18px;border-radius:14px;">
-      <div style="font-size:24px;margin-bottom:6px;">⚡</div>
-      <div style="font-size:14px;font-weight:700;color:#fff;">AdaptCT</div>
-      <div style="font-size:11.5px;color:rgba(255,255,255,0.8);margin-top:4px;line-height:1.5;">LLM + 小数据 · 分钟级 · Few-Shot · 零维护</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:18px;border-radius:14px;">
-      <div style="font-size:24px;margin-bottom:6px;">📦</div>
-      <div style="font-size:14px;font-weight:700;color:#fff;">容器化</div>
-      <div style="font-size:11.5px;color:rgba(255,255,255,0.8);margin-top:4px;line-height:1.5;">本地/离线 · 数据驻留 · Docker · 合规</div>
-    </div>
-  </div>
-  <div style="margin-top:36px;position:relative;z-index:1;">
-    <div style="font-size:15px;color:var(--text-dim);margin-bottom:10px;">📚 了解更多</div>
-    <div class="pills" style="justify-content:center;">
-      <span class="pill pill-blue">learn.microsoft.com/azure/ai-services/translator</span>
-      <span class="pill pill-purple">portal.customtranslator.azure.ai</span>
-      <span class="pill pill-amber">github.com/MicrosoftTranslator/adapct4python</span>
-    </div>
+  <h2>Thank You</h2>
+  <p>Azure Translator — 让技术消除语言障碍</p>
+  <div class="end-links">
+    <a class="end-link" href="https://learn.microsoft.com/azure/ai-services/translator/" target="_blank">📖 官方文档</a>
+    <a class="end-link ghost" href="https://portal.azure.com" target="_blank">☁️ Azure Portal</a>
+    <a class="end-link ghost" href="https://ai.azure.com" target="_blank">🤖 AI Foundry</a>
   </div>
 </div>
 
-</div><!-- deck -->
-
-<!-- Navigation -->
-<div class="nav">
-  <button class="nav-btn" id="prevBtn" onclick="go(-1)" disabled>← Prev</button>
-  <div class="nav-progress"><div class="nav-progress-fill" id="pFill"></div></div>
-  <span class="nav-info" id="pInfo">1 / 17</span>
-  <button class="nav-btn" id="nextBtn" onclick="go(1)">Next →</button>
 </div>
-<div class="kbd-hint">← → 方向键翻页</div>
+
+<nav class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="go(-1)">←</button>
+  <div class="nav-bar"><div class="nav-fill" id="pFill"></div></div>
+  <span class="nav-info" id="pInfo"></span>
+  <button class="nav-btn" id="nextBtn" onclick="go(1)">→</button>
+</nav>
+<div class="kbd">← → 翻页 · Home / End 跳转</div>
 
 <script>
-let cur = 0;
-const ss = document.querySelectorAll('.slide');
-const N = ss.length;
-function show(i) {
-  ss.forEach(s => s.classList.remove('active'));
+const ss=document.querySelectorAll('.slide'),N=ss.length;let cur=0;
+function show(i){
+  ss.forEach(s=>s.classList.remove('active'));
   ss[i].classList.add('active');
-  document.getElementById('prevBtn').disabled = i === 0;
-  document.getElementById('nextBtn').disabled = i === N - 1;
-  document.getElementById('pInfo').textContent = `${i+1} / ${N}`;
-  document.getElementById('pFill').style.width = `${((i+1)/N)*100}%`;
+  document.getElementById('prevBtn').disabled=i===0;
+  document.getElementById('nextBtn').disabled=i===N-1;
+  document.getElementById('pInfo').textContent=(i+1)+' / '+N;
+  document.getElementById('pFill').style.width=((i+1)/N*100)+'%';
 }
-function go(d) { const n = cur + d; if (n >= 0 && n < N) { cur = n; show(cur); } }
-document.addEventListener('keydown', e => {
-  if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); go(1); }
-  if (['ArrowLeft','ArrowUp'].includes(e.key)) { e.preventDefault(); go(-1); }
-  if (e.key === 'Home') { e.preventDefault(); cur = 0; show(0); }
-  if (e.key === 'End') { e.preventDefault(); cur = N-1; show(cur); }
+function go(d){const n=cur+d;if(n>=0&&n<N){cur=n;show(cur)}}
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '){e.preventDefault();go(1)}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();go(-1)}
+  if(e.key==='Home'){e.preventDefault();cur=0;show(0)}
+  if(e.key==='End'){e.preventDefault();cur=N-1;show(cur)}
 });
 show(0);
 </script>
