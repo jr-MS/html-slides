@@ -124,5 +124,20 @@
     "featured": false,
     "protected": true,
     "updated": "2026-04-02"
+  },
+  {
+    "id": "azure-translator-slides",
+    "title": "Azure Translator · 深度解析",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Azure",
+      "Translator"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/azure-translator-slides.html",
+    "featured": false,
+    "updated": "2026-04-02"
   }
 ]
