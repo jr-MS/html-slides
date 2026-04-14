@@ -154,5 +154,19 @@
     "featured": false,
     "protected": true,
     "updated": "2026-04-02"
+  },
+  {
+    "id": "microsoft-product-design-ai-playbook",
+    "title": "微软产品与设计团队的 AI 提效实践",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "AI"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/microsoft-product-design-ai-playbook.html",
+    "featured": false,
+    "updated": "2026-04-14"
   }
 ]

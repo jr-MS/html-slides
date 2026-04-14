@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>微软产品与设计团队的 AI 提效实践</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,600;6..96,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0d1118;
+        --panel: rgba(17, 22, 30, 0.9);
+        --panel-soft: rgba(255, 255, 255, 0.035);
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #f4efe7;
+        --muted: #b7c0cf;
+        --muted-2: #7f8898;
+        --gold: #ddbe86;
+        --blue: #8daadf;
+        --cyan: #8dd6e6;
+        --mint: #98d5b2;
+        --rose: #d8a6be;
+        --shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 16% 18%, rgba(221, 190, 134, 0.14), transparent 24%),
+          radial-gradient(circle at 82% 14%, rgba(141, 214, 230, 0.12), transparent 24%),
+          linear-gradient(145deg, #0d1118 0%, #111724 45%, #0f131d 100%);
+        color: var(--text);
+        font-family: "IBM Plex Sans", sans-serif;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 92px 92px;
+        opacity: 0.28;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 96%);
+      }
+
+      .deck {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        padding: 22px 34px 68px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translate3d(28px, 0, 0) scale(0.99);
+        transition:
+          opacity 340ms ease,
+          transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          visibility 0s linear 340ms;
+      }
+
+      .slide.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translate3d(0, 0, 0) scale(1);
+        transition:
+          opacity 340ms ease,
+          transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+          visibility 0s linear 0s;
+      }
+
+      .frame {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px 22px 18px;
+        border: 1px solid var(--line);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 24%),
+          var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .topline,
+      .footerline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted-2);
+      }
+
+      .footerline {
+        margin-top: auto;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 40px;
+        height: 1px;
+        background: currentColor;
+      }
+
+      h1,
+      h2,
+      h3,
+      p,
+      ul {
+        margin: 0;
+      }
+
+      h1,
+      h2 {
+        font-family: "Noto Serif SC", "Bodoni Moda", serif;
+        letter-spacing: -0.04em;
+        font-weight: 700;
+      }
+
+      h1 {
+        font-size: clamp(44px, 4.4vw, 72px);
+        line-height: 1.02;
+      }
+
+      h2 {
+        font-size: clamp(28px, 2.35vw, 40px);
+        line-height: 1.08;
+      }
+
+      h3 {
+        font-size: 18px;
+        line-height: 1.28;
+        letter-spacing: -0.02em;
+      }
+
+      p,
+      li,
+      td,
+      th {
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      ul {
+        padding-left: 18px;
+      }
+
+      strong,
+      .accent {
+        color: var(--text);
+      }
+
+      .accent-gold {
+        color: var(--gold);
+      }
+
+      .accent-blue {
+        color: var(--blue);
+      }
+
+      .lead {
+        font-size: 19px;
+        line-height: 1.78;
+        max-width: 760px;
+      }
+
+      .cover-body,
+      .two-col,
+      .three-col,
+      .four-col,
+      .six-col,
+      .split-60,
+      .impact-grid,
+      .closing,
+      .principles,
+      .flow-strip {
+        display: grid;
+        gap: 18px;
+        align-items: start;
+        align-content: start;
+      }
+
+      .content-fill {
+        flex: 1;
+      }
+
+      .cover-body,
+      .impact-grid,
+      .closing {
+        flex: 1;
+      }
+
+      .cover-body {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: start;
+        min-height: 0;
+      }
+
+      .cover-copy {
+        display: grid;
+        gap: 14px;
+        align-content: center;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .tag {
+        padding: 7px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .hero-box,
+      .card,
+      .metric,
+      .panel,
+      .quote,
+      .bar-card {
+        border: 1px solid var(--line);
+        background: var(--panel-soft);
+      }
+
+      .hero-box,
+      .card,
+      .metric,
+      .panel,
+      .quote,
+      .bar-card {
+        padding: 22px;
+        min-height: 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-box {
+        display: grid;
+        gap: 18px;
+        min-height: 210px;
+        align-content: start;
+        background:
+          linear-gradient(160deg, rgba(221, 190, 134, 0.13), transparent 42%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 38%),
+          rgba(255, 255, 255, 0.03);
+      }
+
+      .hero-box .big {
+        font-family: "Bodoni Moda", serif;
+        font-size: clamp(56px, 5vw, 84px);
+        line-height: 0.9;
+        color: rgba(244, 239, 231, 0.16);
+      }
+
+      .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .metric strong {
+        display: block;
+        margin-bottom: 6px;
+        font-family: "Bodoni Moda", serif;
+        font-size: 30px;
+        line-height: 1;
+        color: var(--text);
+      }
+
+      .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .three-col {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .four-col {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .signal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: minmax(0, 1fr);
+      }
+
+      .six-col {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .split-60 {
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+
+      .card small,
+      .panel small,
+      .metric small,
+      .bar-card small {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted-2);
+      }
+
+      .statement {
+        padding-left: 18px;
+        border-left: 2px solid var(--gold);
+        font-family: "Noto Serif SC", serif;
+        font-size: 22px;
+        line-height: 1.5;
+        color: var(--text);
+      }
+
+      .subtle-note {
+        max-width: 860px;
+        padding-left: 16px;
+        border-left: 2px solid rgba(221, 190, 134, 0.7);
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .callout-band {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 14px;
+        padding: 14px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(90deg, rgba(221, 190, 134, 0.08), rgba(255, 255, 255, 0.025));
+      }
+
+      .callout-band strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--text);
+        font-size: 15px;
+      }
+
+      .process {
+        display: grid;
+        gap: 12px;
+      }
+
+      .process-step {
+        display: grid;
+        grid-template-columns: 52px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 14px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .process-step:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .step-num {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        display: grid;
+        place-items: center;
+        font-family: "Bodoni Moda", serif;
+        color: var(--gold);
+      }
+
+      .flow-strip {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        align-content: center;
+      }
+
+      .flow-box {
+        display: grid;
+        gap: 8px;
+        padding: 16px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.028);
+        min-height: 0;
+      }
+
+      .flow-box b {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--text);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        vertical-align: top;
+      }
+
+      th {
+        text-align: left;
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .bar-card {
+        display: grid;
+        gap: 14px;
+        align-content: start;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 130px 1fr 80px;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .bar-label,
+      .bar-value {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .bar-track {
+        width: 100%;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+      }
+
+      .gold {
+        background: linear-gradient(90deg, rgba(221, 190, 134, 0.95), rgba(221, 190, 134, 0.45));
+      }
+
+      .blue {
+        background: linear-gradient(90deg, rgba(141, 214, 230, 0.95), rgba(141, 214, 230, 0.45));
+      }
+
+      .mint {
+        background: linear-gradient(90deg, rgba(152, 213, 178, 0.95), rgba(152, 213, 178, 0.45));
+      }
+
+      .rose {
+        background: linear-gradient(90deg, rgba(216, 166, 190, 0.95), rgba(216, 166, 190, 0.45));
+      }
+
+      .impact-grid {
+        grid-template-columns: 0.9fr 1.1fr;
+        align-content: center;
+      }
+
+      .quote {
+        font-family: "Noto Serif SC", serif;
+        font-size: 24px;
+        line-height: 1.5;
+        color: var(--text);
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .principles {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        align-content: start;
+        grid-auto-rows: 1fr;
+      }
+
+      .principle {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        padding: 18px;
+        min-height: 0;
+        display: grid;
+        gap: 6px;
+        align-content: start;
+        border-top: 2px solid rgba(221, 190, 134, 0.65);
+      }
+
+      .principle b {
+        display: block;
+        margin-bottom: 8px;
+        font-family: "Bodoni Moda", serif;
+        font-size: 28px;
+        line-height: 1;
+        color: rgba(244, 239, 231, 0.9);
+      }
+
+      .closing {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 22px;
+        align-items: center;
+        align-content: center;
+      }
+
+      .closing-copy {
+        display: grid;
+        gap: 16px;
+      }
+
+      .closing-stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .ownership-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .nav {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(8, 12, 18, 0.72);
+        backdrop-filter: blur(16px);
+        z-index: 10;
+      }
+
+      .nav button {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        padding: 9px 14px;
+        font: inherit;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+      }
+
+      .nav button:disabled {
+        opacity: 0.38;
+        cursor: default;
+      }
+
+      .dots {
+        display: flex;
+        gap: 8px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        padding: 0;
+        border-radius: 50%;
+        border: 0;
+        background: rgba(255, 255, 255, 0.18);
+        cursor: pointer;
+      }
+
+      .dot.active {
+        background: var(--gold);
+      }
+
+      @media (max-width: 1180px) {
+        html,
+        body {
+          overflow: auto;
+        }
+
+        .deck {
+          height: auto;
+        }
+
+        .slide {
+          position: relative;
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+          padding: 18px;
+        }
+
+        .frame {
+          height: auto;
+          min-height: 100vh;
+        }
+
+        .cover-body,
+        .two-col,
+        .three-col,
+        .four-col,
+        .six-col,
+        .split-60,
+        .impact-grid,
+        .principles,
+        .closing,
+        .flow-strip {
+          grid-template-columns: 1fr;
+        }
+
+        .callout-band,
+        .ownership-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .nav {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck">
+      <section class="slide active" data-title="Cover">
+        <div class="frame">
+          <div class="topline"><span>Microsoft AI Playbook</span><span>01 / 10</span></div>
+          <div class="eyebrow">Executive Summary</div>
+          <div class="cover-body">
+            <div class="cover-copy">
+              <h1>微软产品与设计团队的 AI 提效实践</h1>
+              <p class="lead">
+                重点不是“AI 帮我写点东西”，而是
+                <span class="accent-gold">AI 怎么接进真实工作流，并更快推动发布</span>。
+              </p>
+              <div class="tag-row">
+                <span class="tag">Workflow over chat</span>
+                <span class="tag">Copilot + Claude Code</span>
+                <span class="tag">PM + Design + Shipping</span>
+              </div>
+              <div class="statement">
+                产品经理与设计师都在变成更像 <span class="accent-blue">builder / orchestrator</span> 的角色。
+              </div>
+            </div>
+            <div class="hero-box">
+              <div>
+                <small style="display:block; margin-bottom:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted-2);">the shift</small>
+                <h3>从文档驱动，转向原型与流程驱动</h3>
+              </div>
+              <div class="mini-grid">
+                <div class="metric">
+                  <strong>Before</strong>
+                  <p>PRD / handoff / 线性协作</p>
+                </div>
+                <div class="metric">
+                  <strong>Now</strong>
+                  <p>Spec / demo / repo / release loop</p>
+                </div>
+              </div>
+              <div class="big">AI</div>
+            </div>
+          </div>
+          <div class="footerline"><span>Condensed deck</span><span>AI / product / design</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Signals">
+        <div class="frame">
+          <div class="topline"><span>Key signals</span><span>02 / 10</span></div>
+          <div class="eyebrow">What matters most</div>
+          <h2>4 个最重要的信号</h2>
+          <div class="signal-grid content-fill">
+            <div class="card">
+              <small>01</small>
+              <h3>角色边界混合</h3>
+              <p>PM 与设计都更接近 builder，不再只停留在文档或交付稿。</p>
+            </div>
+            <div class="card">
+              <small>02</small>
+              <h3>高价值来自工作流</h3>
+              <p>真正有效的不是聊天，而是会议、文档、设计、代码、评审被串起来。</p>
+            </div>
+            <div class="card">
+              <small>03</small>
+              <h3>设计变成结构化输入</h3>
+              <p>Figma、token、组件语义、状态与规则开始变得更重要。</p>
+            </div>
+            <div class="card">
+              <small>04</small>
+              <h3>速度与治理一起升级</h3>
+              <p>越接近本地执行和真实发布，越需要权限、留痕、回滚与责任定义。</p>
+            </div>
+          </div>
+          <div class="callout-band">
+            <div>
+              <strong>更值得分享的共识</strong>
+              <p>AI 的价值已经从“加速单点任务”，转向压缩从问题定义到真实发布的整条路径。</p>
+            </div>
+            <div>
+              <strong>组织层面的变化</strong>
+              <p>越成熟的团队，越会把 prompt、评审标准和回滚机制一起产品化。</p>
+            </div>
+          </div>
+          <div class="footerline"><span>Short, clear, shareable</span><span>4 signals</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Role shift">
+        <div class="frame">
+          <div class="topline"><span>Role shift</span><span>03 / 10</span></div>
+          <div class="eyebrow">PM × Design</div>
+          <h2>两类角色都在向中间靠近</h2>
+          <div class="two-col content-fill">
+            <div class="panel">
+              <small>PM</small>
+              <h3>从需求协调者，走向 product builder</h3>
+              <ul style="margin-top: 12px;">
+                <li>起草 spec / one-pager / migration doc</li>
+                <li>做 prototype / eval / task breakdown</li>
+                <li>更早进入 repo、PR 与 release summary</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <small>Design</small>
+              <h3>从视觉产出者，走向系统守门人</h3>
+              <ul style="margin-top: 12px;">
+                <li>把设计信息整理成结构化上下文</li>
+                <li>定义组件语义、状态和 success criteria</li>
+                <li>更深参与验证、实现约束和上线判断</li>
+              </ul>
+            </div>
+          </div>
+          <div class="statement">
+            人的价值从“亲自做每一步”，转向 <span class="accent-gold">定义方向、编排流程、守住关键判断</span>。
+          </div>
+          <div class="footerline"><span>Role convergence</span><span>Builder × reviewer</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Tool stack">
+        <div class="frame">
+          <div class="topline"><span>Tool stack</span><span>04 / 10</span></div>
+          <div class="eyebrow">How the stack fits together</div>
+          <h2>更像一个工作台，而不是一堆零散工具</h2>
+          <div class="flow-strip">
+            <div class="flow-box">
+              <b>Context</b>
+              <p>Teams / Outlook / SharePoint / meeting notes</p>
+            </div>
+            <div class="flow-box">
+              <b>Spec</b>
+              <p>AI 起草 summary、spec、task breakdown</p>
+            </div>
+            <div class="flow-box">
+              <b>Build</b>
+              <p>GitHub Copilot / Claude Code 进入实现</p>
+            </div>
+            <div class="flow-box">
+              <b>Design</b>
+              <p>Figma / token / component semantics 提供约束</p>
+            </div>
+            <div class="flow-box">
+              <b>Ship</b>
+              <p>PR / review fix / release summary / rollout</p>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="card">
+              <small>High-frequency tools</small>
+              <h3>常见组合</h3>
+              <p>GitHub Copilot in VS Code、Claude Code in terminal、Figma + token、会议摘要与知识库。</p>
+            </div>
+            <div class="card">
+              <small>Why it works</small>
+              <h3>核心不是模型，而是接线</h3>
+              <p>当上下文、设计约束和代码环境被接起来，AI 才能真正缩短从想法到发布的距离。</p>
+            </div>
+          </div>
+          <div class="footerline"><span>AI workbench</span><span>Context → ship</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="PM workflow">
+        <div class="frame">
+          <div class="topline"><span>PM workflow</span><span>05 / 10</span></div>
+          <div class="eyebrow">Product flow</div>
+          <h2>PM 的 AI 用法：把空白页变成可讨论对象</h2>
+          <div class="split-60">
+            <div class="process">
+              <div class="process-step">
+                <div class="step-num">1</div>
+                <div>
+                  <h3>收集信号</h3>
+                  <p>会议、邮件、反馈先被整理成一版清晰上下文。</p>
+                </div>
+              </div>
+              <div class="process-step">
+                <div class="step-num">2</div>
+                <div>
+                  <h3>起草规格</h3>
+                  <p>AI 先出 spec / one-pager / migration doc 的第一版。</p>
+                </div>
+              </div>
+              <div class="process-step">
+                <div class="step-num">3</div>
+                <div>
+                  <h3>做原型</h3>
+                  <p>让讨论围绕 demo，而不是围绕抽象描述。</p>
+                </div>
+              </div>
+              <div class="process-step">
+                <div class="step-num">4</div>
+                <div>
+                  <h3>推进交付</h3>
+                  <p>更早进入 repo、PR、review comment 与发布总结。</p>
+                </div>
+              </div>
+            </div>
+            <div class="card" style="display:grid; gap:14px; align-content:start;">
+              <small>What PMs now produce faster</small>
+              <div class="quote" style="padding:0; border:0; background:none;">
+                PM 的竞争力，正在从“更会写文档”，转向
+                <span class="accent-blue">更快 framing、验证与组织落地</span>。
+              </div>
+              <div class="mini-grid">
+                <div class="metric">
+                  <strong>Spec</strong>
+                  <p>初稿更快出现</p>
+                </div>
+                <div class="metric">
+                  <strong>Demo</strong>
+                  <p>更快进入讨论</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="subtle-note">最有效的做法，是把 AI 固定放进 kickoff、spec 初稿、demo scaffold 和 release wrap-up 这些关键节点。</div>
+          <div class="footerline"><span>Spec → demo → ship</span><span>PM operating loop</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Design workflow">
+        <div class="frame">
+          <div class="topline"><span>Design workflow</span><span>06 / 10</span></div>
+          <div class="eyebrow">Design flow</div>
+          <h2>设计侧的关键：让系统读懂设计</h2>
+          <div class="three-col content-fill">
+            <div class="card">
+              <small>Input</small>
+              <h3>设计给出去的，不只是稿面</h3>
+              <p>Figma 结构、token、组件语义、状态、flow、success criteria 都很关键。</p>
+            </div>
+            <div class="card">
+              <small>AI</small>
+              <h3>AI 擅长翻译与补全</h3>
+              <p>可以改写 UX spec、辅助文案、补全流程、帮助局部实现。</p>
+            </div>
+            <div class="card">
+              <small>Human</small>
+              <h3>人仍负责最终裁决</h3>
+              <p>体验是否成立、边界是否完整、是否能放心上线，依然主要靠人判断。</p>
+            </div>
+          </div>
+          <div class="ownership-grid">
+            <div class="card">
+              <small>AI fits best</small>
+              <h3>翻译、补全、生成变体</h3>
+              <p>例如 UX 文案、flow 说明、组件状态清单、局部实现建议。</p>
+            </div>
+            <div class="card">
+              <small>Human still owns</small>
+              <h3>判断体验是否真的成立</h3>
+              <p>尤其是边界状态、系统一致性、以及“能不能放心上线”。</p>
+            </div>
+          </div>
+          <div class="subtle-note">设计越结构化、组件语义越清晰，AI 的输出越稳定；反过来，返工也会越少。</div>
+          <div class="footerline"><span>Design as structured context</span><span>Input → verify</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="End-to-end launch">
+        <div class="frame">
+          <div class="topline"><span>Shipping</span><span>07 / 10</span></div>
+          <div class="eyebrow">End-to-end release</div>
+          <h2>产品与设计都在更靠近完整发布闭环</h2>
+          <div class="flow-strip">
+            <div class="flow-box">
+              <b>Insight</b>
+              <p>输入不再散落</p>
+            </div>
+            <div class="flow-box">
+              <b>Spec</b>
+              <p>先出草稿再判断</p>
+            </div>
+            <div class="flow-box">
+              <b>Demo</b>
+              <p>更快形成真实对象</p>
+            </div>
+            <div class="flow-box">
+              <b>Build</b>
+              <p>更早进入实现与验证</p>
+            </div>
+            <div class="flow-box">
+              <b>Rollout</b>
+              <p>结果再回流成知识</p>
+            </div>
+          </div>
+          <div class="statement">
+            成熟团队不是让 AI 接管一切，而是更清楚
+            <span class="accent-gold">哪里可以自动化，哪里必须保留 sign-off</span>。
+          </div>
+          <div class="two-col">
+            <div class="card">
+              <small>AI can accelerate</small>
+              <h3>总结、起草、脚手架、发布说明</h3>
+              <p>这些环节适合大幅提速，因为规则明确、可快速复用。</p>
+            </div>
+            <div class="card">
+              <small>Human must own</small>
+              <h3>优先级、风险接受、质量门槛</h3>
+              <p>一旦涉及 trade-off 与最终责任，仍然需要明确的人来拍板。</p>
+            </div>
+          </div>
+          <div class="footerline"><span>End-to-end loop</span><span>Insight → rollout</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Impact and friction">
+        <div class="frame">
+          <div class="topline"><span>Impact & friction</span><span>08 / 10</span></div>
+          <div class="eyebrow">What improves / what stays hard</div>
+          <h2>提效很明显，但难点没有消失</h2>
+          <div class="impact-grid">
+            <div class="bar-card">
+              <small>Where AI helps most</small>
+              <div class="bar-row">
+                <div class="bar-label">空白页时间</div>
+                <div class="bar-track"><div class="bar-fill gold" style="width: 82%;"></div></div>
+                <div class="bar-value">明显下降</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">原型密度</div>
+                <div class="bar-track"><div class="bar-fill blue" style="width: 88%;"></div></div>
+                <div class="bar-value">明显上升</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">跨系统搬运</div>
+                <div class="bar-track"><div class="bar-fill mint" style="width: 72%;"></div></div>
+                <div class="bar-value">有所下降</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">知识复用</div>
+                <div class="bar-track"><div class="bar-fill rose" style="width: 76%;"></div></div>
+                <div class="bar-value">持续上升</div>
+              </div>
+            </div>
+            <div class="panel">
+              <small>What still hurts</small>
+              <table>
+                <tr>
+                  <th>环节</th>
+                  <th>真实阻力</th>
+                </tr>
+                <tr>
+                  <td>工程环境</td>
+                  <td>repo、依赖、权限、真实 API 往往比生成代码更难</td>
+                </tr>
+                <tr>
+                  <td>质量验证</td>
+                  <td>边界状态、体验一致性、coverage 不会自动变简单</td>
+                </tr>
+                <tr>
+                  <td>治理</td>
+                  <td>权限、留痕、责任、回滚必须同步补齐</td>
+                </tr>
+                <tr>
+                  <td>思考质量</td>
+                  <td>AI 初稿太顺，可能让团队减少 debate</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="footerline"><span>Efficiency with guardrails</span><span>Faster, but not careless</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Best practices">
+        <div class="frame">
+          <div class="topline"><span>Best practices</span><span>09 / 10</span></div>
+          <div class="eyebrow">What works better now</div>
+          <h2>6 条更成熟的实践</h2>
+          <div class="principles content-fill">
+            <div class="principle">
+              <b>01</b>
+              <h3>短 sprint</h3>
+              <p>用小闭环换更快反馈，而不是一次押长周期。</p>
+            </div>
+            <div class="principle">
+              <b>02</b>
+              <h3>demo / eval</h3>
+              <p>先做出对象，再讨论对错与优先级。</p>
+            </div>
+            <div class="principle">
+              <b>03</b>
+              <h3>持续重看机会</h3>
+              <p>模型升级后，旧流程常常值得重做一遍。</p>
+            </div>
+            <div class="principle">
+              <b>04</b>
+              <h3>先做简单闭环</h3>
+              <p>先把单点自动化跑通，再谈复杂 agent。</p>
+            </div>
+            <div class="principle">
+              <b>05</b>
+              <h3>经验技能化</h3>
+              <p>把组织 know-how 写进流程与工具，而不只留在人脑里。</p>
+            </div>
+            <div class="principle">
+              <b>06</b>
+              <h3>速度配套治理</h3>
+              <p>验证、权限、留痕与回滚要同步设计。</p>
+            </div>
+          </div>
+          <div class="subtle-note">共同点只有一个：先把真实流程跑起来，再追求更深的自动化。</div>
+          <div class="footerline"><span>Best-practice stack</span><span>Simple → reliable → scalable</span></div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Closing">
+        <div class="frame">
+          <div class="topline"><span>Closing</span><span>10 / 10</span></div>
+          <div class="eyebrow">One line to remember</div>
+          <div class="closing">
+            <div class="closing-copy">
+              <h1 style="font-size: clamp(44px, 4.5vw, 74px);">
+                微软产品与设计团队正在用 AI，
+                <span class="accent-gold">把效率工具变成发布能力</span>
+              </h1>
+              <p class="lead">
+                关键不是某一个工具，而是：更快 framing、更快做 demo、更快接进真实流程，同时把验证与治理一起拉进来。
+              </p>
+            </div>
+            <div class="closing-stack">
+              <div class="quote">
+                Workflow over chat.<br />
+                Demo over doc.<br />
+                Governance with speed.
+              </div>
+              <div class="card">
+                <small>final takeaway</small>
+                <h3>PM 与设计师的角色没有变轻，而是更接近端到端发布者。</h3>
+              </div>
+            </div>
+          </div>
+          <div class="footerline"><span>Microsoft product & design AI playbook</span><span>End</span></div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="nav" aria-label="Slide navigation">
+      <button type="button" id="prevBtn">← Prev</button>
+      <div class="dots" id="dots"></div>
+      <button type="button" id="nextBtn">Next →</button>
+    </nav>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const dotsRoot = document.getElementById("dots");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      let index = 0;
+      let wheelLocked = false;
+
+      slides.forEach((slide, i) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "dot";
+        dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
+        dot.addEventListener("click", () => show(i));
+        dotsRoot.appendChild(dot);
+      });
+
+      const dots = Array.from(document.querySelectorAll(".dot"));
+
+      function show(nextIndex) {
+        index = Math.max(0, Math.min(slides.length - 1, nextIndex));
+        slides.forEach((slide, i) => {
+          slide.classList.toggle("active", i === index);
+        });
+        dots.forEach((dot, i) => {
+          dot.classList.toggle("active", i === index);
+        });
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === slides.length - 1;
+        document.title = `${slides[index].dataset.title} — 微软产品与设计团队的 AI 提效实践`;
+        history.replaceState(null, "", `#${index + 1}`);
+      }
+
+      function next() {
+        show(index + 1);
+      }
+
+      function prev() {
+        show(index - 1);
+      }
+
+      prevBtn.addEventListener("click", prev);
+      nextBtn.addEventListener("click", next);
+
+      window.addEventListener("keydown", (event) => {
+        if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+          event.preventDefault();
+          next();
+        }
+        if (["ArrowLeft", "PageUp"].includes(event.key)) {
+          event.preventDefault();
+          prev();
+        }
+      });
+
+      window.addEventListener(
+        "wheel",
+        (event) => {
+          if (window.innerWidth <= 1180 || wheelLocked) {
+            return;
+          }
+          if (Math.abs(event.deltaY) < 20) {
+            return;
+          }
+          wheelLocked = true;
+          if (event.deltaY > 0) {
+            next();
+          } else {
+            prev();
+          }
+          window.setTimeout(() => {
+            wheelLocked = false;
+          }, 520);
+        },
+        { passive: true }
+      );
+
+      const initialFromHash = Number.parseInt(window.location.hash.replace("#", ""), 10);
+      show(Number.isFinite(initialFromHash) ? initialFromHash - 1 : 0);
+    </script>
+  </body>
+</html>
