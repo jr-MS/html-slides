@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HTML Slide Atlas</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    :root{
+      --bg:#f6f3ee;
+      --bg-soft:#fcfbf8;
+      --panel:rgba(255,255,255,.78);
+      --panel-line:rgba(28,37,48,.08);
+      --ink:#1a2230;
+      --muted:#6b7688;
+      --accent:#507b8d;
+      --accent-strong:#23475f;
+      --warm:#d7b38a;
+      --shadow:0 26px 80px rgba(33,47,64,.12);
+      --shadow-soft:0 18px 42px rgba(33,47,64,.08);
+      --radius-xl:36px;
+      --radius-lg:28px;
+      --radius-md:20px;
+      --serif:"Fraunces", Georgia, serif;
+      --sans:"Manrope", "Avenir Next", "Segoe UI", sans-serif;
+      --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.045'/%3E%3C/svg%3E");
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--ink);
+      font-family:var(--sans);
+      background:
+        radial-gradient(1200px 620px at 8% 0%, rgba(206,226,234,.86), transparent 60%),
+        radial-gradient(960px 560px at 100% 6%, rgba(231,218,204,.72), transparent 56%),
+        radial-gradient(780px 460px at 56% 100%, rgba(224,234,230,.8), transparent 60%),
+        linear-gradient(180deg, var(--bg-soft), var(--bg));
+      position:relative;
+      overflow-x:hidden;
+    }
+    body::before,
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+    }
+    body::before{
+      background:
+        radial-gradient(34rem 24rem at 12% 18%, rgba(101,155,175,.14), transparent 58%),
+        radial-gradient(26rem 20rem at 84% 18%, rgba(217,179,138,.16), transparent 56%),
+        radial-gradient(22rem 18rem at 76% 82%, rgba(111,155,139,.12), transparent 54%);
+      filter:blur(10px);
+      animation:atmosphere 18s ease-in-out infinite alternate;
+    }
+    body::after{
+      background-image:var(--noise);
+      mix-blend-mode:multiply;
+      opacity:.45;
+    }
+    .shell{
+      position:relative;
+      z-index:1;
+      width:min(1200px, calc(100vw - 36px));
+      margin:0 auto;
+      padding:24px 0 56px;
+    }
+    .masthead{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom:18px;
+      padding:6px 4px;
+    }
+    .brandmark{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.54);
+      border:1px solid rgba(255,255,255,.72);
+      box-shadow:var(--shadow-soft);
+      backdrop-filter:blur(16px);
+      color:var(--muted);
+      font-size:13px;
+    }
+    .brandmark strong{color:var(--ink);letter-spacing:.02em}
+    .dot{
+      width:11px;
+      height:11px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--accent), #91cad2);
+      box-shadow:0 0 0 8px rgba(80,123,141,.1);
+    }
+    .hero{
+      display:grid;
+      grid-template-columns:minmax(0,.95fr) minmax(320px,1.05fr);
+      gap:22px;
+      align-items:stretch;
+      margin-bottom:22px;
+    }
+    .heroCopy,
+    .heroStage,
+    .toolbar,
+    .card,
+    .empty,
+    footer{
+      border:1px solid var(--panel-line);
+      background:linear-gradient(180deg, rgba(255,255,255,.84), rgba(255,255,255,.68));
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+    }
+    .heroCopy{
+      position:relative;
+      overflow:hidden;
+      border-radius:var(--radius-xl);
+      padding:34px;
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .heroCopy::before{
+      content:"";
+      position:absolute;
+      inset:auto auto -18% 58%;
+      width:280px;
+      height:280px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(80,123,141,.16), transparent 70%);
+      filter:blur(5px);
+      pointer-events:none;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      width:max-content;
+      padding:9px 14px;
+      border-radius:999px;
+      border:1px solid rgba(80,123,141,.12);
+      background:rgba(80,123,141,.08);
+      color:var(--accent-strong);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    h1{
+      margin:18px 0 12px;
+      font-family:var(--serif);
+      font-size:clamp(3.2rem, 7vw, 5.8rem);
+      font-weight:500;
+      line-height:.92;
+      letter-spacing:-.06em;
+      max-width:9ch;
+    }
+    .lead{
+      margin:0;
+      max-width:30rem;
+      color:var(--muted);
+      font-size:17px;
+      line-height:1.72;
+    }
+    .heroActions{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+    .heroNote{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:13px;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+    .heroStage{
+      position:relative;
+      overflow:hidden;
+      border-radius:var(--radius-xl);
+      padding:24px;
+      min-height:540px;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,.92), rgba(247,244,238,.76)),
+        radial-gradient(26rem 26rem at 18% 12%, rgba(145,202,210,.13), transparent 58%),
+        radial-gradient(21rem 21rem at 85% 8%, rgba(215,179,138,.14), transparent 54%);
+      isolation:isolate;
+    }
+    .heroStage::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(18rem 18rem at 28% 74%, rgba(255,255,255,.58), transparent 58%),
+        radial-gradient(16rem 16rem at 72% 18%, rgba(255,255,255,.42), transparent 60%);
+      pointer-events:none;
+    }
+    .heroStage::after{
+      content:"";
+      position:absolute;
+      inset:auto 10% -12% auto;
+      width:280px;
+      height:280px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(35,71,95,.14), transparent 70%);
+      filter:blur(14px);
+      animation:halo 10s ease-in-out infinite alternate;
+      pointer-events:none;
+    }
+    .stageOrbit{
+      position:relative;
+      min-height:100%;
+      isolation:isolate;
+    }
+    .deckMock{
+      position:absolute;
+      width:clamp(220px, 34vw, 320px);
+      border-radius:28px;
+      overflow:hidden;
+      border:1px solid rgba(20,28,38,.08);
+      box-shadow:0 30px 60px rgba(29,43,60,.14);
+      transform-origin:center;
+    }
+    .deckMock::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(255,255,255,.18), transparent 28%, transparent 72%, rgba(255,255,255,.1));
+      pointer-events:none;
+    }
+    .deckChrome{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:12px 14px 0;
+      position:relative;
+      z-index:1;
+    }
+    .deckChrome span{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:rgba(255,255,255,.7);
+    }
+    .deckCanvas{
+      position:relative;
+      padding:16px;
+      min-height:210px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .deckLabel{
+      display:inline-flex;
+      width:max-content;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .deckTitle{
+      margin:0;
+      font-family:var(--serif);
+      font-size:27px;
+      line-height:.95;
+      letter-spacing:-.05em;
+    }
+    .deckText{
+      margin:0;
+      font-size:12px;
+      line-height:1.55;
+      max-width:18rem;
+      opacity:.84;
+    }
+    .deckRibbon,
+    .deckBars,
+    .deckCluster,
+    .deckFooter,
+    .deckImage,
+    .deckPanel{
+      position:relative;
+      z-index:1;
+    }
+    .deckRibbon{
+      width:78%;
+      height:14px;
+      border-radius:999px;
+      opacity:.92;
+    }
+    .deckBars{display:grid;gap:8px}
+    .deckBars span{
+      display:block;
+      height:10px;
+      border-radius:999px;
+      opacity:.88;
+    }
+    .deckCluster{display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin-top:auto}
+    .deckPanel{
+      min-height:72px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .deckImage{
+      min-height:96px;
+      border-radius:22px;
+      overflow:hidden;
+    }
+    .deckFooter{display:flex;gap:8px;flex-wrap:wrap}
+    .deckFooter span{
+      display:inline-flex;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .deckMock.editorial{
+      left:5%;
+      top:8%;
+      transform:rotate(-9deg);
+      animation:deckFloatA 8.6s ease-in-out infinite;
+      background:linear-gradient(180deg, #fffdf8, #f7f0e7);
+      color:#2f251d;
+      z-index:1;
+    }
+    .deckMock.editorial .deckLabel,
+    .deckMock.editorial .deckFooter span{background:rgba(107,77,54,.08);color:#6b4d36}
+    .deckMock.editorial .deckRibbon{background:linear-gradient(90deg, #ddb68f, #f2dfcb)}
+    .deckMock.editorial .deckBars span:nth-child(1){width:74%;background:rgba(81,62,47,.12)}
+    .deckMock.editorial .deckBars span:nth-child(2){width:88%;background:rgba(81,62,47,.18)}
+    .deckMock.editorial .deckBars span:nth-child(3){width:58%;background:rgba(81,62,47,.12)}
+    .deckMock.editorial .deckPanel{background:rgba(120,88,58,.08);border-color:rgba(120,88,58,.08)}
+    .deckMock.editorial .deckImage{background:linear-gradient(145deg, rgba(232,200,168,.75), rgba(255,247,235,.95))}
+    .deckMock.editorial .deckImage::after{content:"";position:absolute;inset:16px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.15));box-shadow:inset 0 0 0 1px rgba(110,85,62,.08)}
+    .deckMock.nocturne{
+      right:-1%;
+      top:1%;
+      transform:rotate(8deg);
+      animation:deckFloatB 9.4s ease-in-out infinite;
+      background:radial-gradient(circle at 15% 10%, rgba(117,139,255,.35), transparent 24%), linear-gradient(180deg, #121726, #1f1833 58%, #241e42);
+      color:#eef1ff;
+      z-index:2;
+    }
+    .deckMock.nocturne .deckLabel,
+    .deckMock.nocturne .deckFooter span{background:rgba(255,255,255,.08);color:#d8dcff}
+    .deckMock.nocturne .deckRibbon{background:linear-gradient(90deg, #86c7ff, #a991ff)}
+    .deckMock.nocturne .deckBars span:nth-child(1){width:70%;background:rgba(255,255,255,.18)}
+    .deckMock.nocturne .deckBars span:nth-child(2){width:90%;background:rgba(135,199,255,.38)}
+    .deckMock.nocturne .deckBars span:nth-child(3){width:55%;background:rgba(255,255,255,.12)}
+    .deckMock.nocturne .deckPanel{background:linear-gradient(160deg, rgba(139,117,255,.22), rgba(134,199,255,.08));border-color:rgba(255,255,255,.08)}
+    .deckMock.nocturne .deckImage{background:linear-gradient(145deg, rgba(130,173,255,.7), rgba(72,54,149,.35))}
+    .deckMock.nocturne .deckImage::after{content:"";position:absolute;inset:10px;border-radius:18px;background:radial-gradient(circle at 30% 20%, rgba(255,255,255,.6), transparent 18%), radial-gradient(circle at 65% 60%, rgba(255,255,255,.18), transparent 24%), linear-gradient(180deg, rgba(255,255,255,.08), transparent)}
+    .deckMock.botanical{
+      left:12%;
+      bottom:10%;
+      transform:rotate(-4deg);
+      animation:deckFloatC 7.8s ease-in-out infinite;
+      background:linear-gradient(180deg, #f5f2ea, #edf3ee 52%, #eef6f0);
+      color:#203126;
+      z-index:3;
+    }
+    .deckMock.botanical .deckLabel,
+    .deckMock.botanical .deckFooter span{background:rgba(51,107,82,.08);color:#336b52}
+    .deckMock.botanical .deckRibbon{background:linear-gradient(90deg, #9bc4b4, #d8e8df)}
+    .deckMock.botanical .deckBars span:nth-child(1){width:72%;background:rgba(51,107,82,.12)}
+    .deckMock.botanical .deckBars span:nth-child(2){width:86%;background:rgba(51,107,82,.18)}
+    .deckMock.botanical .deckBars span:nth-child(3){width:48%;background:rgba(51,107,82,.12)}
+    .deckMock.botanical .deckPanel{background:rgba(111,155,139,.12);border-color:rgba(51,107,82,.08)}
+    .deckMock.botanical .deckImage{background:linear-gradient(145deg, rgba(180,214,198,.72), rgba(243,249,245,.92))}
+    .deckMock.botanical .deckImage::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 72% 18%, rgba(255,255,255,.7), transparent 24%), linear-gradient(135deg, transparent 14%, rgba(73,122,94,.18) 14% 18%, transparent 18% 100%), linear-gradient(40deg, transparent 44%, rgba(73,122,94,.14) 44% 48%, transparent 48% 100%)}
+    .deckMock.signal{
+      right:16%;
+      bottom:8%;
+      transform:rotate(6deg);
+      animation:deckFloatD 8.8s ease-in-out infinite;
+      background:linear-gradient(180deg, #fffaf1, #f8f6ff 54%, #eef2ff);
+      color:#23263b;
+      z-index:4;
+    }
+    .deckMock.signal .deckLabel,
+    .deckMock.signal .deckFooter span{background:rgba(103,96,182,.08);color:#6760b6}
+    .deckMock.signal .deckRibbon{background:linear-gradient(90deg, #8ec5ff, #d4b2ff)}
+    .deckMock.signal .deckBars span:nth-child(1){width:78%;background:rgba(103,96,182,.12)}
+    .deckMock.signal .deckBars span:nth-child(2){width:92%;background:rgba(103,96,182,.2)}
+    .deckMock.signal .deckBars span:nth-child(3){width:62%;background:rgba(103,96,182,.12)}
+    .deckMock.signal .deckPanel{background:linear-gradient(160deg, rgba(180,191,255,.18), rgba(244,229,255,.46));border-color:rgba(103,96,182,.08)}
+    .deckMock.signal .deckImage{background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(230,236,255,.92))}
+    .deckMock.signal .deckImage::after{content:"";position:absolute;inset:14px;border-radius:14px;background:linear-gradient(180deg, rgba(142,197,255,.36), transparent 54%), repeating-linear-gradient(90deg, rgba(103,96,182,.14) 0 14px, transparent 14px 28px)}
+    .toolbar{
+      display:grid;
+      grid-template-columns:1.35fr .72fr .72fr;
+      gap:12px;
+      padding:12px;
+      border-radius:28px;
+      margin-bottom:18px;
+    }
+    input,select{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:20px;
+      padding:15px 16px;
+      font:inherit;
+      color:var(--ink);
+      background:rgba(247,247,244,.88);
+      border:1px solid rgba(36,43,54,.06);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
+    }
+    input::placeholder{color:#8893a3}
+    select{
+      appearance:none;
+      -webkit-appearance:none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, rgba(86,98,114,.78) 50%),
+        linear-gradient(135deg, rgba(86,98,114,.78) 50%, transparent 50%);
+      background-position:calc(100% - 22px) calc(50% - 2px), calc(100% - 16px) calc(50% - 2px);
+      background-size:6px 6px, 6px 6px;
+      background-repeat:no-repeat;
+      padding-right:34px;
+    }
+    .sectionTitle{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:18px;
+      margin:10px 0 14px;
+      padding:0 4px;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-family:var(--serif);
+      font-size:2rem;
+      font-weight:500;
+      letter-spacing:-.03em;
+    }
+    .count{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:18px;
+    }
+    .card{
+      border-radius:28px;
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      transition:transform .26s ease, box-shadow .26s ease, border-color .26s ease;
+    }
+    .card:hover{
+      transform:translateY(-6px);
+      box-shadow:0 30px 70px rgba(31,46,66,.16);
+      border-color:rgba(80,123,141,.18);
+    }
+    .toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .kicker,
+    .featuredChip,
+    .tag{display:flex;flex-wrap:wrap;gap:8px}
+    .kicker span,
+    .featuredChip span,
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      line-height:1;
+      border:1px solid rgba(36,43,54,.08);
+      background:rgba(249,248,244,.82);
+      color:#566272;
+    }
+    .featuredChip span{
+      background:rgba(80,123,141,.1);
+      color:var(--accent-strong);
+      border-color:rgba(80,123,141,.14);
+      font-weight:700;
+    }
+    .title{
+      font-family:var(--serif);
+      font-size:28px;
+      line-height:1.08;
+      letter-spacing:-.04em;
+    }
+    .desc{
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.72;
+      min-height:72px;
+    }
+    .tags{display:flex;flex-wrap:wrap;gap:8px}
+    .actions{margin-top:auto;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:12px 15px;
+      border-radius:16px;
+      text-decoration:none;
+      font-weight:700;
+      letter-spacing:.01em;
+      border:1px solid transparent;
+      transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{color:#fff;background:linear-gradient(135deg, var(--accent-strong), #496d80);box-shadow:0 16px 28px rgba(35,71,95,.22)}
+    .btn.secondary{color:var(--ink);background:rgba(249,248,244,.9);border-color:rgba(36,43,54,.08)}
+    .btn.cta{
+      position:relative;
+      overflow:hidden;
+      padding:16px 22px;
+      border-radius:19px;
+      font-size:15px;
+      color:#f7f2eb;
+      border-color:rgba(255,255,255,.1);
+      background:linear-gradient(180deg, #2a3746 0%, #1a2230 100%);
+      box-shadow:0 10px 20px rgba(26,34,48,.14), 0 1px 0 rgba(255,255,255,.08) inset, 0 -1px 0 rgba(0,0,0,.16) inset;
+    }
+    .btn.cta::before{
+      content:"";
+      position:absolute;
+      inset:-2px 62% -2px -24%;
+      background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,244,226,.14), rgba(255,255,255,0));
+      transform:skewX(-24deg);
+      animation:ctaSweep 5.8s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .btn.cta span,
+    .btn.cta strong,
+    .btn.cta i{
+      position:relative;
+      z-index:1;
+    }
+    .btn.cta i{
+      font-style:normal;
+      font-size:17px;
+      transition:transform .25s ease;
+    }
+    .btn.cta:hover{
+      transform:translateY(-2px) scale(1.02);
+      box-shadow:0 14px 28px rgba(26,34,48,.18), 0 1px 0 rgba(255,255,255,.1) inset, 0 -1px 0 rgba(0,0,0,.2) inset;
+    }
+    .btn.cta:hover i{transform:translateX(3px)}
+    .empty,
+    footer{
+      border-radius:26px;
+      padding:24px;
+      color:var(--muted);
+    }
+    footer{
+      margin-top:22px;
+      overflow:hidden;
+    }
+    .journeyStrip{
+      position:relative;
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0, 1fr));
+      gap:14px;
+      align-items:center;
+    }
+    .journeyStrip::before{
+      content:"";
+      position:absolute;
+      left:8%;
+      right:8%;
+      top:50%;
+      height:2px;
+      transform:translateY(-50%);
+      background:linear-gradient(90deg, rgba(80,123,141,.14), rgba(215,179,138,.26), rgba(80,123,141,.14));
+      pointer-events:none;
+    }
+    .journeyPulse{
+      position:absolute;
+      left:8%;
+      top:50%;
+      width:14%;
+      height:10px;
+      transform:translateY(-50%);
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(80,123,141,0), rgba(80,123,141,.38), rgba(215,179,138,0));
+      filter:blur(10px);
+      animation:journeyRun 7s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .journeyStep{
+      position:relative;
+      z-index:1;
+      display:flex;
+      justify-content:center;
+    }
+    .journeyCard{
+      width:100%;
+      min-height:104px;
+      border-radius:22px;
+      padding:12px 12px 10px;
+      background:rgba(255,255,255,.7);
+      border:1px solid rgba(28,37,48,.06);
+      box-shadow:var(--shadow-soft);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .journeyLabel{
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#617184;
+    }
+    .journeyScene{
+      position:relative;
+      height:56px;
+      border-radius:16px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.84), rgba(245,243,238,.74));
+    }
+    .ideaGlow,
+    .sceneBuildShell,
+    .sceneBuildAccent,
+    .sceneLocalChip,
+    .scenePublishPill,
+    .sceneSparkle,
+    .miniHuman{
+      position:absolute;
+    }
+    .ideaGlow{
+      left:15px;
+      top:10px;
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(215,179,138,.95), rgba(215,179,138,.26) 48%, rgba(215,179,138,0) 72%);
+      animation:ideaBlink 2.8s ease-in-out infinite;
+    }
+    .ideaGlow::after{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border-radius:50%;
+      background:#fff7ec;
+    }
+    .sceneBuildShell{
+      left:12px;
+      top:16px;
+      width:48px;
+      height:26px;
+      border-radius:10px;
+      background:linear-gradient(180deg, #faf5ed, #efe1cf);
+      border:1px solid rgba(158,123,90,.14);
+      box-shadow:0 8px 16px rgba(158,123,90,.1);
+    }
+    .sceneBuildAccent{
+      right:10px;
+      top:22px;
+      width:8px;
+      height:14px;
+      border-radius:3px;
+      background:#23475f;
+      transform:rotate(11deg);
+    }
+    .sceneLocalChip{
+      left:16px;
+      top:12px;
+      width:22px;
+      height:22px;
+      border-radius:7px;
+      background:linear-gradient(180deg, #507b8d, #23475f);
+      box-shadow:0 10px 18px rgba(35,71,95,.18);
+    }
+    .scenePublishPill{
+      left:12px;
+      top:20px;
+      width:24px;
+      height:14px;
+      border-radius:999px;
+      background:linear-gradient(90deg, #a4cad1, #507b8d);
+      box-shadow:0 8px 14px rgba(80,123,141,.16);
+    }
+    .sceneSparkle{
+      right:16px;
+      top:12px;
+      width:16px;
+      height:16px;
+      animation:sparkleTwist 2.9s ease-in-out infinite;
+    }
+    .sceneSparkle::before,
+    .sceneSparkle::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(215,179,138,.12), rgba(215,179,138,.95), rgba(215,179,138,.12));
+      border-radius:999px;
+    }
+    .sceneSparkle::after{
+      transform:rotate(90deg);
+    }
+    .miniHuman{
+      left:18px;
+      top:6px;
+      width:34px;
+      height:42px;
+      animation:cheerBounce 3s ease-in-out infinite;
+    }
+    .miniHuman .head{
+      position:absolute;
+      left:10px;
+      top:0;
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:#f1d7bf;
+      box-shadow:0 1px 0 rgba(0,0,0,.04) inset;
+    }
+    .miniHuman .body{
+      position:absolute;
+      left:13px;
+      top:12px;
+      width:8px;
+      height:16px;
+      border-radius:8px;
+      background:linear-gradient(180deg, #23475f, #507b8d);
+    }
+    .miniHuman .arm-left,
+    .miniHuman .arm-right{
+      position:absolute;
+      top:14px;
+      width:13px;
+      height:4px;
+      border-radius:999px;
+      background:#23475f;
+      transform-origin:left center;
+    }
+    .miniHuman .arm-left{
+      left:2px;
+      transform:rotate(-36deg);
+    }
+    .miniHuman .arm-right{
+      right:2px;
+      transform:rotate(36deg);
+      transform-origin:right center;
+    }
+    .miniHuman .leg-left,
+    .miniHuman .leg-right{
+      position:absolute;
+      top:26px;
+      width:4px;
+      height:12px;
+      border-radius:999px;
+      background:#507b8d;
+    }
+    .miniHuman .leg-left{left:12px;transform:rotate(10deg)}
+    .miniHuman .leg-right{left:19px;transform:rotate(-10deg)}
+    .cheerDots{
+      position:absolute;
+      right:10px;
+      top:26px;
+      width:24px;
+      height:20px;
+    }
+    .cheerDots span{
+      position:absolute;
+      width:4px;
+      height:4px;
+      border-radius:2px;
+      background:#d7b38a;
+      opacity:.34;
+    }
+    .cheerDots span:nth-child(1){left:0;top:15px}
+    .cheerDots span:nth-child(2){left:10px;top:2px;background:#507b8d;opacity:.3}
+    .cheerDots span:nth-child(3){left:19px;top:11px;background:#8ab6aa;opacity:.31}
+    @keyframes atmosphere{
+      0%{transform:translate3d(0,0,0) scale(1)}
+      100%{transform:translate3d(0,-14px,0) scale(1.04)}
+    }
+    @keyframes ctaSweep{
+      0%{transform:translateX(-120%) skewX(-24deg)}
+      42%{transform:translateX(210%) skewX(-24deg)}
+      100%{transform:translateX(210%) skewX(-24deg)}
+    }
+    @keyframes halo{
+      0%{transform:translate3d(0,0,0) scale(1)}
+      100%{transform:translate3d(-10px,-10px,0) scale(1.1)}
+    }
+    @keyframes deckFloatA{
+      0%,100%{transform:translate3d(0,0,0) rotate(-8deg)}
+      50%{transform:translate3d(6px,-18px,0) rotate(-4deg)}
+    }
+    @keyframes deckFloatB{
+      0%,100%{transform:translate3d(0,0,0) rotate(9deg)}
+      50%{transform:translate3d(-8px,-24px,0) rotate(12deg)}
+    }
+    @keyframes deckFloatC{
+      0%,100%{transform:translate3d(0,0,0) rotate(-2deg)}
+      50%{transform:translate3d(10px,-16px,0) rotate(2deg)}
+    }
+    @keyframes deckFloatD{
+      0%,100%{transform:translate3d(0,0,0) rotate(6deg)}
+      50%{transform:translate3d(-6px,-20px,0) rotate(2deg)}
+    }
+    @keyframes journeyRun{
+      0%{left:8%;opacity:.35}
+      18%{opacity:.75}
+      100%{left:78%;opacity:.45}
+    }
+    @keyframes ideaBlink{
+      0%,100%{transform:scale(.9);opacity:.78}
+      50%{transform:scale(1.12);opacity:1}
+    }
+    @keyframes sparkleTwist{
+      0%,100%{transform:scale(.9) rotate(0deg);opacity:.55}
+      50%{transform:scale(1.1) rotate(24deg);opacity:1}
+    }
+    @keyframes cheerBounce{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-4px)}
+    }
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr}
+      .toolbar{grid-template-columns:1fr}
+      h1{max-width:none}
+      .heroStage{min-height:480px}
+      .journeyStrip{grid-template-columns:repeat(5, minmax(108px, 1fr));overflow-x:auto;padding-bottom:6px}
+      .journeyStrip::before{left:12px;right:12px}
+      .journeyPulse{width:90px}
+    }
+    @media (max-width: 720px){
+      .shell{width:min(100vw - 20px, 1200px);padding:16px 0 40px}
+      .masthead{padding:2px 2px 0;margin-bottom:14px}
+      .heroCopy,.heroStage,.toolbar,.card,.empty,footer{border-radius:24px}
+      .heroCopy,.heroStage{padding:22px}
+      .toolbar{padding:10px}
+      .title{font-size:26px}
+      .desc{min-height:auto}
+      .deckMock{width:min(240px, 70vw)}
+      .deckMock.editorial{left:0;top:0}
+      .deckMock.nocturne{right:0;top:7%}
+      .deckMock.botanical{left:8%;bottom:8%}
+      .deckMock.signal{right:8%;bottom:2%}
+      .btn.cta{padding:15px 20px;font-size:14px}
+      footer{padding:18px}
+      .journeyCard{min-height:94px}
+      .journeyScene{height:50px}
+    }
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{animation:none !important;transition:none !important}
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="masthead">
+      <div class="brandmark"><span class="dot"></span><strong>HTML Slide Atlas</strong></div>
+    </div>
+
+    <section class="hero">
+      <div class="heroCopy">
+        <div>
+          <span class="eyebrow">HTML decks</span>
+          <h1>Slides, kept light.</h1>
+          <p class="lead">A small collection of browser-native decks and visual experiments.</p>
+          <div class="heroActions">
+            <a class="btn cta" href="#collection"><span>Browse decks</span><i aria-hidden="true">↗</i></a>
+          </div>
+        </div>
+        <div class="heroNote">Different moods. Same medium.</div>
+      </div>
+
+      <div class="heroStage" aria-label="Floating slide previews">
+        <div class="stageOrbit" aria-hidden="true">
+          <article class="deckMock editorial">
+            <div class="deckChrome"><span></span><span></span><span></span></div>
+            <div class="deckCanvas">
+              <span class="deckLabel">Editorial</span>
+              <h2 class="deckTitle">Quiet launch.</h2>
+              <p class="deckText">Warm paper, soft pacing, a deck that feels almost printed.</p>
+              <div class="deckRibbon"></div>
+              <div class="deckBars"><span></span><span></span><span></span></div>
+              <div class="deckCluster">
+                <div class="deckImage"></div>
+                <div class="deckPanel"></div>
+              </div>
+              <div class="deckFooter"><span>Warm</span><span>Story</span></div>
+            </div>
+          </article>
+
+          <article class="deckMock nocturne">
+            <div class="deckChrome"><span></span><span></span><span></span></div>
+            <div class="deckCanvas">
+              <span class="deckLabel">Nocturne</span>
+              <h2 class="deckTitle">Signal deck.</h2>
+              <p class="deckText">Neon contrast, dark canvas, motion-first presentation energy.</p>
+              <div class="deckRibbon"></div>
+              <div class="deckBars"><span></span><span></span><span></span></div>
+              <div class="deckCluster">
+                <div class="deckPanel"></div>
+                <div class="deckImage"></div>
+              </div>
+              <div class="deckFooter"><span>Night</span><span>Motion</span></div>
+            </div>
+          </article>
+
+          <article class="deckMock botanical">
+            <div class="deckChrome"><span></span><span></span><span></span></div>
+            <div class="deckCanvas">
+              <span class="deckLabel">Organic</span>
+              <h2 class="deckTitle">Field notes.</h2>
+              <p class="deckText">Airy surfaces, muted greens, and room for images to breathe.</p>
+              <div class="deckRibbon"></div>
+              <div class="deckBars"><span></span><span></span><span></span></div>
+              <div class="deckCluster">
+                <div class="deckImage"></div>
+                <div class="deckPanel"></div>
+              </div>
+              <div class="deckFooter"><span>Soft</span><span>Image-led</span></div>
+            </div>
+          </article>
+
+          <article class="deckMock signal">
+            <div class="deckChrome"><span></span><span></span><span></span></div>
+            <div class="deckCanvas">
+              <span class="deckLabel">Signal</span>
+              <h2 class="deckTitle">Weekly pulse.</h2>
+              <p class="deckText">Structured cards, data hints, and a lighter analytical rhythm.</p>
+              <div class="deckRibbon"></div>
+              <div class="deckBars"><span></span><span></span><span></span></div>
+              <div class="deckCluster">
+                <div class="deckPanel"></div>
+                <div class="deckImage"></div>
+              </div>
+              <div class="deckFooter"><span>Data</span><span>Feed</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="collection">
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Search decks" />
+        <select id="categoryFilter" aria-label="Filter by category">
+          <option value="all"></option>
+        </select>
+        <select id="audienceFilter" aria-label="Filter by visibility">
+          <option value="all"></option>
+          <option value="team">Public</option>
+          <option value="internal">Archive</option>
+        </select>
+      </div>
+
+      <div class="sectionTitle">
+        <h2>Collection</h2>
+        <span id="count" class="count"></span>
+      </div>
+
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" hidden>No decks match the current filters.</div>
+    </section>
+
+    <footer aria-label="From idea to published deck">
+      <div class="journeyStrip">
+        <div class="journeyPulse" aria-hidden="true"></div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Idea</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="ideaGlow"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Build</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="sceneBuildShell"></div>
+              <div class="sceneBuildAccent"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Local</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="sceneLocalChip"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">Publish</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="scenePublishPill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journeyStep">
+          <div class="journeyCard">
+            <div class="journeyLabel">YAY</div>
+            <div class="journeyScene" aria-hidden="true">
+              <div class="miniHuman">
+                <span class="head"></span>
+                <span class="body"></span>
+                <span class="arm-left"></span>
+                <span class="arm-right"></span>
+                <span class="leg-left"></span>
+                <span class="leg-right"></span>
+              </div>
+              <div class="cheerDots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+    const count = document.getElementById('count');
+    const search = document.getElementById('search');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const audienceFilter = document.getElementById('audienceFilter');
+
+    function norm(value){
+      return String(value || '').toLowerCase();
+    }
+
+    function resultLabel(total){
+      return total === 1 ? '1 deck' : `${total} decks`;
+    }
+
+    function card(item){
+      const tags = (item.tags || []).slice(0, 2).map(tag => `<span class="tag">${tag}</span>`).join('');
+      const featured = item.featured ? '<span class="featuredChip"><span>Featured</span></span>' : '';
+      return `
+        <article class="card">
+          <div class="toprow">
+            <div class="kicker">
+              <span>${item.category}</span>
+            </div>
+            ${featured}
+          </div>
+          <div class="title">${item.title}</div>
+          <div class="desc">${item.description}</div>
+          <div class="tags">${tags}</div>
+          <div class="actions">
+            <a class="btn primary" href="${item.path}" target="_blank" rel="noopener noreferrer">Open deck</a>
+          </div>
+        </article>`;
+    }
+
+    function render(items){
+      grid.innerHTML = items.map(card).join('');
+      empty.hidden = items.length > 0;
+      count.textContent = resultLabel(items.length);
+    }
+
+    fetch('./slides.json')
+      .then(response => response.json())
+      .then(items => {
+        const categories = [...new Set(items.map(item => item.category))].sort((a, b) => a.localeCompare(b, 'en'));
+        for (const category of categories){
+          const option = document.createElement('option');
+          option.value = category;
+          option.textContent = category;
+          categoryFilter.appendChild(option);
+        }
+
+        function apply(){
+          const query = norm(search.value.trim());
+          const category = categoryFilter.value;
+          const audience = audienceFilter.value;
+          const filtered = items.filter(item => {
+            const haystack = norm([
+              item.title,
+              item.description,
+              item.category,
+              item.audience,
+              item.visibility,
+              ...(item.tags || [])
+            ].join(' '));
+            const matchQuery = !query || haystack.includes(query);
+            const matchCategory = category === 'all' || item.category === category;
+            const matchAudience = audience === 'all' || item.audience === audience;
+            return matchQuery && matchCategory && matchAudience;
+          }).sort((left, right) => Number(right.featured) - Number(left.featured) || left.title.localeCompare(right.title, 'en'));
+          render(filtered);
+        }
+
+        [search, categoryFilter, audienceFilter].forEach(element => element.addEventListener('input', apply));
+        [categoryFilter, audienceFilter].forEach(element => element.addEventListener('change', apply));
+        apply();
+      })
+      .catch(error => {
+        grid.innerHTML = `<div class="empty">Could not load <code>slides.json</code>: ${error.message}</div>`;
+        empty.hidden = true;
+        count.textContent = 'Load failed';
+      });
+  </script>
+</body>
+</html>

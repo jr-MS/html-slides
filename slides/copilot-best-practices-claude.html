@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>让 Copilot 真正读懂你的 OA 系统 · 工程化最佳实践</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=clash-display@500,600,700&f[]=jetbrains-mono@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d12;
+  --bg-2:#11151c;
+  --panel:#151a23;
+  --panel-2:#1b212d;
+  --line:#262d3b;
+  --ink:#e7ecf3;
+  --ink-2:#aab3c2;
+  --ink-3:#6b7585;
+  --cyan:#22d3ee;
+  --cyan-2:#67e8f9;
+  --magenta:#f472b6;
+  --lime:#a3e635;
+  --amber:#fbbf24;
+  --violet:#a78bfa;
+  --red:#f87171;
+  --grad: linear-gradient(135deg,#22d3ee 0%, #a78bfa 60%, #f472b6 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Satoshi','PingFang SC','Microsoft YaHei',-apple-system,sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow:hidden}
+body{
+  scroll-snap-type:y mandatory;
+  overflow-y:auto;
+  height:100vh;height:100dvh;
+  scroll-behavior:smooth;
+}
+body::-webkit-scrollbar{display:none}
+body{scrollbar-width:none}
+
+/* ===== Slide frame ===== */
+.slide{
+  position:relative;
+  width:100vw;
+  height:100vh;height:100dvh;
+  overflow:hidden;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  padding:clamp(28px,4vh,56px) clamp(40px,5vw,96px);
+  display:flex;
+  flex-direction:column;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(34,211,238,.08), transparent 60%),
+    radial-gradient(900px 500px at -5% 110%, rgba(244,114,182,.06), transparent 55%),
+    var(--bg);
+  border-bottom:1px solid var(--line);
+}
+.slide::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+  mask-image:radial-gradient(ellipse at center, #000 40%, transparent 80%);
+}
+
+/* ===== Typography ===== */
+h1,h2,h3,.display{font-family:'Clash Display','Satoshi','PingFang SC',sans-serif;font-weight:600;letter-spacing:-.01em;line-height:1.1}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,.85vw,12px);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--cyan);
+  margin-bottom:clamp(10px,1.4vh,18px);
+  display:inline-flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--cyan);display:inline-block}
+h1.title{font-size:clamp(34px,5.6vw,76px);line-height:1.05}
+h2.heading{font-size:clamp(26px,3.4vw,46px);line-height:1.1;margin-bottom:clamp(8px,1.2vh,16px)}
+.subhead{font-size:clamp(13px,1.1vw,17px);color:var(--ink-2);max-width:80ch;line-height:1.55;margin-bottom:clamp(14px,2.2vh,28px)}
+p{font-size:clamp(13px,1.05vw,16px);line-height:1.6;color:var(--ink-2)}
+code,pre,.mono{font-family:'JetBrains Mono','SF Mono',monospace}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ===== Slide header strip ===== */
+.head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:clamp(14px,2vh,24px)}
+.head .num{font-family:'JetBrains Mono',monospace;color:var(--ink-3);font-size:clamp(10px,.8vw,12px);letter-spacing:.2em}
+
+/* ===== Cards / grid ===== */
+.grid{display:grid;gap:clamp(12px,1.4vw,20px)}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+.card{
+  background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:clamp(14px,1.7vw,22px);
+  position:relative;
+  overflow:hidden;
+}
+.card.accent{border-color:rgba(34,211,238,.35)}
+.card .tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,.78vw,12px);
+  color:var(--cyan);
+  letter-spacing:.18em;text-transform:uppercase;
+  display:block;margin-bottom:8px;
+}
+.card h3{font-size:clamp(15px,1.35vw,21px);color:var(--ink);margin-bottom:8px}
+.card p{font-size:clamp(12px,.95vw,14px);color:var(--ink-2);line-height:1.55}
+.card .num-big{
+  position:absolute;top:10px;right:14px;
+  font-family:'Clash Display',sans-serif;font-weight:700;
+  font-size:clamp(36px,4vw,58px);color:rgba(255,255,255,.04);
+  line-height:1;
+}
+
+/* ===== Pill / tag ===== */
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;border-radius:999px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,.78vw,12px);
+  background:rgba(34,211,238,.08);
+  border:1px solid rgba(34,211,238,.25);
+  color:var(--cyan-2);
+  letter-spacing:.05em;
+}
+.pill.magenta{background:rgba(244,114,182,.08);border-color:rgba(244,114,182,.25);color:var(--magenta)}
+.pill.lime{background:rgba(163,230,53,.08);border-color:rgba(163,230,53,.25);color:var(--lime)}
+.pill.amber{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.25);color:var(--amber)}
+
+/* ===== Code block ===== */
+.code{
+  background:#0c1018;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:clamp(12px,1.3vw,18px) clamp(14px,1.5vw,20px);
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(11px,.92vw,13.5px);
+  line-height:1.55;
+  color:#cdd6e4;
+  overflow:hidden;
+  position:relative;
+}
+.code .filename{
+  display:block;
+  font-size:clamp(10px,.78vw,12px);
+  color:var(--ink-3);
+  margin-bottom:10px;
+  letter-spacing:.05em;
+}
+.code .filename::before{content:"▸ ";color:var(--cyan)}
+.tk-c{color:#5c6675;font-style:italic}      /* comment */
+.tk-k{color:#f472b6}                          /* keyword */
+.tk-s{color:#a3e635}                          /* string */
+.tk-n{color:#22d3ee}                          /* name/path */
+.tk-v{color:#fbbf24}                          /* var/value */
+.tk-p{color:#a78bfa}                          /* punctuation/highlight */
+.tk-h{color:var(--ink);font-weight:500}       /* heading */
+
+/* ===== List ===== */
+.list{display:flex;flex-direction:column;gap:clamp(8px,1vh,14px)}
+.list li{list-style:none;display:flex;gap:12px;align-items:flex-start;font-size:clamp(13px,1vw,15px);color:var(--ink-2);line-height:1.55}
+.list li::before{content:"";flex:none;width:6px;height:6px;border-radius:2px;background:var(--cyan);margin-top:.6em}
+.list.magenta li::before{background:var(--magenta)}
+.list.amber li::before{background:var(--amber)}
+.list.lime li::before{background:var(--lime)}
+.list strong{color:var(--ink);font-weight:600}
+.list a.ref{color:var(--ink);font-weight:600;text-decoration:none;border-bottom:1px dashed rgba(255,255,255,.18);padding-bottom:1px;transition:color .2s ease,border-color .2s ease}
+.list a.ref:hover{color:var(--cyan);border-bottom-color:var(--cyan)}
+.list.magenta a.ref:hover{color:var(--magenta);border-bottom-color:var(--magenta)}
+.list.lime a.ref:hover{color:var(--lime);border-bottom-color:var(--lime)}
+.list.amber a.ref:hover{color:var(--amber);border-bottom-color:var(--amber)}
+
+/* ===== Pain point cards (slide 2) ===== */
+.pain-card{
+  background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:clamp(18px,2vw,28px);
+  position:relative;
+  overflow:hidden;
+  display:flex;flex-direction:column;gap:10px;
+}
+.pain-card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan);
+}
+.pain-card.p2::before{background:var(--magenta)}
+.pain-card.p3::before{background:var(--amber)}
+.pain-card.p4::before{background:var(--violet)}
+.pain-card .label{font-family:'JetBrains Mono',monospace;font-size:clamp(10px,.78vw,12px);color:var(--cyan);letter-spacing:.2em}
+.pain-card.p2 .label{color:var(--magenta)}
+.pain-card.p3 .label{color:var(--amber)}
+.pain-card.p4 .label{color:var(--violet)}
+.pain-card h3{font-size:clamp(15px,1.4vw,20px);color:var(--ink);line-height:1.25}
+.pain-card .quote{font-size:clamp(12px,.95vw,14px);color:var(--ink-2);line-height:1.55;font-style:italic;border-left:2px solid var(--line);padding-left:10px}
+
+/* ===== Diagram (slide 3 / 7) ===== */
+.diagram{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(10px,1.5vw,28px);
+  padding:clamp(10px,2vh,30px) 0;
+  flex-wrap:wrap;
+}
+.node{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:clamp(12px,1.4vw,20px) clamp(14px,1.6vw,22px);
+  min-width:clamp(120px,12vw,170px);
+  text-align:center;
+  position:relative;
+}
+.node.cyan{border-color:rgba(34,211,238,.4);box-shadow:0 0 0 1px rgba(34,211,238,.15) inset}
+.node.magenta{border-color:rgba(244,114,182,.4);box-shadow:0 0 0 1px rgba(244,114,182,.15) inset}
+.node.amber{border-color:rgba(251,191,36,.4)}
+.node.violet{border-color:rgba(167,139,250,.4)}
+.node .nlabel{font-family:'JetBrains Mono',monospace;font-size:clamp(10px,.78vw,12px);color:var(--ink-3);letter-spacing:.15em;display:block;margin-bottom:6px}
+.node .ntitle{font-family:'Clash Display',sans-serif;font-weight:600;font-size:clamp(13px,1.1vw,17px);color:var(--ink)}
+.node .nsub{font-size:clamp(10px,.82vw,12px);color:var(--ink-2);margin-top:6px;line-height:1.4}
+.arrow{font-family:'JetBrains Mono',monospace;color:var(--cyan);font-size:clamp(16px,1.6vw,22px);opacity:.7}
+.arrow.v{transform:rotate(90deg)}
+
+/* ===== Before/After ===== */
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,1.5vw,22px);flex:1;min-height:0}
+.ba > div{display:flex;flex-direction:column;min-height:0}
+.ba .label{
+  font-family:'JetBrains Mono',monospace;font-size:clamp(11px,.85vw,13px);
+  letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.ba .before .label{color:var(--red)}
+.ba .after .label{color:var(--lime)}
+.ba .before .label::before{content:"✕";font-size:1.2em}
+.ba .after .label::before{content:"✓";font-size:1.2em}
+.ba .code{flex:1;min-height:0;overflow:hidden}
+
+/* ===== Title slide ===== */
+.title-slide{
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+  position:relative;
+}
+.title-slide .meta{
+  display:flex;gap:14px;flex-wrap:wrap;margin-top:clamp(20px,3vh,36px);
+}
+.title-slide .deco{
+  position:absolute;right:clamp(40px,5vw,96px);top:50%;transform:translateY(-50%);
+  width:clamp(280px,28vw,420px);height:clamp(280px,28vw,420px);
+  border-radius:50%;
+  background:conic-gradient(from 220deg,#22d3ee,#a78bfa,#f472b6,#22d3ee);
+  filter:blur(60px);opacity:.18;
+  pointer-events:none;
+}
+.title-slide .ascii{
+  position:absolute;right:clamp(40px,5vw,96px);top:50%;transform:translateY(-50%);
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(8px,.72vw,11px);
+  line-height:1.2;color:rgba(34,211,238,.25);
+  white-space:pre;text-align:right;
+  pointer-events:none;
+}
+
+/* ===== Roadmap ===== */
+.roadmap{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.5vw,22px);flex:1}
+.phase{
+  background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+  border:1px solid var(--line);border-radius:14px;
+  padding:clamp(16px,1.8vw,24px);
+  display:flex;flex-direction:column;gap:10px;
+  position:relative;overflow:hidden;
+}
+.phase .when{
+  font-family:'JetBrains Mono',monospace;font-size:clamp(10px,.8vw,12px);
+  letter-spacing:.18em;color:var(--cyan);
+}
+.phase .title{font-family:'Clash Display',sans-serif;font-weight:600;font-size:clamp(17px,1.5vw,22px);color:var(--ink);line-height:1.2}
+.phase ul{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.phase li{list-style:none;font-size:clamp(12px,.9vw,14px);color:var(--ink-2);padding-left:14px;position:relative;line-height:1.45}
+.phase li::before{content:"→";position:absolute;left:0;color:var(--cyan);font-family:'JetBrains Mono',monospace}
+.phase.p2 .when{color:var(--magenta)} .phase.p2 li::before{color:var(--magenta)}
+.phase.p3 .when{color:var(--lime)} .phase.p3 li::before{color:var(--lime)}
+
+/* ===== Progress + dots ===== */
+.progress{
+  position:fixed;left:0;top:0;height:2px;background:var(--grad);
+  z-index:50;transition:width .2s ease;
+}
+.dots{
+  position:fixed;right:clamp(16px,1.6vw,28px);top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:8px;z-index:40;
+}
+.dots a{
+  width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);
+  display:block;transition:all .2s ease;
+}
+.dots a.active{background:var(--cyan);transform:scale(1.6);box-shadow:0 0 8px var(--cyan)}
+.dots a:hover{background:var(--ink-2)}
+
+.foot{
+  position:absolute;left:clamp(40px,5vw,96px);bottom:clamp(16px,2vh,24px);
+  font-family:'JetBrains Mono',monospace;font-size:clamp(9px,.72vw,11px);
+  color:var(--ink-3);letter-spacing:.15em;
+  display:flex;gap:18px;align-items:center;
+}
+.foot .brand{color:var(--cyan)}
+
+/* ===== Reveal animation ===== */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+.reveal.show{opacity:1;transform:none}
+.reveal.d1{transition-delay:.05s}.reveal.d2{transition-delay:.12s}
+.reveal.d3{transition-delay:.2s}.reveal.d4{transition-delay:.28s}
+.reveal.d5{transition-delay:.36s}.reveal.d6{transition-delay:.44s}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  body{scroll-behavior:auto}
+}
+
+/* ===== Misc utilities ===== */
+.row{display:flex;gap:clamp(10px,1.2vw,18px);align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.kbd{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:2px 7px;border:1px solid var(--line);border-radius:4px;
+  background:var(--panel);color:var(--ink-2);
+}
+.checklist li{display:flex;gap:10px;align-items:flex-start;font-size:clamp(12px,.95vw,14px);color:var(--ink-2);line-height:1.55;list-style:none;margin-bottom:6px}
+.checklist li::before{content:"□";color:var(--ink-3);font-family:'JetBrains Mono',monospace;font-size:1.1em;flex:none}
+.checklist li.ok::before{content:"☑";color:var(--lime)}
+.checklist li.no::before{content:"☒";color:var(--red)}
+
+.hint{
+  font-family:'JetBrains Mono',monospace;font-size:clamp(10px,.78vw,12px);
+  color:var(--ink-3);letter-spacing:.05em;
+}
+
+/* small-content slide variant */
+.tight{padding-top:clamp(20px,3vh,40px);padding-bottom:clamp(20px,3vh,40px)}
+.flex-fill{flex:1;min-height:0;display:flex;flex-direction:column}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="dots" id="dots"></nav>
+
+<!-- ====================== SLIDE 1 — TITLE ====================== -->
+<section class="slide title-slide" data-title="封面">
+  <div class="deco"></div>
+  <pre class="ascii">┌──────────────────────────┐
+│  context · index · skill │
+│  copilot · enterprise    │
+│  oa · workflow · agents  │
+└──────────────────────────┘
+   ↳ engineered for ops</pre>
+  <span class="eyebrow reveal d1">GitHub Copilot · Enterprise Best Practices · 2025</span>
+  <h1 class="title reveal d2">让 Copilot 真正 <br><span class="grad-text">读懂你的 OA 系统</span></h1>
+  <p class="subhead reveal d3" style="margin-top:clamp(16px,2vh,24px);max-width:60ch">
+    从模型选择、上下文工程、Custom Instructions、MCP 到 Bug 定位——
+    一份给 OA 团队的 Copilot 落地手册。
+  </p>
+  <div class="meta reveal d4">
+    <span class="pill">repository · index</span>
+    <span class="pill magenta">claude · model picker</span>
+    <span class="pill lime">mcp · spaces</span>
+    <span class="pill amber">prompt engineering</span>
+  </div>
+  <div class="foot">
+    <span class="brand">◆ COPILOT FOR OA</span>
+    <span>19 SLIDES</span>
+    <span>USE ← / → TO NAVIGATE</span>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 2 — PAIN POINTS ====================== -->
+<section class="slide" data-title="痛点速览">
+  <div class="head">
+    <div>
+      <span class="eyebrow">01 · Status Quo</span>
+      <h2 class="heading">四个让团队 <span class="grad-text">不敢全力依赖</span> 的痛点</h2>
+      <p class="subhead">在动手解决之前，先把问题摆桌上、按"模型 / 上下文 / 网络 / 调试"四象限分类。</p>
+    </div>
+    <div class="num">P.02 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div class="pain-card">
+      <span class="label">PAIN · 01 / MODEL</span>
+      <h3>GPT 系列"看不懂整个项目"</h3>
+      <p class="quote">让它扫描整个 OA 项目生成新需求代码，结果给的是<strong>更加混乱的代码</strong>。</p>
+      <p style="font-size:clamp(11px,.9vw,13px);color:var(--ink-3)">本质：模型上下文不足 + 项目隐性规则缺失。</p>
+    </div>
+    <div class="pain-card p2">
+      <span class="label">PAIN · 02 / ACCESS</span>
+      <h3>Claude 在管理后台已配置，IDE 选不到</h3>
+      <p class="quote">想用 Claude Code 跑业务代码，<strong>编辑器里就是没有它</strong>。</p>
+      <p style="font-size:clamp(11px,.9vw,13px);color:var(--ink-3)">本质：Policy / Editor / 缓存 / 计划层级未对齐。</p>
+    </div>
+    <div class="pain-card p3">
+      <span class="label">PAIN · 03 / LATENCY</span>
+      <h3>响应慢，疑似网络问题</h3>
+      <p class="quote">同样的 prompt，<strong>有时几秒、有时几十秒</strong>，团队不确定是不是代理问题。</p>
+      <p style="font-size:clamp(11px,.9vw,13px);color:var(--ink-3)">本质：网络 routing / 模型负载 / 上下文体积。</p>
+    </div>
+    <div class="pain-card p4">
+      <span class="label">PAIN · 04 / DEBUG</span>
+      <h3>接手他人 bug，AI 定位不准</h3>
+      <p class="quote">让 AI 帮忙找 bug，给出来的位置<strong>跟最终修复点对不上</strong>。</p>
+      <p style="font-size:clamp(11px,.9vw,13px);color:var(--ink-3)">本质：缺少 grounding · 没有引用调用链与堆栈。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 3 — MENTAL MODEL ====================== -->
+<section class="slide" data-title="心智模型">
+  <div class="head">
+    <div>
+      <span class="eyebrow">02 · Mental Model</span>
+      <h2 class="heading">Copilot 的"项目感知"<span class="grad-text">不是魔法</span></h2>
+      <p class="subhead">理解上下文窗口的喂入机制，是后续所有工程化手段的前提。</p>
+    </div>
+    <div class="num">P.03 / 19</div>
+  </div>
+
+  <div class="diagram reveal d1">
+    <div class="node cyan">
+      <span class="nlabel">L0 · USER</span>
+      <div class="ntitle">Prompt</div>
+      <div class="nsub">你的问题 + 选区</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="node">
+      <span class="nlabel">L1 · IMPLICIT</span>
+      <div class="ntitle">打开的文件 / 选区<br>邻近 Tab</div>
+      <div class="nsub">由 IDE 自动收集</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="node magenta">
+      <span class="nlabel">L2 · EXPLICIT</span>
+      <div class="ntitle">#codebase · #file<br>#selection · @workspace</div>
+      <div class="nsub">由你显式引用</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="node amber">
+      <span class="nlabel">L3 · INDEX</span>
+      <div class="ntitle">Workspace Index<br>语义检索</div>
+      <div class="nsub">远程 / 本地索引</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="node violet">
+      <span class="nlabel">L4 · RULES</span>
+      <div class="ntitle">copilot-instructions<br>*.instructions.md</div>
+      <div class="nsub">每次都自动注入</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3 reveal d2" style="margin-top:clamp(14px,2vh,22px)">
+    <div class="card">
+      <span class="tag">Insight 01</span>
+      <h3>上下文窗口是稀缺资源</h3>
+      <p>把整个项目"塞进去"几乎不可能。所以重点在<strong>选对要进上下文的东西</strong>。</p>
+    </div>
+    <div class="card">
+      <span class="tag">Insight 02</span>
+      <h3>显式 &gt; 隐式</h3>
+      <p>用 <code>#file:</code> <code>#codebase</code> 显式锚定，远比指望模型自己"翻你项目"准确。</p>
+    </div>
+    <div class="card">
+      <span class="tag">Insight 03</span>
+      <h3>规则文件 = 永久记忆</h3>
+      <p><code>copilot-instructions.md</code> 每次请求都注入，是最高 ROI 的工程化动作。</p>
+    </div>
+  </div>
+  <div class="foot"><span class="brand">◆</span><span>MENTAL MODEL · CONTEXT IS A BUDGET</span></div>
+</section>
+
+<!-- ====================== SLIDE 4 — copilot-instructions.md ====================== -->
+<section class="slide" data-title="仓库级指令">
+  <div class="head">
+    <div>
+      <span class="eyebrow">03 · Engineering Lever #1</span>
+      <h2 class="heading">仓库级指令 · <code style="font-family:'JetBrains Mono',monospace;font-size:.85em;color:var(--cyan)">.github/copilot-instructions.md</code></h2>
+      <p class="subhead">最小动作、最大杠杆。新建一个 Markdown，整个团队、所有 IDE、所有 Chat 都自动遵守。</p>
+    </div>
+    <div class="num">P.04 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div class="code">
+      <span class="filename">.github/copilot-instructions.md</span>
+<pre><span class="tk-h"># OA System · Copilot Repository Instructions</span>
+
+<span class="tk-h">## 项目概览</span>
+<span class="tk-c">- 内部 OA 系统：审批 / 工单 / 报销 / 组织架构</span>
+<span class="tk-c">- 前端: <span class="tk-n">Vue 3 + TypeScript + Element Plus + Pinia</span></span>
+<span class="tk-c">- 后端: <span class="tk-n">Spring Boot 3 + MyBatis-Plus + MySQL 8</span></span>
+
+<span class="tk-h">## 必须遵守的代码规范</span>
+<span class="tk-c">- 所有 API 走 <span class="tk-n">/oa/api/v1/**</span>，统一返回 <span class="tk-n">Result&lt;T&gt;</span></span>
+<span class="tk-c">- 业务异常一律抛 <span class="tk-n">BizException(code, msg)</span>，禁止吞异常</span>
+<span class="tk-c">- 数据库字段用 <span class="tk-s">snake_case</span>，Java 字段用 <span class="tk-s">camelCase</span></span>
+<span class="tk-c">- 禁止在 Controller 直接注入 Mapper</span>
+
+<span class="tk-h">## 安全 / 审计</span>
+<span class="tk-c">- 任何 update / delete 必须经过 <span class="tk-n">@AuditLog</span> 注解</span>
+<span class="tk-c">- 用户输入入库前必须 <span class="tk-n">XssCleaner.clean()</span></span></pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(12px,1.4vh,18px);min-height:0">
+      <div class="card accent">
+        <span class="tag">为什么有效</span>
+        <h3>每一次 Chat 请求都会自动拼到 system prompt</h3>
+        <p>不需要你每次手动复述项目规范。模型会"先读规则、再写代码"，新人上手 / 跨团队协作的代码风格自动收敛。</p>
+      </div>
+      <ul class="list">
+        <li><strong>放在仓库根：</strong> <code>.github/copilot-instructions.md</code>，随仓库版本管理。</li>
+        <li><strong>VS Code 必须开启：</strong> <code>github.copilot.chat.codeGeneration.useInstructionFiles: true</code></li>
+        <li><strong>用斜杠生成草稿：</strong> Chat 中输入 <code>/generateInstructions</code>，让 Copilot 扫描后吐初版。</li>
+        <li><strong>保持精炼：</strong> 一页 A4 以内，<strong>规则 &gt; 描述</strong>。规则越多，单条权重越低。</li>
+      </ul>
+      <p class="hint">📖 GitHub 官方文档 · docs.github.com/copilot/customizing-copilot</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 5 — *.instructions.md + applyTo ====================== -->
+<section class="slide" data-title="多文件指令">
+  <div class="head">
+    <div>
+      <span class="eyebrow">04 · Engineering Lever #2</span>
+      <h2 class="heading">分层指令 · <code style="font-family:'JetBrains Mono',monospace;font-size:.85em;color:var(--cyan)">*.instructions.md</code> + <code style="color:var(--magenta)">applyTo</code></h2>
+      <p class="subhead">前端规范、后端规范、SQL 规范分开维护，按目录 / 文件类型自动匹配。</p>
+    </div>
+    <div class="num">P.05 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div class="code">
+      <span class="filename">.github/instructions/frontend.instructions.md</span>
+<pre><span class="tk-p">---</span>
+<span class="tk-k">applyTo</span>: <span class="tk-s">"web/src/**/*.{vue,ts,tsx}"</span>
+<span class="tk-p">---</span>
+
+<span class="tk-h"># Frontend Rules · OA Web</span>
+
+<span class="tk-c">- 所有页面用 <span class="tk-n">&lt;script setup lang="ts"&gt;</span>，禁止 Options API</span>
+<span class="tk-c">- 状态走 <span class="tk-n">Pinia stores/*</span>，禁止在组件里直接 fetch</span>
+<span class="tk-c">- 表单使用 <span class="tk-n">el-form + zod schema</span> 双重校验</span>
+<span class="tk-c">- 国际化文案统一在 <span class="tk-n">i18n/zh-CN.ts</span>，禁止硬编码</span>
+<span class="tk-c">- 列表分页统一 <span class="tk-n">PageQuery&lt;T&gt;</span> 类型</span></pre>
+    </div>
+
+    <div class="code">
+      <span class="filename">.github/instructions/sql.instructions.md</span>
+<pre><span class="tk-p">---</span>
+<span class="tk-k">applyTo</span>: <span class="tk-s">"server/src/main/resources/mapper/**/*.xml"</span>
+<span class="tk-p">---</span>
+
+<span class="tk-h"># MyBatis SQL Rules</span>
+
+<span class="tk-c">- 禁止 <span class="tk-n">SELECT *</span>，列出所有字段</span>
+<span class="tk-c">- 写入操作必须带 <span class="tk-n">tenant_id</span> 条件</span>
+<span class="tk-c">- 软删除字段 <span class="tk-n">is_deleted = 0</span> 必须显式带上</span>
+<span class="tk-c">- 大表查询必须带 <span class="tk-n">LIMIT</span> 或时间范围</span>
+<span class="tk-c">- 严禁 <span class="tk-n">${}</span> 拼接用户输入，改用 <span class="tk-n">#{}</span></span></pre>
+    </div>
+  </div>
+
+  <div class="row reveal d2" style="margin-top:clamp(10px,1.4vh,18px)">
+    <span class="pill">applyTo glob 命中文件 → 自动注入</span>
+    <span class="pill magenta">支持多个 instructions 文件叠加</span>
+    <span class="pill lime">前端 / 后端 / DB 各管各</span>
+    <span class="pill amber">VS Code Stable & Insiders 均支持</span>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 6 — Prompt files & Custom modes ====================== -->
+<section class="slide" data-title="Prompt 与 Chat Mode">
+  <div class="head">
+    <div>
+      <span class="eyebrow">05 · Engineering Lever #3</span>
+      <h2 class="heading">可复用 <span class="grad-text">Prompt Files</span> 与自定义 Chat Mode</h2>
+      <p class="subhead">把"高质量提问"沉淀成模板，让全团队复用、Code Review 化提问。</p>
+    </div>
+    <div class="num">P.06 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div class="code">
+      <span class="filename">.github/prompts/new-oa-feature.prompt.md</span>
+<pre><span class="tk-p">---</span>
+<span class="tk-k">mode</span>: <span class="tk-s">agent</span>
+<span class="tk-k">model</span>: <span class="tk-s">Claude Sonnet 4.5</span>
+<span class="tk-k">tools</span>: [<span class="tk-s">codebase</span>, <span class="tk-s">terminal</span>, <span class="tk-s">github</span>]
+<span class="tk-k">description</span>: <span class="tk-s">"OA 模块新功能脚手架"</span>
+<span class="tk-p">---</span>
+
+你是 OA 项目的资深工程师。请基于以下需求生成代码：
+
+<span class="tk-h">需求：</span> ${input:requirement}
+
+<span class="tk-h">必做：</span>
+1. 先用 <span class="tk-n">#codebase</span> 查找已有相似模块（如 leave / expense）
+2. 复用现有的 <span class="tk-n">BaseController / BaseService</span>
+3. 生成 Controller / Service / Mapper / Vue 页面 四件套
+4. 给出 <span class="tk-n">CHANGELOG.md</span> 增量与最小测试用例
+
+<span class="tk-h">禁止：</span>
+- 引入新依赖（除非显式说明）
+- 修改 <span class="tk-n">framework/**</span> 与 <span class="tk-n">common/**</span> 目录</pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(12px,1.4vh,18px);min-height:0">
+      <div class="card accent">
+        <span class="tag">Custom Chat Mode · .chatmode.md</span>
+        <h3>预制"角色 + 工具集 + 模型"组合</h3>
+        <p>例如 <code>oa-reviewer.chatmode.md</code> = 只读 codebase + Claude Opus + Code Review 角色，专门用于 PR 审查。</p>
+      </div>
+      <ul class="list magenta">
+        <li><strong>Chat 中调用：</strong> 输入 <code>/new-oa-feature</code> 即弹出参数化提问。</li>
+        <li><strong>支持变量：</strong> <code>${input:xxx}</code>、<code>${selection}</code>、<code>${file}</code>。</li>
+        <li><strong>团队级共享：</strong> 提交到 git，所有人 Chat 面板都能看到。</li>
+        <li><strong>从对话保存：</strong> Chat 里 <code>/savePrompt</code> 把当前对话固化成 prompt 文件。</li>
+      </ul>
+      <p class="hint">💡 业界做法：把"加 CRUD 模块" "新增工单类型" "生成单元测试"做成 5-10 个 prompt 模板。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 7 — MCP architecture ====================== -->
+<section class="slide" data-title="MCP 架构">
+  <div class="head">
+    <div>
+      <span class="eyebrow">06 · Engineering Lever #4</span>
+      <h2 class="heading">MCP · 让 Copilot 触达<span class="grad-text">企业内部知识与系统</span></h2>
+      <p class="subhead">Model Context Protocol = AI 的"USB-C"。把内部 Wiki / DB / API 接成 MCP Server，Copilot 就能查、能调。</p>
+    </div>
+    <div class="num">P.07 / 19</div>
+  </div>
+
+  <div class="diagram reveal d1" style="flex:1">
+    <div style="display:flex;flex-direction:column;gap:14px;align-items:center">
+      <div class="node cyan">
+        <span class="nlabel">CLIENT</span>
+        <div class="ntitle">VS Code · IDE</div>
+        <div class="nsub">Copilot Chat / Agent</div>
+      </div>
+      <div class="hint">↓ HTTPS</div>
+      <div class="node">
+        <span class="nlabel">CLOUD</span>
+        <div class="ntitle">Copilot Backend</div>
+        <div class="nsub">Routing · Model</div>
+      </div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <div class="node magenta" style="min-width:clamp(160px,15vw,210px)">
+      <span class="nlabel">MCP HUB</span>
+      <div class="ntitle">MCP Servers</div>
+      <div class="nsub">Tool registry · Auth · Sampling</div>
+    </div>
+
+    <span class="arrow">→</span>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="node violet">
+        <span class="nlabel">SRV · 01</span>
+        <div class="ntitle">GitHub MCP</div>
+        <div class="nsub">Issue / PR / Code</div>
+      </div>
+      <div class="node violet">
+        <span class="nlabel">SRV · 02</span>
+        <div class="ntitle">FS MCP</div>
+        <div class="nsub">本地代码扫描</div>
+      </div>
+      <div class="node amber">
+        <span class="nlabel">SRV · 03</span>
+        <div class="ntitle">OA Wiki MCP</div>
+        <div class="nsub">Confluence · Notion</div>
+      </div>
+      <div class="node amber">
+        <span class="nlabel">SRV · 04</span>
+        <div class="ntitle">DB MCP</div>
+        <div class="nsub">只读 schema 查询</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-3 reveal d2" style="margin-top:clamp(10px,1.4vh,18px)">
+    <div class="card"><span class="tag">用例 A</span><h3>"按这条 Issue 实现"</h3><p>GitHub MCP 把 Issue / 关联 PR / 评论拉进上下文，模型一次看全。</p></div>
+    <div class="card"><span class="tag">用例 B</span><h3>"按数据库 schema 写查询"</h3><p>DB MCP 暴露只读 schema，模型直接基于真实表结构生成。</p></div>
+    <div class="card"><span class="tag">用例 C</span><h3>"按内部规范命名接口"</h3><p>Wiki MCP 检索接口规范文档，强制对齐组织标准。</p></div>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 8 — Spaces / @workspace ====================== -->
+<section class="slide" data-title="Spaces 与 @workspace">
+  <div class="head">
+    <div>
+      <span class="eyebrow">07 · Engineering Lever #5</span>
+      <h2 class="heading">Copilot <span class="grad-text">Spaces</span> · 跨仓库知识空间</h2>
+      <p class="subhead">把多个仓库 + Wiki 文档 + 接口契约打包成一个"知识空间"，整个团队共享同一份 grounding。</p>
+    </div>
+    <div class="num">P.08 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div class="card accent">
+      <span class="tag">Copilot Spaces (github.com/copilot/spaces)</span>
+      <h3>把 OA 全家桶喂给同一个 Space</h3>
+      <ul class="list" style="margin-top:10px">
+        <li><strong>包含：</strong> oa-web · oa-server · oa-mobile · 接口文档 · 业务术语表</li>
+        <li><strong>共享：</strong> 一次创建，团队全员可问"OA 报销流程是怎么走的？"</li>
+        <li><strong>跨仓库：</strong> 解决"前端在 A 仓 / 后端在 B 仓 / 文档在 Wiki"的拼图问题</li>
+        <li><strong>权限：</strong> 跟随 GitHub Org，无需额外身份层</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">VS Code · @workspace · #codebase</span>
+      <h3>本地仓库的语义检索</h3>
+      <ul class="list magenta" style="margin-top:10px">
+        <li><strong>@workspace</strong> · Chat 模式下让模型主动搜索整个工作区</li>
+        <li><strong>#codebase</strong> · Agent 模式下显式触发语义索引检索</li>
+        <li><strong>#file:path</strong> · 把指定文件强行钉到上下文</li>
+        <li><strong>远程索引：</strong> 大仓库自动上传到 GitHub 构建索引（Enterprise 可配置）</li>
+        <li><strong>本地索引：</strong> 中小仓库本地 embedding，断网也能搜</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal d2" style="margin-top:clamp(10px,1.4vh,18px);background:linear-gradient(135deg,rgba(34,211,238,.06),rgba(244,114,182,.06));border-color:rgba(34,211,238,.3)">
+    <div class="row">
+      <span class="pill">推荐组合</span>
+      <span style="color:var(--ink);font-size:clamp(13px,1.05vw,16px)">
+        <code>copilot-instructions</code> 定规则 <span style="color:var(--ink-3)">·</span>
+        <code>Space</code> 喂跨仓库知识 <span style="color:var(--ink-3)">·</span>
+        <code>#codebase</code> 现场检索 <span style="color:var(--ink-3)">·</span>
+        <code>MCP</code> 拉真实数据
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 9 — PROSE METHODOLOGY ====================== -->
+<section class="slide" data-title="PROSE 方法论">
+  <div class="head">
+    <div>
+      <span class="eyebrow">08 · Methodology · Daniel Meppiel</span>
+      <h2 class="heading">PROSE · 把 AI 编码<span class="grad-text">变成工程实践</span></h2>
+      <p class="subhead">3 大学科 × 7 个原语 × 5 大约束 — 让 prompt 从"灵光一现"沉淀为可复用的资产。</p>
+    </div>
+    <div class="num">P.09 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div style="display:flex;flex-direction:column;gap:clamp(10px,1.4vh,16px)">
+      <div class="card accent">
+        <span class="tag">Discipline 01</span>
+        <h3>Prompt Engineering</h3>
+        <p>用 Markdown 结构 (header / list / link) 引导 AI 推理。<code>[Review patterns](./src/patterns/)</code> 这种链接就是上下文注入点。</p>
+      </div>
+      <div class="card">
+        <span class="tag" style="color:var(--magenta)">Discipline 02</span>
+        <h3>Agent Primitives</h3>
+        <p>把 prompt 工程固化为可复用、有边界的"积木文件"：Skills / Custom Agents / Hooks。</p>
+      </div>
+      <div class="card">
+        <span class="tag" style="color:var(--lime)">Discipline 03</span>
+        <h3>Context Engineering</h3>
+        <p>在有限上下文窗口里做策略性管理：Instructions / Memory / Plans 三件套。</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <div class="row" style="margin-bottom:8px">
+        <span class="pill">7 Primitives</span>
+        <span class="hint">file-based · composable · portable</span>
+      </div>
+      <div class="grid grid-2" style="gap:8px">
+        <div class="card" style="padding:10px 12px"><span class="tag">01 SKILL.md</span><p style="font-size:clamp(11px,.85vw,13px);margin-top:2px">auto-activating capability</p></div>
+        <div class="card" style="padding:10px 12px"><span class="tag">02 .agent.md</span><p style="font-size:clamp(11px,.85vw,13px);margin-top:2px">role + tool boundary</p></div>
+        <div class="card" style="padding:10px 12px"><span class="tag">03 .instructions.md</span><p style="font-size:clamp(11px,.85vw,13px);margin-top:2px">modular guidance · applyTo</p></div>
+        <div class="card" style="padding:10px 12px"><span class="tag">04 .prompt.md</span><p style="font-size:clamp(11px,.85vw,13px);margin-top:2px">reusable workflows</p></div>
+        <div class="card" style="padding:10px 12px"><span class="tag">05 Hooks</span><p style="font-size:clamp(11px,.85vw,13px);margin-top:2px">lifecycle commands</p></div>
+        <div class="card" style="padding:10px 12px"><span class="tag">06 .memory.md</span><p style="font-size:clamp(11px,.85vw,13px);margin-top:2px">cross-session knowledge</p></div>
+        <div class="card" style="padding:10px 12px;grid-column:span 2"><span class="tag">07 .spec.md / Plans</span><p style="font-size:clamp(11px,.85vw,13px);margin-top:2px">implementation blueprints — agent 按图施工</p></div>
+      </div>
+      <div class="row" style="margin-top:10px;gap:6px">
+        <span class="pill magenta">Progressive Disclosure</span>
+        <span class="pill magenta">Reduced Scope</span>
+        <span class="pill magenta">Explicit Hierarchy</span>
+        <span class="pill magenta">Orchestrated Composition</span>
+        <span class="pill magenta">Safety Boundaries</span>
+      </div>
+      <p class="hint" style="margin-top:10px">📦 <strong style="color:var(--ink-2)">AGENTS.md</strong> 标准已被 20,000+ OSS 采纳 · agent 沿目录树向上找最近的 AGENTS.md · hierarchical inheritance · 跨 Copilot / Cursor / Codex / Aider 通用</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 10 — CUSTOM AGENTS DEEP ====================== -->
+<section class="slide" data-title="Custom Agents">
+  <div class="head">
+    <div>
+      <span class="eyebrow">09 · Engineering Lever #6</span>
+      <h2 class="heading">Custom Agents · <code style="font-family:'JetBrains Mono',monospace;font-size:.85em;color:var(--cyan)">.agent.md</code> <span class="grad-text">封装角色 + 工具 + 模型</span></h2>
+      <p class="subhead">不再每次复述"你是 OA 工程师"。把角色、工具集、模型 fallback、子 agent 一次写死，<code>/agents</code> 一键切换。</p>
+    </div>
+    <div class="num">P.10 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div class="code">
+      <span class="filename">.github/agents/planner.agent.md</span>
+<pre><span class="tk-p">---</span>
+<span class="tk-k">description</span>: <span class="tk-s">Generate an implementation plan for new features.</span>
+<span class="tk-k">name</span>: <span class="tk-s">Planner</span>
+<span class="tk-k">tools</span>: [<span class="tk-s">'web/fetch'</span>, <span class="tk-s">'search/codebase'</span>, <span class="tk-s">'search/usages'</span>]
+<span class="tk-k">model</span>: [<span class="tk-s">'Claude Opus 4.5'</span>, <span class="tk-s">'GPT-5.2'</span>]
+<span class="tk-k">handoffs</span>:
+  - <span class="tk-k">label</span>: <span class="tk-s">Implement Plan</span>
+    <span class="tk-k">agent</span>: <span class="tk-s">agent</span>
+    <span class="tk-k">prompt</span>: <span class="tk-s">Implement the plan outlined above.</span>
+    <span class="tk-k">send</span>: <span class="tk-v">false</span>
+<span class="tk-p">---</span>
+<span class="tk-h"># Planning instructions</span>
+You are in planning mode. Generate a Markdown plan with:
+Overview · Requirements · Steps · Testing.
+<span class="tk-c">Don't make any code edits.</span></pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(10px,1.4vh,16px);min-height:0">
+      <div class="card accent">
+        <span class="tag">Frontmatter 关键字段</span>
+        <ul class="list" style="margin-top:8px">
+          <li><strong>description / name</strong> — 在 agent 选择器里展示</li>
+          <li><strong>tools</strong> — 白名单工具，超出范围模型无法调用</li>
+          <li><strong>model</strong> — 数组 = fallback 顺序，第一个不可用退第二个</li>
+          <li><strong>handoffs</strong> — 完成后自动出现的"下一步"按钮</li>
+          <li><strong>agents / mcp-servers</strong> — 子 agent 与外接 MCP</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag" style="color:var(--magenta)">存放位置 / 跨工具复用</span>
+        <ul class="list magenta" style="margin-top:8px">
+          <li><code>.github/agents/*.agent.md</code> — 仓库级（团队共享）</li>
+          <li><code>~/.copilot/agents/*.agent.md</code> — 用户级</li>
+          <li><code>.claude/agents/*.md</code> — 同时被 Claude Code 识别</li>
+          <li>Chat 输入 <code>/agents</code> 进入 Configure 菜单</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="hint" style="margin-top:8px">📖 来源 · code.visualstudio.com/docs/copilot/customization/custom-chat-modes</p>
+</section>
+
+<!-- ====================== SLIDE 11 — HANDOFFS & SUBAGENTS ====================== -->
+<section class="slide" data-title="Handoffs & Subagents">
+  <div class="head">
+    <div>
+      <span class="eyebrow">10 · Agent Orchestration</span>
+      <h2 class="heading">Handoffs + Subagents · <span class="grad-text">让 agent 流水线化</span></h2>
+      <p class="subhead">Plan → Implement → Review · 每一步人都能审。Read-only / Edit 工具边界天然分离。</p>
+    </div>
+    <div class="num">P.11 / 19</div>
+  </div>
+
+  <div class="diagram reveal d1">
+    <div class="node cyan">
+      <span class="nlabel">STEP 01 · READ-ONLY</span>
+      <div class="ntitle">Planner</div>
+      <div class="nsub">tools: search/codebase<br>model: Opus 4.5</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="node magenta">
+      <span class="nlabel">STEP 02 · EDIT</span>
+      <div class="ntitle">Implementer</div>
+      <div class="nsub">tools: edit/files · run/terminal<br>按 plan 落代码</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="node violet">
+      <span class="nlabel">STEP 03 · REVIEW</span>
+      <div class="ntitle">Reviewer</div>
+      <div class="nsub">security · style · perf<br>输出 PR comment</div>
+    </div>
+  </div>
+
+  <div class="grid grid-2 reveal d2" style="margin-top:clamp(12px,1.6vh,20px)">
+    <div class="card accent">
+      <span class="tag">Handoffs</span>
+      <h3>Chat 末尾自动出现"下一步"按钮</h3>
+      <p>每段对话结束后弹出预设按钮（如 <code>Implement Plan</code>）。<strong>send: false</strong> 让用户先看一眼 prompt 再提交，人始终在 loop 里。</p>
+    </div>
+    <div class="card">
+      <span class="tag" style="color:var(--magenta)">Subagents</span>
+      <h3>主 agent 调用受限子 agent</h3>
+      <p>Feature Builder = <code>Researcher</code>(read-only) + <code>Implementer</code>(edit)。一个 agent 不能既"四处看"又"随便改"，安全边界清晰。</p>
+    </div>
+  </div>
+
+  <div class="row reveal d3" style="margin-top:10px">
+    <span class="pill">Plan / Implement / Review = 3 文件 3 边界</span>
+    <span class="pill magenta">Read 与 Write 永远分开 agent</span>
+    <span class="pill lime">人在 handoff 节点审核 → 不放飞</span>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 12 — CONTEXT /compact ====================== -->
+<section class="slide" data-title="上下文 ① /compact">
+  <div class="head">
+    <div>
+      <span class="eyebrow">11 · Context Engineering · 01</span>
+      <h2 class="heading">监控上下文 · <code style="font-family:'JetBrains Mono',monospace;font-size:.85em;color:var(--cyan)">/compact</code> <span class="grad-text">主动瘦身</span></h2>
+      <p class="subhead">Token 是稀缺资源。监控 → 60% 主动 compact → 切话题直接 New Chat。</p>
+    </div>
+    <div class="num">P.12 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div class="card accent">
+      <span class="tag">VS Code · Context Window Control</span>
+      <h3>输入框右下角的 token 仪表盘</h3>
+      <p>实时显示 <code>15K / 128K</code>，hover 看分类明细：instructions / 历史 / 工具结果。</p>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div class="row" style="justify-content:space-between"><span class="hint" style="color:var(--lime)">Healthy · 28%</span><span class="hint mono">36K / 128K</span></div>
+          <div style="height:8px;border-radius:4px;background:var(--panel);overflow:hidden;margin-top:4px;border:1px solid var(--line)"><div style="width:28%;height:100%;background:var(--lime)"></div></div>
+        </div>
+        <div>
+          <div class="row" style="justify-content:space-between"><span class="hint" style="color:var(--amber)">Warning · 64% → 该 /compact</span><span class="hint mono">82K / 128K</span></div>
+          <div style="height:8px;border-radius:4px;background:var(--panel);overflow:hidden;margin-top:4px;border:1px solid var(--line)"><div style="width:64%;height:100%;background:var(--amber)"></div></div>
+        </div>
+        <div>
+          <div class="row" style="justify-content:space-between"><span class="hint" style="color:var(--red)">Critical · 92% → 自动 summarize</span><span class="hint mono">118K / 128K</span></div>
+          <div style="height:8px;border-radius:4px;background:var(--panel);overflow:hidden;margin-top:4px;border:1px solid var(--line)"><div style="width:92%;height:100%;background:var(--red)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(10px,1.4vh,16px);min-height:0">
+      <div class="code">
+        <span class="filename">VS Code Chat · 输入框</span>
+<pre><span class="tk-c"># 通用瘦身</span>
+<span class="tk-n">/compact</span>
+
+<span class="tk-c"># 带焦点的瘦身（保留关键决策）</span>
+<span class="tk-n">/compact</span> focus on the database schema decisions
+<span class="tk-n">/compact</span> keep the bug repro steps, drop tool outputs</pre>
+      </div>
+      <ul class="list lime">
+        <li><strong>自动 compaction：</strong>设置项 <code>github.copilot.chat.summarizeAgentConversationHistory.enabled</code></li>
+        <li><strong>手动触发：</strong>输入 <code>/compact</code>，可附自定义保留指令</li>
+        <li><strong>经验阈值：</strong>&gt; 60% 主动 compact；切换话题直接 New Chat</li>
+        <li><strong>Agent 模式：</strong>工具结果占用大，定期清理 ROI 最高</li>
+      </ul>
+    </div>
+  </div>
+  <p class="hint" style="margin-top:6px">📖 来源 · code.visualstudio.com/docs/copilot/chat/copilot-chat-context</p>
+</section>
+
+<!-- ====================== SLIDE 13 — CHECKPOINTS & SESSIONS ====================== -->
+<section class="slide" data-title="上下文 ② Checkpoints">
+  <div class="head">
+    <div>
+      <span class="eyebrow">12 · Context Engineering · 02</span>
+      <h2 class="heading">Checkpoints · Fork · Steer · <span class="grad-text">AI 时光机</span></h2>
+      <p class="subhead">会话不是一条直线。回滚、分叉、并行、引导 — Chat 是可治理的。</p>
+    </div>
+    <div class="num">P.13 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div style="display:flex;flex-direction:column;gap:clamp(10px,1.4vh,16px)">
+      <div class="card accent">
+        <span class="tag">Checkpoints</span>
+        <h3>回滚到任意历史状态</h3>
+        <p>每条 prompt 都是一个 checkpoint。可跳回去、改 prompt 走另一条分支，<strong>之前的代码改动也一起回退</strong>。</p>
+      </div>
+      <div class="card">
+        <span class="tag" style="color:var(--magenta)">Fork Session</span>
+        <h3>复制独立分支会话</h3>
+        <p>同一个上下文复制成两条线并行试。原会话不动，A/B 探索两个方案。</p>
+      </div>
+      <div class="card">
+        <span class="tag" style="color:var(--amber)">多会话并行</span>
+        <h3>Sidebar 列出所有活跃 session</h3>
+        <p>每个 session 独立 context window。一边跑 long task，一边新开 session 写新功能。</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(10px,1.4vh,16px)">
+      <div class="card">
+        <span class="tag" style="color:var(--lime)">Send while running · 三档</span>
+        <ul class="list lime" style="margin-top:8px">
+          <li><strong>Add to Queue</strong> — 等当前轮跑完再发</li>
+          <li><strong>Steer with Message</strong> — 跑的时候插一句"别走这条路，改走 X"</li>
+          <li><strong>Stop and Send</strong> — 直接打断重新开始</li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <span class="tag">三条治理准则</span>
+        <ul class="list" style="margin-top:8px">
+          <li><strong>任务切换 = 新会话</strong>（避免历史污染思路）</li>
+          <li><strong>走偏 = Steer</strong>（即时纠偏，不浪费已生成内容）</li>
+          <li><strong>犯错 = Checkpoint 回滚</strong>（一键回到上一个好状态）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="hint" style="margin-top:6px">📖 来源 · code.visualstudio.com/docs/copilot/chat/chat-sessions</p>
+</section>
+
+<!-- ====================== SLIDE 14 — GIT WORKTREE ====================== -->
+<section class="slide" data-title="上下文 ③ Worktree">
+  <div class="head">
+    <div>
+      <span class="eyebrow">13 · Context Engineering · 03</span>
+      <h2 class="heading">Git Worktree · <span class="grad-text">让 AI 在沙箱里折腾</span></h2>
+      <p class="subhead">长任务 / 实验性重构 / 风险改动 — 一律放 worktree，主目录永远干净。</p>
+    </div>
+    <div class="num">P.14 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div style="display:flex;align-items:center;justify-content:center">
+      <div style="display:flex;flex-direction:column;gap:14px;align-items:stretch;width:100%;max-width:420px">
+        <div class="node cyan" style="text-align:left">
+          <span class="nlabel">MAIN · /oa</span>
+          <div class="ntitle">main branch · 干净开发</div>
+          <div class="nsub">human edits · stable HEAD</div>
+        </div>
+        <div style="display:flex;justify-content:center"><span class="arrow v">↓</span></div>
+        <div class="row" style="gap:10px;justify-content:space-between;flex-wrap:nowrap">
+          <div class="node magenta" style="flex:1;text-align:left;min-width:0;padding:10px 12px">
+            <span class="nlabel">WT · A</span>
+            <div class="ntitle" style="font-size:clamp(12px,1vw,15px)">../oa-feat-a</div>
+            <div class="nsub" style="font-size:clamp(10px,.78vw,12px)">agent 跑长重构</div>
+          </div>
+          <div class="node amber" style="flex:1;text-align:left;min-width:0;padding:10px 12px">
+            <span class="nlabel">WT · B</span>
+            <div class="ntitle" style="font-size:clamp(12px,1vw,15px)">../oa-bugfix</div>
+            <div class="nsub" style="font-size:clamp(10px,.78vw,12px)">独立 bugfix 实验</div>
+          </div>
+          <div class="node violet" style="flex:1;text-align:left;min-width:0;padding:10px 12px">
+            <span class="nlabel">WT · C</span>
+            <div class="ntitle" style="font-size:clamp(12px,1vw,15px)">../oa-spike</div>
+            <div class="nsub" style="font-size:clamp(10px,.78vw,12px)">技术预研 spike</div>
+          </div>
+        </div>
+        <p class="hint" style="text-align:center;margin-top:6px">同一仓库 · 多个工作目录 · 各自分支 · 互不干扰</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(10px,1.4vh,16px);min-height:0">
+      <div class="code">
+        <span class="filename">terminal · git worktree 常用命令</span>
+<pre><span class="tk-c"># 新开一个并行工作目录</span>
+<span class="tk-k">git</span> worktree add ../oa-feat-a feature/a
+
+<span class="tk-c"># agent 在这里跑长任务，主目录继续工作</span>
+<span class="tk-k">cd</span> ../oa-feat-a && code .
+
+<span class="tk-c"># 单文件精准回滚（AI 改坏了）</span>
+<span class="tk-k">git</span> restore src/expense/Service.java
+
+<span class="tk-c"># 完事清理</span>
+<span class="tk-k">git</span> worktree remove ../oa-feat-a</pre>
+      </div>
+      <ul class="list amber">
+        <li><strong>Copilot CLI sessions 默认每会话一个 worktree</strong>，天然隔离</li>
+        <li><strong>频繁 commit = 廉价 checkpoint</strong>，AI 闯祸 <code>git reset</code> 秒回</li>
+        <li><strong>git restore &lt;path&gt;</strong> 只回退单文件，不动其他进度</li>
+        <li><strong>配合 stash / branch</strong>，做"开发快照"</li>
+      </ul>
+    </div>
+  </div>
+  <p class="hint" style="margin-top:6px">📖 git-scm.com/docs/git-worktree · 思路参考国内社区《Copilot 上下文工程最佳实践》</p>
+</section>
+
+<!-- ====================== SLIDE 15 — Why Claude not visible ====================== -->
+<section class="slide" data-title="Claude 选不到">
+  <div class="head">
+    <div>
+      <span class="eyebrow">14 · Troubleshoot · Pain #02</span>
+      <h2 class="heading">为什么<span class="grad-text"> Claude 选不到</span>？六层逐项排查</h2>
+      <p class="subhead">"管理后台开了"≠"IDE 立刻能选到"。模型可见性 = Plan × Policy × Editor × Cache × Region × User。</p>
+    </div>
+    <div class="num">P.15 / 19</div>
+  </div>
+
+  <div class="grid grid-2 reveal d1" style="flex:1;min-height:0">
+    <div style="display:flex;flex-direction:column;gap:clamp(10px,1.4vh,16px)">
+      <div class="card">
+        <span class="tag">Layer 1 · Plan</span>
+        <h3>计划是否覆盖该模型</h3>
+        <p>Copilot Free 不支持 Claude；Business / Enterprise 支持但需管理员开启。Pro/Pro+ 走个人开关。</p>
+      </div>
+      <div class="card">
+        <span class="tag">Layer 2 · Policy</span>
+        <h3>组织策略 → Models / Editor preview features</h3>
+        <p><strong>github.com → Org → Copilot → Policies</strong>：把 <em>Claude Sonnet/Opus</em> 与 <em>Editor preview features</em> 都置为 Allowed。</p>
+      </div>
+      <div class="card">
+        <span class="tag">Layer 3 · Editor 版本</span>
+        <h3>VS Code &amp; Copilot Chat 必须够新</h3>
+        <p>建议 <code>VS Code ≥ 1.95</code> + <code>GitHub Copilot Chat</code> 最新稳定版；Insiders 解锁更多预览模型。</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(10px,1.4vh,16px)">
+      <div class="card">
+        <span class="tag">Layer 4 · 用户启用</span>
+        <h3>Settings → Copilot → Manage Models</h3>
+        <p>个人侧也要勾选 <em>Enable Claude Sonnet 4.5</em>；首次启用通常需要再点一次"Acknowledge"。</p>
+      </div>
+      <div class="card">
+        <span class="tag">Layer 5 · 缓存 / 重启</span>
+        <h3>Sign out → Sign in → Reload Window</h3>
+        <p>策略生效有缓存（最长 ~30 min）。三连：<span class="kbd">Sign out</span> <span class="kbd">Reload</span> <span class="kbd">Sign in</span>。</p>
+      </div>
+      <div class="card">
+        <span class="tag">Layer 6 · Region / 状态</span>
+        <h3>Public Preview / GA / 区域不可用</h3>
+        <p>查 <a style="color:var(--cyan)">githubstatus.com</a> &amp; Copilot Changelog。某些 Claude 版本仅 cross-geo GA，区域受限。</p>
+      </div>
+    </div>
+  </div>
+  <div class="hint reveal d2" style="margin-top:10px">⚡ 90% 的"选不到"问题止于 Layer 2 + Layer 5。先核 Policy，再 Sign-out 重启。</div>
+</section>
+
+<!-- ====================== SLIDE 10 — Latency troubleshooting ====================== -->
+<section class="slide" data-title="响应慢排查">
+  <div class="head">
+    <div>
+      <span class="eyebrow">15 · Troubleshoot · Pain #03</span>
+      <h2 class="heading">响应慢 · <span class="grad-text">三层排查清单</span></h2>
+      <p class="subhead">把"慢"拆成网络 / 上下文 / 模型负载三类，分别下手。</p>
+    </div>
+    <div class="num">P.16 / 19</div>
+  </div>
+
+  <div class="grid grid-3 reveal d1" style="flex:1;min-height:0">
+    <div class="card">
+      <span class="tag" style="color:var(--cyan)">L1 · 网络层</span>
+      <h3>企业代理 / Region</h3>
+      <ul class="checklist" style="margin-top:10px">
+        <li>检查 <code>HTTPS_PROXY</code> / <code>HTTP_PROXY</code> 与 VS Code <code>http.proxy</code> 是否一致</li>
+        <li>白名单：<code>*.githubcopilot.com</code> · <code>api.github.com</code> · <code>copilot-proxy.githubusercontent.com</code></li>
+        <li>开启 <code>github.copilot.advanced.debug.useNodeFetcher</code> 排查证书 / TLS</li>
+        <li>命令面板 <code>Developer: Toggle Developer Tools → Network</code> 抓包看 RTT</li>
+        <li>跨境团队走企业 DNS / SD-WAN，避免裸出口</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="tag" style="color:var(--magenta)">L2 · 上下文层</span>
+      <h3>Prompt / 文件量</h3>
+      <ul class="checklist magenta" style="margin-top:10px">
+        <li>一次塞 20+ 文件 → 自然慢。改用 <code>#file:</code> 精准引用 3-5 个</li>
+        <li>关闭不必要的 <code>#codebase</code>，必要时再开</li>
+        <li>大文件先选区，再 <code>#selection</code>，别整文件</li>
+        <li>检查 <code>copilot-instructions.md</code> 是否过长（&gt;200 行明显拖慢）</li>
+        <li>Agent 模式工具数过多 → 收敛工具集</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="tag" style="color:var(--amber)">L3 · 模型 / 负载</span>
+      <h3>选型 &amp; 切换</h3>
+      <ul class="checklist amber" style="margin-top:10px">
+        <li>Opus / Thinking 模型本身慢，简单任务切 Sonnet / GPT-4.1</li>
+        <li>遇到 model 拥塞，用 <em>Auto</em> 让 Copilot 路由到健康模型</li>
+        <li>看 <a style="color:var(--cyan)">githubstatus.com</a> 与 Copilot Changelog 公告</li>
+        <li>VS Code 状态栏 Copilot 图标看是否限速 / 退避</li>
+        <li>单 Chat 历史过长 → 新开 Thread，避免重发整段历史</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 11 — Bug locating before/after ====================== -->
+<section class="slide" data-title="Bug 定位 prompt">
+  <div class="head">
+    <div>
+      <span class="eyebrow">16 · Troubleshoot · Pain #04</span>
+      <h2 class="heading">Bug 定位 · <span class="grad-text">Before / After</span> Prompt 对照</h2>
+      <p class="subhead">"AI 给的位置不对" ≈ "你没把堆栈、调用链、复现路径喂给它"。</p>
+    </div>
+    <div class="num">P.17 / 19</div>
+  </div>
+
+  <div class="ba reveal d1" style="flex:1;min-height:0">
+    <div class="before">
+      <span class="label">BEFORE · 模糊提问</span>
+      <div class="code">
+<pre>报销审批通过后金额对不上，
+你帮我看下哪里出了问题。</pre>
+        <div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
+          <span class="hint">模型只能：猜测、列宽泛可能性、或随便指一个文件。</span>
+          <ul class="list" style="margin-top:8px">
+            <li>没有错误信息</li>
+            <li>没有触发路径</li>
+            <li>没有相关文件指向</li>
+            <li>没有"对不上"的具体定义</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="after">
+      <span class="label">AFTER · grounded prompt</span>
+      <div class="code">
+<pre><span class="tk-h"># Bug · 报销金额错算</span>
+
+<span class="tk-h">## 现象</span>
+审批通过后 <span class="tk-n">expense.total_amount</span>
+比明细 <span class="tk-n">SUM(items.amount)</span> 少 1 分
+
+<span class="tk-h">## 复现</span>
+1. POST <span class="tk-n">/oa/api/v1/expense</span> 含 3 条明细
+2. 走 <span class="tk-n">approve()</span> 流程
+3. GET 返回 total = 99.99，明细求和 = 100.00
+
+<span class="tk-h">## 上下文</span>
+<span class="tk-n">#codebase</span>
+<span class="tk-n">#file:server/expense/ExpenseService.java</span>
+<span class="tk-n">#file:server/expense/ApprovalHandler.java</span>
+
+<span class="tk-h">## 要求</span>
+- 列出可能的 3 个根因，排序
+- 指出最可疑代码行 + 调用链
+- 给出最小复现单测</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="row reveal d2" style="margin-top:10px">
+    <span class="pill lime">grounding：贴堆栈 + 文件 + 复现</span>
+    <span class="pill">让 AI 列假设而不是直接给答案</span>
+    <span class="pill magenta">要求最小单测 = 自动验证</span>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 18 — Roadmap ====================== -->
+<section class="slide" data-title="落地 Roadmap">
+  <div class="head">
+    <div>
+      <span class="eyebrow">17 · Rollout</span>
+      <h2 class="heading">三阶段 <span class="grad-text">落地 Roadmap</span></h2>
+      <p class="subhead">从"今天能动手"到"团队级飞轮"。每一步都有明确产出物。</p>
+    </div>
+    <div class="num">P.18 / 19</div>
+  </div>
+
+  <div class="roadmap reveal d1">
+    <div class="phase">
+      <span class="when">T+0 · 本周</span>
+      <span class="title">单仓库快赢</span>
+      <ul>
+        <li>新建 <code>.github/copilot-instructions.md</code>（≤ 1 页）</li>
+        <li>VS Code 打开 <code>useInstructionFiles</code></li>
+        <li>把"为什么 Claude 选不到"6 层排一遍，确认全员可选 Claude Sonnet 4.5</li>
+        <li>用 <code>/generateInstructions</code> 生成草稿</li>
+        <li>挑 1 个高频任务，写第一个 prompt 文件</li>
+      </ul>
+    </div>
+    <div class="phase p2">
+      <span class="when">T+1 · 一周内</span>
+      <span class="title">分层与流程化</span>
+      <ul>
+        <li>拆出前端 / 后端 / SQL 三个 <code>*.instructions.md</code></li>
+        <li>沉淀 5 个 prompt files：新模块 / Bug 定位 / 单测 / 重构 / Code Review</li>
+        <li>启用 Copilot Spaces，把 OA 全家桶 + 接口文档 喂入</li>
+        <li>团队 Lunch &amp; Learn：演示 grounded prompt 模式</li>
+      </ul>
+    </div>
+    <div class="phase p3">
+      <span class="when">T+30 · 一个月</span>
+      <span class="title">企业级 MCP 飞轮</span>
+      <ul>
+        <li>部署 GitHub MCP + Wiki MCP + 只读 DB MCP</li>
+        <li>建立 Custom Chat Mode：oa-reviewer / oa-debugger</li>
+        <li>引入 Copilot 使用看板（采纳率 / 拒绝率 / 模型分布）</li>
+        <li>把 instructions / prompts 列入 Definition of Done</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== SLIDE 19 — REFERENCES ====================== -->
+<section class="slide" data-title="资料汇总">
+  <div class="head">
+    <div>
+      <span class="eyebrow">18 · References</span>
+      <h2 class="heading">资料汇总 · <span class="grad-text">官方文档 + 方法论 + 社区</span></h2>
+      <p class="subhead">所有引用链接一页装齐。打印 / 截图 / 转发都方便。</p>
+    </div>
+    <div class="num">P.19 / 19</div>
+  </div>
+
+  <div class="grid grid-3 reveal d1" style="flex:1;min-height:0">
+    <div class="card">
+      <span class="tag">GitHub 官方</span>
+      <ul class="list" style="margin-top:8px;font-size:clamp(11px,.86vw,13px)">
+        <li><a class="ref" href="https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions" target="_blank" rel="noopener">Repo Custom Instructions</a><br><span class="hint">docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions</span></li>
+        <li><a class="ref" href="https://docs.github.com/en/copilot/concepts/prompting/response-customization" target="_blank" rel="noopener">Response Customization</a><br><span class="hint">docs.github.com/en/copilot/concepts/prompting/response-customization</span></li>
+        <li><a class="ref" href="https://agents.md" target="_blank" rel="noopener">AGENTS.md 标准</a><br><span class="hint">agents.md</span></li>
+        <li><a class="ref" href="https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent" target="_blank" rel="noopener">Copilot Coding Agent</a><br><span class="hint">docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent</span></li>
+        <li><a class="ref" href="https://docs.github.com/en/copilot/how-tos/administer-copilot" target="_blank" rel="noopener">Copilot Policies</a><br><span class="hint">docs.github.com/en/copilot/how-tos/administer-copilot</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="tag" style="color:var(--magenta)">VS Code 官方 (Microsoft)</span>
+      <ul class="list magenta" style="margin-top:8px;font-size:clamp(11px,.86vw,13px)">
+        <li><a class="ref" href="https://code.visualstudio.com/docs/copilot/chat/copilot-chat-context" target="_blank" rel="noopener">Chat Context</a><br><span class="hint">code.visualstudio.com/docs/copilot/chat/copilot-chat-context</span></li>
+        <li><a class="ref" href="https://code.visualstudio.com/docs/copilot/chat/chat-sessions" target="_blank" rel="noopener">Chat Sessions / Checkpoints</a><br><span class="hint">code.visualstudio.com/docs/copilot/chat/chat-sessions</span></li>
+        <li><a class="ref" href="https://code.visualstudio.com/docs/copilot/customization/custom-chat-modes" target="_blank" rel="noopener">Custom Agents (.agent.md)</a><br><span class="hint">code.visualstudio.com/docs/copilot/customization/custom-chat-modes</span></li>
+        <li><a class="ref" href="https://code.visualstudio.com/docs/copilot/customization/custom-instructions" target="_blank" rel="noopener">Custom Instructions</a><br><span class="hint">code.visualstudio.com/docs/copilot/customization/custom-instructions</span></li>
+        <li><a class="ref" href="https://code.visualstudio.com/docs/copilot/customization/prompt-files" target="_blank" rel="noopener">Prompt Files</a><br><span class="hint">code.visualstudio.com/docs/copilot/customization/prompt-files</span></li>
+        <li><a class="ref" href="https://code.visualstudio.com/docs/copilot/best-practices" target="_blank" rel="noopener">Copilot Best Practices</a><br><span class="hint">code.visualstudio.com/docs/copilot/best-practices</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="tag" style="color:var(--lime)">方法论 / Awesome AI Native</span>
+      <ul class="list lime" style="margin-top:8px;font-size:clamp(11px,.86vw,13px)">
+        <li><a class="ref" href="https://danielmeppiel.github.io/awesome-ai-native/docs/concepts/" target="_blank" rel="noopener">PROSE 方法论 (D. Meppiel)</a><br><span class="hint">danielmeppiel.github.io/awesome-ai-native/docs/concepts/</span></li>
+        <li><a class="ref" href="https://danielmeppiel.github.io/agentic-sdlc-handbook/handbook/ch11-the-instrumented-codebase.html" target="_blank" rel="noopener">Agentic SDLC Handbook · Ch11</a><br><span class="hint">danielmeppiel.github.io/agentic-sdlc-handbook/handbook/ch11-the-instrumented-codebase.html</span></li>
+        <li><a class="ref" href="https://github.com/github/awesome-copilot" target="_blank" rel="noopener">Awesome Copilot 社区案例</a><br><span class="hint">github.com/github/awesome-copilot</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="tag" style="color:var(--amber)">MCP</span>
+      <ul class="list amber" style="margin-top:8px;font-size:clamp(11px,.86vw,13px)">
+        <li><a class="ref" href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Model Context Protocol</a><br><span class="hint">modelcontextprotocol.io</span></li>
+        <li><a class="ref" href="https://github.com/github/github-mcp-server" target="_blank" rel="noopener">GitHub MCP Server</a><br><span class="hint">github.com/github/github-mcp-server</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="tag" style="color:var(--violet)">Git 工程化</span>
+      <ul class="list" style="margin-top:8px;font-size:clamp(11px,.86vw,13px)">
+        <li><a class="ref" href="https://git-scm.com/docs/git-worktree" target="_blank" rel="noopener">git worktree 官方文档</a><br><span class="hint">git-scm.com/docs/git-worktree</span></li>
+      </ul>
+      <p class="hint" style="margin-top:14px">部分细节为 2024-2025 业界通行做法，请以最新官方文档为准。</p>
+    </div>
+
+    <div class="card accent">
+      <span class="tag">国内分享</span>
+      <ul class="list" style="margin-top:8px;font-size:clamp(11px,.86vw,13px)">
+        <li><a class="ref" href="https://mp.weixin.qq.com/s/Q8FSTdQBWOakRAfkI9qUBw" target="_blank" rel="noopener">《Copilot 上下文工程最佳实践》</a><br><span class="hint">mp.weixin.qq.com/s/Q8FSTdQBWOakRAfkI9qUBw</span></li>
+      </ul>
+      <p style="margin-top:14px;color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:clamp(11px,.85vw,13px);letter-spacing:.12em">◆ THANK YOU · BUILT FOR OA TEAMS</p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('dots');
+  const progress = document.getElementById('progress');
+
+  // Build dots
+  slides.forEach((s, i)=>{
+    const a = document.createElement('a');
+    a.href = '#';
+    a.title = s.dataset.title || ('Slide '+(i+1));
+    a.addEventListener('click', e=>{
+      e.preventDefault();
+      s.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    dotsWrap.appendChild(a);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  // Reveal observer
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        en.target.querySelectorAll('.reveal').forEach(el=>el.classList.add('show'));
+        const idx = slides.indexOf(en.target);
+        if(idx>=0){
+          dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+          progress.style.width = ((idx+1)/slides.length*100)+'%';
+        }
+      }
+    });
+  }, {threshold:0.55});
+  slides.forEach(s=>io.observe(s));
+
+  // Trigger first slide animations on load
+  window.addEventListener('load', ()=>{
+    slides[0].querySelectorAll('.reveal').forEach(el=>el.classList.add('show'));
+    progress.style.width = (1/slides.length*100)+'%';
+    if(dots[0]) dots[0].classList.add('active');
+  });
+
+  // Keyboard navigation
+  function go(delta){
+    const cur = slides.findIndex(s=>{
+      const r = s.getBoundingClientRect();
+      return r.top >= -window.innerHeight/2 && r.top < window.innerHeight/2;
+    });
+    const next = Math.max(0, Math.min(slides.length-1, (cur<0?0:cur)+delta));
+    slides[next].scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  document.addEventListener('keydown', e=>{
+    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); go(1); }
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); go(-1); }
+    else if(e.key==='Home'){ e.preventDefault(); slides[0].scrollIntoView({behavior:'smooth'}); }
+    else if(e.key==='End'){ e.preventDefault(); slides[slides.length-1].scrollIntoView({behavior:'smooth'}); }
+  });
+})();
+</script>
+</body>
+</html>

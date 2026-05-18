@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Copilot 计费革命 // UBB 来了</title>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=jetbrains-mono@400,500,700&f[]=space-grotesk@400,500,600,700&f[]=inter@400,500,600&display=swap">
+<style>
+/* =================================================================
+   THEME — Neon Cyber + Terminal Green + Casino Chips
+   ================================================================= */
+:root{
+  --bg:#0a0e1a;
+  --bg-2:#0f1422;
+  --panel:#141a2a;
+  --line:rgba(0,217,255,.18);
+  --grid:rgba(0,255,159,.05);
+
+  --green:#00ff9f;     /* $1 chip / matrix */
+  --cyan:#00d9ff;      /* $5 chip */
+  --pink:#ff006e;      /* $10 chip */
+  --purple:#b84dff;    /* $25 chip */
+  --gold:#ffb800;      /* $100 chip */
+  --red:#ff3860;
+  --text:#e8eef9;
+  --muted:#6b7689;
+
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --font-display:'Space Grotesk',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+
+  --title:clamp(1.8rem,5.2vw,4.4rem);
+  --h2:clamp(1.3rem,3.4vw,2.6rem);
+  --h3:clamp(1rem,2.2vw,1.6rem);
+  --body:clamp(.8rem,1.35vw,1.05rem);
+  --small:clamp(.65rem,1vw,.85rem);
+  --mono:clamp(.7rem,1.1vw,.95rem);
+
+  --pad:clamp(1.2rem,3.5vw,3.5rem);
+  --gap:clamp(.6rem,1.8vw,1.5rem);
+
+  --ease:cubic-bezier(.16,1,.3,1);
+  --bounce:cubic-bezier(.34,1.56,.64,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow-x:hidden}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  font-size:var(--body);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Background scan-lines + grid */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:2;
+  background:repeating-linear-gradient(
+    180deg,transparent 0 3px,rgba(0,0,0,.18) 3px 4px);
+  opacity:.35;
+}
+
+/* =================================================================
+   SLIDE BASE
+   ================================================================= */
+.slide{
+  width:100vw;height:100vh;height:100dvh;
+  padding:var(--pad);
+  scroll-snap-align:start;
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+  z-index:5;
+}
+.slide-content{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  max-width:min(96vw,1280px);width:100%;margin:0 auto;
+  max-height:100%;
+}
+
+.kicker{
+  font-family:var(--font-mono);font-size:var(--small);
+  color:var(--green);letter-spacing:.2em;text-transform:uppercase;
+  display:flex;align-items:center;gap:.6em;margin-bottom:var(--gap);
+}
+.kicker::before{
+  content:"";width:.6em;height:.6em;background:var(--green);
+  border-radius:50%;box-shadow:0 0 12px var(--green);
+  animation:blink 1.4s infinite;
+}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.3}}
+
+h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.05;letter-spacing:-.02em}
+h1{font-size:var(--title)}
+h2{font-size:var(--h2)}
+h3{font-size:var(--h3)}
+
+.mono{font-family:var(--font-mono)}
+.glow-g{color:var(--green);text-shadow:0 0 18px rgba(0,255,159,.55)}
+.glow-c{color:var(--cyan);text-shadow:0 0 18px rgba(0,217,255,.55)}
+.glow-p{color:var(--pink);text-shadow:0 0 18px rgba(255,0,110,.55)}
+.glow-y{color:var(--gold);text-shadow:0 0 18px rgba(255,184,0,.55)}
+
+/* Reveal animations */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.slide.visible .reveal{opacity:1;transform:translateY(0)}
+.slide.visible .reveal:nth-child(1){transition-delay:.05s}
+.slide.visible .reveal:nth-child(2){transition-delay:.15s}
+.slide.visible .reveal:nth-child(3){transition-delay:.25s}
+.slide.visible .reveal:nth-child(4){transition-delay:.35s}
+.slide.visible .reveal:nth-child(5){transition-delay:.45s}
+.slide.visible .reveal:nth-child(6){transition-delay:.55s}
+
+/* Progress + nav */
+.progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--green),var(--cyan),var(--pink));width:0;z-index:100;transition:width .25s var(--ease);box-shadow:0 0 12px var(--cyan)}
+.nav-dots{position:fixed;right:clamp(.6rem,1.5vw,1.4rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:.55rem;z-index:50}
+.nav-dots button{width:9px;height:9px;border-radius:50%;background:transparent;border:1px solid var(--muted);cursor:pointer;padding:0;transition:all .25s var(--ease)}
+.nav-dots button.active{background:var(--green);border-color:var(--green);box-shadow:0 0 10px var(--green);transform:scale(1.4)}
+.hint{position:fixed;left:clamp(.8rem,2vw,1.5rem);bottom:clamp(.6rem,1.5vw,1.2rem);font-family:var(--font-mono);font-size:.7rem;color:var(--muted);z-index:50;letter-spacing:.1em}
+.hint kbd{display:inline-block;padding:.15em .5em;border:1px solid var(--muted);border-radius:3px;margin:0 .15em;color:var(--text)}
+.slide-num{position:fixed;right:clamp(2rem,3vw,2.6rem);bottom:clamp(.6rem,1.5vw,1.2rem);font-family:var(--font-mono);font-size:.7rem;color:var(--muted);z-index:50;letter-spacing:.1em}
+
+/* Window chrome (terminal-style header on some slides) */
+.term{
+  background:var(--bg-2);
+  border:1px solid var(--line);
+  border-radius:6px;
+  font-family:var(--font-mono);
+  overflow:hidden;
+}
+.term-bar{
+  display:flex;align-items:center;gap:.4rem;
+  padding:.5rem .8rem;
+  background:rgba(0,217,255,.04);
+  border-bottom:1px solid var(--line);
+  font-size:.7rem;color:var(--muted);
+}
+.term-bar::before{content:"";width:9px;height:9px;border-radius:50%;background:#ff5f57;box-shadow:14px 0 0 #febc2e,28px 0 0 #28c840}
+.term-bar span{margin-left:2.5rem}
+.term-body{padding:clamp(.8rem,2vw,1.4rem)}
+
+/* =================================================================
+   CHIPS — casino tokens
+   ================================================================= */
+.chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:clamp(36px,4.5vw,52px);
+  aspect-ratio:1;
+  border-radius:50%;
+  font-family:var(--font-mono);font-weight:700;
+  font-size:clamp(.55rem,.85vw,.75rem);
+  color:#0a0e1a;
+  position:relative;
+  box-shadow:0 4px 0 rgba(0,0,0,.4),inset 0 0 0 4px rgba(255,255,255,.18),inset 0 0 0 6px transparent;
+}
+.chip::before{
+  content:"";position:absolute;inset:14%;border-radius:50%;
+  border:2px dashed rgba(0,0,0,.25);
+}
+.chip.g{background:radial-gradient(circle at 30% 30%,#5cffc6,var(--green))}
+.chip.c{background:radial-gradient(circle at 30% 30%,#7cebff,var(--cyan))}
+.chip.p{background:radial-gradient(circle at 30% 30%,#ff5b9c,var(--pink));color:#fff}
+.chip.v{background:radial-gradient(circle at 30% 30%,#d59cff,var(--purple));color:#fff}
+.chip.y{background:radial-gradient(circle at 30% 30%,#ffd866,var(--gold))}
+
+/* Chip stack — vertical pile illusion */
+.stack{position:relative;width:clamp(40px,5vw,60px);height:clamp(110px,14vh,180px)}
+.stack .chip{
+  position:absolute;left:0;width:100%;
+  transform:translateY(100%);
+  animation:dropChip .55s var(--bounce) forwards;
+}
+.slide.visible .stack .chip{animation-play-state:running}
+@keyframes dropChip{
+  0%{transform:translateY(-200px) scale(.7);opacity:0}
+  60%{opacity:1}
+  100%{transform:translateY(0) scale(1);opacity:1}
+}
+
+/* =================================================================
+   1. TITLE
+   ================================================================= */
+.s1{
+  background:
+    radial-gradient(ellipse at 20% 30%,rgba(0,255,159,.12) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 70%,rgba(255,0,110,.12) 0%,transparent 50%),
+    var(--bg);
+  text-align:center;align-items:center;justify-content:center;
+}
+.s1 .scan{
+  font-family:var(--font-mono);font-size:var(--small);
+  color:var(--cyan);letter-spacing:.3em;
+  border:1px solid var(--cyan);padding:.4em 1em;border-radius:4px;
+  margin-bottom:var(--gap);
+  display:inline-block;
+}
+.s1 h1{
+  font-size:clamp(2.2rem,7vw,6rem);
+  background:linear-gradient(135deg,var(--green) 0%,var(--cyan) 50%,var(--pink) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 30px rgba(0,217,255,.3));
+}
+.s1 .tagline{
+  font-family:var(--font-mono);
+  color:var(--text);
+  font-size:clamp(.85rem,1.5vw,1.2rem);
+  margin-top:var(--gap);
+  letter-spacing:.05em;
+}
+.s1 .meta{
+  margin-top:calc(var(--gap)*1.5);
+  font-family:var(--font-mono);font-size:var(--small);
+  color:var(--muted);letter-spacing:.2em;
+  display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;
+}
+.s1 .meta span{color:var(--green)}
+
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{
+  content:attr(data-text);position:absolute;left:0;top:0;width:100%;
+  background:transparent;
+}
+.glitch::before{color:var(--pink);transform:translate(-2px,0);clip-path:polygon(0 0,100% 0,100% 45%,0 45%);animation:gl1 3s infinite}
+.glitch::after{color:var(--cyan);transform:translate(2px,0);clip-path:polygon(0 55%,100% 55%,100% 100%,0 100%);animation:gl2 3s infinite}
+@keyframes gl1{0%,90%,100%{transform:translate(0,0)}92%{transform:translate(-3px,1px)}94%{transform:translate(2px,-1px)}}
+@keyframes gl2{0%,90%,100%{transform:translate(0,0)}92%{transform:translate(3px,-1px)}94%{transform:translate(-2px,1px)}}
+
+/* =================================================================
+   2. WHY
+   ================================================================= */
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-top:var(--gap)}
+.why-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+  padding:clamp(1rem,2vw,1.6rem);
+  position:relative;overflow:hidden;
+}
+.why-card.old{border-color:rgba(255,56,96,.35)}
+.why-card.new{border-color:rgba(0,255,159,.35)}
+.why-card .label{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.2em;margin-bottom:.6rem}
+.why-card.old .label{color:var(--red)}
+.why-card.new .label{color:var(--green)}
+.why-card h3{margin-bottom:.6rem}
+.why-card ul{list-style:none;margin-top:.8rem}
+.why-card li{
+  font-size:var(--body);padding:.4rem 0;
+  display:flex;gap:.6rem;align-items:flex-start;
+  border-bottom:1px dashed rgba(255,255,255,.06);
+}
+.why-card li::before{
+  font-family:var(--font-mono);flex-shrink:0;
+}
+.why-card.old li::before{content:"✗";color:var(--red)}
+.why-card.new li::before{content:"▸";color:var(--green)}
+.arrow-flow{
+  text-align:center;font-family:var(--font-mono);
+  color:var(--cyan);font-size:clamp(1rem,2vw,1.4rem);
+  margin:var(--gap) 0;letter-spacing:.3em;
+}
+
+/* =================================================================
+   3. WHAT — 1 credit definition
+   ================================================================= */
+.eq-row{
+  display:flex;align-items:center;justify-content:center;gap:clamp(1rem,3vw,2.5rem);
+  font-family:var(--font-mono);
+  margin:calc(var(--gap)*1.5) 0;
+  flex-wrap:wrap;
+}
+.eq-row .big{
+  font-size:clamp(2rem,5vw,4rem);font-weight:700;color:var(--text);
+}
+.eq-row .op{
+  font-size:clamp(1.5rem,3.5vw,2.5rem);color:var(--muted);
+}
+.eq-row .label{
+  display:block;font-size:var(--small);color:var(--muted);
+  letter-spacing:.15em;margin-top:.3rem;
+}
+.what-detail{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);
+  margin-top:var(--gap);
+}
+.what-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
+  padding:clamp(.8rem,1.5vw,1.2rem);text-align:center;
+}
+.what-card .ic{font-size:clamp(1.4rem,2.5vw,1.8rem);margin-bottom:.4rem}
+.what-card .t{font-family:var(--font-mono);font-size:var(--small);color:var(--cyan);letter-spacing:.1em;margin-bottom:.3rem}
+.what-card .d{font-size:var(--small);color:var(--muted)}
+
+/* =================================================================
+   4. CHIP METAPHOR
+   ================================================================= */
+.chip-hero{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:clamp(1rem,3vw,2.5rem);
+  margin:var(--gap) 0;
+}
+.chip-hero .stack:nth-child(1) .chip{animation-delay:.1s}
+.chip-hero .stack:nth-child(2) .chip{animation-delay:.3s}
+.chip-hero .stack:nth-child(3) .chip{animation-delay:.5s}
+.chip-hero .stack:nth-child(4) .chip{animation-delay:.7s}
+.chip-hero .stack:nth-child(5) .chip{animation-delay:.9s}
+
+.chip-legend{
+  display:flex;gap:clamp(.6rem,2vw,1.6rem);flex-wrap:wrap;justify-content:center;
+  font-family:var(--font-mono);font-size:var(--small);
+  margin-top:var(--gap);
+}
+.chip-legend .item{display:flex;align-items:center;gap:.5rem}
+.chip-legend .dot{width:14px;height:14px;border-radius:50%;border:2px dashed rgba(0,0,0,.3)}
+.chip-legend .dot.g{background:var(--green)}
+.chip-legend .dot.c{background:var(--cyan)}
+.chip-legend .dot.p{background:var(--pink)}
+.chip-legend .dot.v{background:var(--purple)}
+.chip-legend .dot.y{background:var(--gold)}
+
+/* =================================================================
+   5 + 6. PLAN ALLOTMENT + PROMO
+   ================================================================= */
+.plans{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);
+  margin-top:var(--gap);
+}
+.plan{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+  padding:clamp(.8rem,1.6vw,1.4rem);
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;overflow:hidden;
+}
+.plan .name{font-family:var(--font-mono);color:var(--cyan);font-size:var(--small);letter-spacing:.15em;margin-bottom:.3rem}
+.plan .price{font-family:var(--font-display);font-size:clamp(1.1rem,2.2vw,1.6rem);font-weight:600;margin-bottom:.6rem}
+.plan .stack{height:clamp(80px,12vh,140px);width:clamp(34px,4.2vw,48px)}
+.plan .credits{
+  margin-top:.8rem;font-family:var(--font-mono);font-weight:700;
+  font-size:clamp(.95rem,1.6vw,1.3rem);color:var(--green);
+}
+.plan .cap{font-size:var(--small);color:var(--muted);margin-top:.2rem}
+.plan.highlight{border-color:var(--green);box-shadow:0 0 0 1px var(--green),0 0 30px rgba(0,255,159,.15)}
+.plan.highlight::after{
+  content:"PROMO";position:absolute;top:.5rem;right:.5rem;
+  font-family:var(--font-mono);font-size:.55rem;letter-spacing:.15em;
+  background:var(--gold);color:var(--bg);padding:.15em .5em;border-radius:3px;
+}
+
+/* Promo three-month timeline */
+.timeline{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);
+  margin:var(--gap) 0;
+}
+.month{
+  background:var(--bg-2);border:1px solid var(--gold);border-radius:8px;
+  padding:clamp(.8rem,1.6vw,1.3rem);text-align:center;
+  position:relative;
+  box-shadow:0 0 24px rgba(255,184,0,.08);
+}
+.month .m-num{
+  font-family:var(--font-mono);color:var(--gold);font-size:var(--small);
+  letter-spacing:.2em;margin-bottom:.3rem;
+}
+.month .m-name{
+  font-family:var(--font-display);font-size:clamp(1.4rem,3vw,2rem);
+  font-weight:600;margin-bottom:.6rem;
+}
+.month .chips-row{
+  display:flex;justify-content:center;gap:.3rem;flex-wrap:wrap;
+  margin:.6rem 0;
+}
+.month .chips-row .chip{
+  width:clamp(26px,3.2vw,38px);
+  animation:pop .5s var(--bounce) forwards;
+  opacity:0;transform:scale(0);
+}
+.slide.visible .month .chips-row .chip{animation-play-state:running}
+.month:nth-child(1) .chips-row .chip:nth-child(1){animation-delay:.2s}
+.month:nth-child(1) .chips-row .chip:nth-child(2){animation-delay:.3s}
+.month:nth-child(1) .chips-row .chip:nth-child(3){animation-delay:.4s}
+.month:nth-child(2) .chips-row .chip:nth-child(1){animation-delay:.5s}
+.month:nth-child(2) .chips-row .chip:nth-child(2){animation-delay:.6s}
+.month:nth-child(2) .chips-row .chip:nth-child(3){animation-delay:.7s}
+.month:nth-child(3) .chips-row .chip:nth-child(1){animation-delay:.8s}
+.month:nth-child(3) .chips-row .chip:nth-child(2){animation-delay:.9s}
+.month:nth-child(3) .chips-row .chip:nth-child(3){animation-delay:1s}
+@keyframes pop{0%{opacity:0;transform:scale(0) translateY(-30px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.month .vals{font-family:var(--font-mono);font-size:var(--small);color:var(--text);line-height:1.7}
+.month .vals b{color:var(--green)}
+.promo-note{
+  text-align:center;font-family:var(--font-mono);font-size:var(--small);
+  color:var(--muted);margin-top:.8rem;letter-spacing:.05em;
+}
+.promo-note b{color:var(--gold)}
+
+/* =================================================================
+   7. POOL
+   ================================================================= */
+.pool-stage{
+  display:flex;align-items:center;justify-content:center;gap:clamp(1rem,4vw,3rem);
+  margin:var(--gap) 0;flex-wrap:wrap;
+}
+.users-col{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;
+  max-width:280px;
+}
+.user-bucket{
+  width:60px;height:80px;
+  border:2px solid var(--cyan);border-radius:0 0 8px 8px;border-top:none;
+  position:relative;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,217,255,.08) 100%);
+}
+.user-bucket::before{
+  content:"👤";position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+  font-size:1rem;
+}
+.user-bucket .fill{
+  position:absolute;bottom:0;left:0;right:0;height:30%;
+  background:linear-gradient(180deg,var(--green),var(--cyan));
+  animation:drain 2s var(--ease) forwards;
+  animation-delay:1s;animation-play-state:paused;
+}
+.slide.visible .user-bucket .fill{animation-play-state:running}
+@keyframes drain{0%{height:30%}100%{height:0%}}
+
+.merge-arrow{
+  font-family:var(--font-mono);color:var(--green);
+  font-size:clamp(1.2rem,2.5vw,1.8rem);letter-spacing:.3em;
+  animation:arrowPulse 1.5s ease-in-out infinite;
+}
+@keyframes arrowPulse{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:1;transform:translateX(8px)}}
+
+.big-pool{
+  width:clamp(180px,22vw,280px);
+  height:clamp(140px,18vh,200px);
+  border:3px solid var(--green);border-radius:0 0 12px 12px;border-top:none;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 40px rgba(0,255,159,.15);
+}
+.big-pool::before{
+  content:"POOL";position:absolute;top:-26px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-mono);color:var(--green);font-size:.8rem;
+  letter-spacing:.3em;
+}
+.big-pool .liquid{
+  position:absolute;bottom:0;left:0;right:0;height:0%;
+  background:linear-gradient(180deg,var(--cyan),var(--green));
+  animation:fill 2s var(--ease) forwards;
+  animation-delay:1.2s;animation-play-state:paused;
+}
+.slide.visible .big-pool .liquid{animation-play-state:running}
+@keyframes fill{0%{height:0%}100%{height:75%}}
+.big-pool .liquid::before{
+  content:"";position:absolute;top:-6px;left:0;right:0;height:8px;
+  background:linear-gradient(90deg,var(--cyan),var(--green),var(--cyan));
+  animation:wave 2s linear infinite;border-radius:50%;opacity:.6;
+}
+@keyframes wave{0%{transform:translateX(-10%)}100%{transform:translateX(10%)}}
+
+.pool-rules{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);
+  margin-top:var(--gap);
+}
+.pool-rules .r{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
+  padding:.8rem 1rem;font-size:var(--small);
+}
+.pool-rules .r b{color:var(--green);font-family:var(--font-mono);display:block;margin-bottom:.3rem;letter-spacing:.1em}
+
+/* =================================================================
+   8. LARGE CONTEXT MODELS
+   ================================================================= */
+.models-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);
+  margin-top:var(--gap);
+}
+.model-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+  padding:clamp(.9rem,1.8vw,1.3rem);
+  position:relative;
+}
+.model-card .badge{
+  font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;
+  color:var(--cyan);margin-bottom:.3rem;
+}
+.model-card h3{font-size:clamp(1rem,1.8vw,1.3rem);margin-bottom:.6rem}
+.model-card .ctx-bar{
+  height:8px;background:rgba(255,255,255,.06);border-radius:4px;
+  overflow:hidden;margin:.5rem 0;
+}
+.model-card .ctx-bar .fill{
+  height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));
+  width:0;transition:width 1.4s var(--ease) .3s;
+  box-shadow:0 0 12px var(--cyan);
+}
+.slide.visible .model-card .ctx-bar .fill{width:var(--w,50%)}
+.model-card .ctx-num{
+  font-family:var(--font-mono);font-weight:700;
+  font-size:clamp(1rem,1.8vw,1.3rem);color:var(--green);
+}
+.model-card .price-line{
+  font-family:var(--font-mono);font-size:var(--small);color:var(--muted);
+  margin-top:.5rem;line-height:1.6;
+}
+.model-card .price-line b{color:var(--text)}
+
+/* =================================================================
+   9. BUDGET HIERARCHY (TREE)
+   ================================================================= */
+.tree{
+  display:flex;flex-direction:column;align-items:center;gap:clamp(.5rem,1.5vh,1rem);
+  margin-top:var(--gap);
+}
+.node{
+  font-family:var(--font-mono);
+  padding:.5rem 1rem;border-radius:5px;
+  border:1.5px solid var(--cyan);background:rgba(0,217,255,.05);
+  font-size:var(--small);letter-spacing:.05em;
+  display:flex;align-items:center;gap:.5rem;
+  position:relative;
+}
+.node b{color:var(--cyan)}
+.node.lvl1{border-color:var(--pink);background:rgba(255,0,110,.05)}
+.node.lvl1 b{color:var(--pink)}
+.node.lvl2{border-color:var(--gold);background:rgba(255,184,0,.05)}
+.node.lvl2 b{color:var(--gold)}
+.node.lvl3{border-color:var(--cyan)}
+.node.lvl4{border-color:var(--green);background:rgba(0,255,159,.05)}
+.node.lvl4 b{color:var(--green)}
+.node-row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+.tree-line{width:2px;height:20px;background:var(--muted);position:relative}
+.tree-line::after{content:"▼";position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:.7rem}
+.budget-rule{
+  margin-top:var(--gap);padding:.8rem 1rem;
+  background:var(--bg-2);border-left:3px solid var(--green);
+  font-family:var(--font-mono);font-size:var(--small);
+  border-radius:0 4px 4px 0;
+}
+.budget-rule b{color:var(--green)}
+
+/* =================================================================
+   10. BUDGET SPEND ANIMATION
+   ================================================================= */
+.bgt-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);
+  margin-top:var(--gap);align-items:center;
+}
+.bgt-bar-wrap{display:flex;flex-direction:column;gap:.7rem}
+.bgt-bar{
+  display:flex;flex-direction:column;gap:.25rem;
+  font-family:var(--font-mono);font-size:var(--small);
+}
+.bgt-bar .top{display:flex;justify-content:space-between}
+.bgt-bar .track{
+  height:18px;background:rgba(255,255,255,.06);
+  border-radius:9px;overflow:hidden;position:relative;
+  border:1px solid var(--line);
+}
+.bgt-bar .fill{
+  height:100%;border-radius:9px;
+  width:0;transition:width 1.6s var(--ease) .4s;
+  position:relative;
+}
+.slide.visible .bgt-bar .fill{width:var(--w,50%)}
+.bgt-bar.ok .fill{background:linear-gradient(90deg,var(--green),var(--cyan));box-shadow:0 0 14px var(--green)}
+.bgt-bar.warn .fill{background:linear-gradient(90deg,var(--gold),#ff9800);box-shadow:0 0 14px var(--gold)}
+.bgt-bar.full .fill{background:linear-gradient(90deg,var(--pink),var(--red));box-shadow:0 0 18px var(--pink)}
+.bgt-bar .pct{color:var(--muted)}
+.bgt-bar.full .pct{color:var(--pink);font-weight:700}
+
+.alerts{display:flex;flex-direction:column;gap:.5rem}
+.alert{
+  background:var(--bg-2);border-left:3px solid var(--cyan);
+  padding:.6rem .9rem;border-radius:0 4px 4px 0;
+  font-family:var(--font-mono);font-size:var(--small);
+}
+.alert.warn{border-color:var(--gold);color:var(--gold)}
+.alert.crit{border-color:var(--pink);color:var(--pink);animation:flash 1.2s ease infinite}
+@keyframes flash{0%,100%{background:var(--bg-2)}50%{background:rgba(255,0,110,.1)}}
+.alert b{display:block;margin-bottom:.2rem}
+
+/* =================================================================
+   11. PRICING TABLE
+   ================================================================= */
+.price-tbl{
+  width:100%;border-collapse:collapse;
+  font-family:var(--font-mono);font-size:var(--small);
+  margin-top:var(--gap);
+}
+.price-tbl th,.price-tbl td{
+  padding:.55rem .6rem;text-align:right;
+  border-bottom:1px solid var(--line);
+}
+.price-tbl th:first-child,.price-tbl td:first-child{text-align:left}
+.price-tbl th{
+  color:var(--cyan);font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;font-size:.65rem;
+  border-bottom:1px solid var(--cyan);
+}
+.price-tbl td.cached{color:var(--green);font-weight:700}
+.price-tbl td.input{color:var(--text)}
+.price-tbl td.output{color:var(--gold)}
+.price-tbl tr:hover{background:rgba(0,217,255,.04)}
+.savings-callout{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(0,255,159,.1);border:1px solid var(--green);
+  padding:.5rem 1rem;border-radius:24px;
+  font-family:var(--font-mono);font-size:var(--small);
+  color:var(--green);margin-top:var(--gap);
+}
+.savings-callout b{font-size:1.2em}
+
+/* =================================================================
+   12-15. COST REDUCTION TIPS — code blocks
+   ================================================================= */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-top:var(--gap);align-items:start}
+.tip-points{display:flex;flex-direction:column;gap:.7rem}
+.tip-points .pt{
+  background:var(--bg-2);border-left:3px solid var(--green);
+  padding:.7rem 1rem;border-radius:0 5px 5px 0;
+  font-size:var(--body);
+}
+.tip-points .pt b{color:var(--green);font-family:var(--font-mono)}
+.code-blk{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
+  font-family:var(--font-mono);font-size:var(--mono);
+  overflow:hidden;
+}
+.code-hd{
+  padding:.4rem .8rem;background:rgba(0,217,255,.05);
+  border-bottom:1px solid var(--line);
+  font-size:.7rem;color:var(--cyan);letter-spacing:.1em;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.code-hd .lang{color:var(--muted)}
+.code-bd{padding:.9rem 1rem;line-height:1.65;color:var(--text);overflow:auto;max-height:48vh}
+.code-bd .c{color:var(--muted)}
+.code-bd .k{color:var(--pink)}
+.code-bd .s{color:var(--green)}
+.code-bd .v{color:var(--cyan)}
+
+/* =================================================================
+   16. CODE REVIEW HIDDEN COST
+   ================================================================= */
+.cost-eq{
+  display:flex;align-items:center;justify-content:center;gap:var(--gap);
+  margin:var(--gap) 0;font-family:var(--font-mono);
+  flex-wrap:wrap;
+}
+.cost-box{
+  background:var(--bg-2);border:1.5px solid var(--cyan);
+  padding:1rem 1.5rem;border-radius:8px;text-align:center;min-width:140px;
+}
+.cost-box .ic{font-size:1.5rem;margin-bottom:.3rem}
+.cost-box .v{font-family:var(--font-display);font-weight:700;font-size:clamp(1rem,1.8vw,1.4rem);color:var(--green)}
+.cost-box .l{font-size:.7rem;color:var(--muted);letter-spacing:.1em;margin-top:.2rem}
+.cost-box.hidden{border-color:var(--pink);border-style:dashed}
+.cost-box.hidden .v{color:var(--pink)}
+.plus{font-size:2rem;color:var(--gold)}
+
+/* =================================================================
+   17. ACTION CHECKLIST
+   ================================================================= */
+.checklist{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gap);
+  margin-top:var(--gap);
+}
+.check-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
+  padding:clamp(.8rem,1.6vw,1.2rem);
+  display:flex;flex-direction:column;gap:.4rem;
+}
+.check-card .when{
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.2em;
+  color:var(--gold);
+}
+.check-card h3{font-size:clamp(.95rem,1.5vw,1.15rem);color:var(--cyan)}
+.check-card ul{list-style:none;display:flex;flex-direction:column;gap:.3rem;margin-top:.3rem}
+.check-card li{
+  font-size:var(--small);padding-left:1.4rem;position:relative;
+  color:var(--text);
+}
+.check-card li::before{
+  content:"☐";position:absolute;left:0;color:var(--green);
+  font-family:var(--font-mono);
+}
+
+/* =================================================================
+   END SLIDE
+   ================================================================= */
+.send-off{text-align:center}
+.send-off h1{
+  background:linear-gradient(135deg,var(--cyan),var(--green));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+
+/* =================================================================
+   ANIMATION CONTROLS (Slide 7 + 10)
+   ================================================================= */
+.anim-controls{display:flex;gap:.5rem;justify-content:center;margin:var(--gap) 0;flex-wrap:wrap}
+.ctrl{
+  font-family:var(--font-mono);font-size:var(--small);
+  background:var(--bg-2);color:var(--text);
+  border:1px solid var(--cyan);
+  padding:.4rem 1rem;border-radius:4px;
+  cursor:pointer;letter-spacing:.1em;
+  transition:all .2s ease;
+}
+.ctrl:hover{background:var(--cyan);color:var(--bg);box-shadow:0 0 12px var(--cyan)}
+.ctrl:active{transform:translateY(1px)}
+.ctrl.primary{border-color:var(--green);color:var(--green)}
+.ctrl.primary:hover{background:var(--green);color:var(--bg);box-shadow:0 0 12px var(--green)}
+.step-narrative{
+  background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--green);
+  padding:.7rem 1rem;border-radius:0 5px 5px 0;
+  font-family:var(--font-mono);font-size:var(--small);
+  min-height:3em;line-height:1.6;
+}
+.step-narrative .num{color:var(--green);font-weight:700;letter-spacing:.15em;margin-right:.6em}
+.step-narrative .desc{color:var(--text)}
+
+/* === Pool v2 (Slide 7) === */
+.pool-stage-v2{
+  display:flex;flex-direction:column;align-items:center;gap:1.1rem;
+  margin:var(--gap) 0;
+}
+.users-row{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
+.user-bucket-v2{
+  width:54px;height:74px;
+  border:2px solid var(--cyan);border-radius:0 0 8px 8px;border-top:none;
+  position:relative;flex-shrink:0;
+  background:linear-gradient(180deg,transparent,rgba(0,217,255,.05));
+  transition:opacity .8s var(--ease),transform .8s var(--ease),border-color .6s ease;
+  overflow:hidden;
+}
+.user-bucket-v2::before{
+  content:"👤";position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+  font-size:.95rem;transition:opacity .4s ease;z-index:2;
+}
+.user-bucket-v2 .label{
+  position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-mono);font-size:.55rem;color:var(--cyan);
+  white-space:nowrap;transition:opacity .4s ease;
+}
+.user-bucket-v2 .fill-v2{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(180deg,var(--green),var(--cyan));
+  height:100%;
+  transition:height 1s var(--ease),background .4s ease;
+}
+.user-bucket-v2.merging{
+  border-color:rgba(0,217,255,.15);
+  transform:translateY(15px) scale(.85);
+  opacity:.4;
+}
+.user-bucket-v2.merging::before,.user-bucket-v2.merging .label{opacity:0}
+.merge-flow{
+  font-family:var(--font-mono);color:var(--green);
+  font-size:1.3rem;letter-spacing:.4em;
+  opacity:0;transition:opacity .6s ease;
+  height:0;overflow:hidden;
+}
+.merge-flow.show{opacity:1;height:auto;animation:arrowPulse 1.5s ease-in-out infinite}
+.pool-with-extras{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:center}
+.big-pool-v2{
+  width:clamp(260px,38vw,420px);
+  height:clamp(70px,10vh,110px);
+  border:3px solid var(--green);border-radius:0 0 14px 14px;border-top:none;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 30px rgba(0,255,159,.12);
+  opacity:0;transform:scale(.85);
+  transition:opacity .7s var(--ease),transform .7s var(--ease),border-color .5s ease;
+}
+.big-pool-v2.show{opacity:1;transform:scale(1)}
+.big-pool-v2.expanded{border-color:var(--gold);box-shadow:0 0 30px rgba(255,184,0,.18)}
+.big-pool-v2::before{
+  content:"SHARED POOL";
+  position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-mono);color:var(--green);font-size:.7rem;
+  letter-spacing:.25em;white-space:nowrap;
+}
+.big-pool-v2 .liquid-v2{
+  position:absolute;bottom:0;left:0;right:0;height:0%;
+  background:linear-gradient(180deg,var(--cyan),var(--green));
+  transition:height 1.2s var(--ease);
+}
+.big-pool-v2 .liquid-v2::after{
+  content:"";position:absolute;top:-4px;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,var(--cyan),var(--green),var(--cyan));
+  background-size:200% 100%;
+  animation:wave 3s linear infinite;border-radius:50%;opacity:.5;
+}
+.big-pool-v2 .pool-num{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--font-mono);font-weight:700;
+  font-size:clamp(.78rem,1.3vw,1.05rem);
+  color:var(--text);text-shadow:0 0 10px var(--bg),0 0 4px var(--bg);
+  z-index:2;letter-spacing:.05em;text-align:center;line-height:1.3;white-space:nowrap;
+}
+.new-license-tag{
+  font-family:var(--font-mono);font-size:.7rem;
+  background:rgba(255,184,0,.12);border:1px dashed var(--gold);
+  color:var(--gold);padding:.45rem .7rem;border-radius:5px;
+  opacity:0;transform:translateX(-20px);
+  transition:all .5s var(--ease);
+  white-space:nowrap;
+}
+.new-license-tag.show{opacity:1;transform:translateX(0)}
+.new-license-tag b{color:var(--gold);font-weight:700}
+
+/* === Burn-down v2 (Slide 10) === */
+.burn-stage{
+  display:grid;grid-template-columns:1.5fr 1fr;gap:var(--gap);
+  margin-top:var(--gap);
+  align-items:start;
+}
+.levels-stack{display:flex;flex-direction:column;gap:.3rem}
+.level{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
+  padding:.5rem .75rem;
+  transition:all .5s var(--ease);
+  position:relative;
+}
+.level .lh{
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:.62rem;
+  letter-spacing:.05em;color:var(--muted);
+  margin-bottom:.3rem;
+}
+.level .lh b{font-weight:700;letter-spacing:.1em}
+.level.l-user .lh b{color:var(--green)}
+.level.l-org .lh b{color:var(--cyan)}
+.level.l-cc .lh b{color:var(--gold)}
+.level.l-ent .lh b{color:var(--pink)}
+.level .ltrack{
+  height:14px;background:rgba(255,255,255,.06);border-radius:7px;
+  overflow:hidden;border:1px solid var(--line);position:relative;
+}
+.level .lfill{
+  height:100%;border-radius:7px;width:100%;
+  transition:width 1.1s var(--ease),background .4s ease,box-shadow .4s ease;
+  background:linear-gradient(90deg,var(--green),var(--cyan));
+}
+.level.draining .lfill{background:linear-gradient(90deg,var(--gold),#ff9800);box-shadow:0 0 10px rgba(255,184,0,.3)}
+.level.empty .lfill{background:linear-gradient(90deg,var(--pink),var(--red));box-shadow:0 0 14px var(--pink)}
+.level.locked{opacity:.45;filter:grayscale(.5)}
+.level.locked .ltrack::after{
+  content:"🔒 不可达";position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
+  font-family:var(--font-mono);font-size:.6rem;color:var(--pink);
+  letter-spacing:.1em;background:var(--bg-2);padding:0 .3rem;border-radius:3px;
+}
+.level.active{box-shadow:0 0 16px rgba(0,255,159,.18);border-color:var(--green)}
+.gate{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  font-family:var(--font-mono);font-size:.6rem;
+  color:var(--muted);letter-spacing:.12em;
+  padding:.15rem 0;
+  transition:color .3s ease;
+}
+.gate .gicon{
+  display:inline-block;width:14px;height:14px;
+  border-radius:3px;background:var(--muted);
+  position:relative;flex-shrink:0;
+  transition:all .3s ease;
+}
+.gate.open .gicon{background:var(--green);box-shadow:0 0 10px var(--green)}
+.gate.open .gicon::before{content:"";position:absolute;inset:3px;background:var(--bg);border-radius:1px}
+.gate.closed .gicon{background:var(--pink);box-shadow:0 0 12px var(--pink);animation:flash 1.2s ease infinite}
+.gate.closed .gicon::after{content:"✕";position:absolute;inset:0;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:900}
+.gate.open b{color:var(--green)}
+.gate.closed b{color:var(--pink)}
+.gate.closed{color:var(--pink);font-weight:700}
+.burn-side{display:flex;flex-direction:column;gap:.55rem}
+.burn-side .legend{
+  background:var(--bg-2);border-left:3px solid var(--cyan);
+  padding:.55rem .7rem;border-radius:0 4px 4px 0;
+  font-family:var(--font-mono);font-size:.68rem;line-height:1.7;
+}
+.burn-side .legend b{color:var(--cyan);display:block;letter-spacing:.1em;margin-bottom:.3rem}
+
+/* === Preview Bill Slide === */
+.preview-flow{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;
+  margin-top:calc(var(--gap)*1.4);
+}
+.pflow-step{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+  padding:.9rem .7rem;
+  position:relative;
+  display:flex;flex-direction:column;gap:.4rem;
+  border-top:3px solid var(--green);
+  transition:transform .3s ease,box-shadow .3s ease;
+}
+.pflow-step:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,255,159,.1)}
+.pflow-step .stp-num{
+  position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  width:28px;height:28px;border-radius:50%;
+  background:var(--green);color:var(--bg);
+  font-family:var(--font-mono);font-weight:700;font-size:.85rem;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 12px var(--green);
+}
+.pflow-step .stp-ic{font-size:1.5rem;text-align:center;margin-top:.4rem}
+.pflow-step .stp-title{
+  font-family:var(--font-mono);font-size:.78rem;color:var(--cyan);
+  letter-spacing:.05em;text-align:center;font-weight:700;
+}
+.pflow-step .stp-body{
+  font-size:.7rem;color:var(--text);line-height:1.55;text-align:center;
+}
+.pflow-step .stp-body code{
+  display:block;background:var(--bg);border:1px solid var(--line);
+  font-family:var(--font-mono);font-size:.6rem;color:var(--green);
+  padding:.35rem .4rem;border-radius:3px;margin-top:.45rem;
+  word-break:break-all;line-height:1.4;
+}
+.pflow-step:nth-child(2){border-top-color:var(--cyan)}
+.pflow-step:nth-child(2) .stp-num{background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.pflow-step:nth-child(2) .stp-title{color:var(--cyan)}
+.pflow-step:nth-child(3){border-top-color:var(--gold)}
+.pflow-step:nth-child(3) .stp-num{background:var(--gold);box-shadow:0 0 12px var(--gold)}
+.pflow-step:nth-child(3) .stp-title{color:var(--gold)}
+.pflow-step:nth-child(4){border-top-color:var(--pink)}
+.pflow-step:nth-child(4) .stp-num{background:var(--pink);color:#fff;box-shadow:0 0 12px var(--pink)}
+.pflow-step:nth-child(4) .stp-title{color:var(--pink)}
+.preview-callout{
+  margin-top:var(--gap);background:var(--bg-2);
+  border:1px solid var(--green);border-radius:6px;
+  padding:.7rem 1rem;
+  display:flex;gap:.8rem;align-items:flex-start;
+}
+.preview-callout .ic{font-size:1.5rem;flex-shrink:0;line-height:1.2}
+.preview-callout .text{font-size:var(--small);line-height:1.7}
+.preview-callout .text b{color:var(--green);font-family:var(--font-mono);margin-right:.3em;letter-spacing:.1em}
+
+/* =================================================================
+   RESPONSIVE
+   ================================================================= */
+@media (max-height:760px){
+  :root{--pad:clamp(.9rem,2.5vw,2rem);--gap:clamp(.5rem,1.4vw,1rem)}
+  .stack{height:clamp(70px,11vh,120px)}
+}
+@media (max-height:600px){
+  :root{
+    --pad:clamp(.7rem,2vw,1.5rem);
+    --gap:clamp(.4rem,1.2vw,.85rem);
+    --title:clamp(1.4rem,4.5vw,2.6rem);
+    --h2:clamp(1.05rem,3vw,1.8rem);
+  }
+  .nav-dots,.hint,.slide-num{display:none}
+  .stack{height:clamp(56px,9vh,90px)}
+  .what-detail,.checklist,.pool-rules,.models-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-height:500px){
+  :root{
+    --pad:.6rem;--gap:.4rem;
+    --title:clamp(1.2rem,3.8vw,2rem);
+    --h2:clamp(.95rem,2.6vw,1.4rem);
+    --body:clamp(.7rem,1.1vw,.85rem);
+  }
+}
+@media (max-width:768px){
+  .why-grid,.bgt-grid,.split,.checklist,.burn-stage{grid-template-columns:1fr}
+  .what-detail,.models-grid,.timeline,.pool-rules{grid-template-columns:1fr}
+  .plans,.preview-flow{grid-template-columns:repeat(2,1fr)}
+  .nav-dots{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="nav-dots" id="navDots"></nav>
+<div class="hint"><kbd>↑</kbd><kbd>↓</kbd> 或 <kbd>SPACE</kbd> 切换</div>
+<div class="slide-num" id="slideNum">01 / 18</div>
+
+<!-- ========== SLIDE 1: TITLE ========== -->
+<section class="slide s1">
+  <div class="slide-content reveal">
+    <div class="scan reveal">SYSTEM // BILLING.PROTOCOL.v2</div>
+    <h1 class="reveal"><span class="glitch" data-text="计费革命">计费革命</span></h1>
+    <p class="tagline reveal">GitHub Copilot · Usage-Based Billing · 来了</p>
+    <div class="meta reveal">
+      <div>EFFECTIVE <span>2026-06-01</span></div>
+      <div>UNIT <span>1 AI CREDIT = $0.01</span></div>
+      <div>STATUS <span>// LOCKED &amp; LOADED</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 2: WHY ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 02 — WHY</div>
+    <h2 class="reveal">为什么 GitHub 要换计费方式？</h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.4rem">Agent 时代下，按"次数"收费已经撑不住了</p>
+
+    <div class="why-grid reveal">
+      <div class="why-card old">
+        <div class="label">// LEGACY · PRU MODEL</div>
+        <h3>Premium Request</h3>
+        <ul>
+          <li>1 次聊天 = 1 个 PRU</li>
+          <li>1 次跑 4 小时的 agent session = 也是 1 个 PRU</li>
+          <li>大模型小模型粗暴折算 → 真实成本失衡</li>
+          <li>超额自动降级到便宜模型，体验割裂</li>
+        </ul>
+      </div>
+      <div class="why-card new">
+        <div class="label">// NEW · UBB</div>
+        <h3>AI Credits</h3>
+        <ul>
+          <li>按 token 计费：input + output + cached input</li>
+          <li>1 credit = $0.01，透明、可量化、可预测</li>
+          <li>用多少付多少，重负载工作流真实定价</li>
+          <li>没有"自动降级"，模型由你掌控</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="arrow-flow reveal">PRU ━━━▶ AI CREDITS</div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 3: WHAT ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 03 — WHAT</div>
+    <h2 class="reveal">新单位：<span class="glow-g">GitHub AI Credit</span></h2>
+
+    <div class="eq-row reveal">
+      <div><span class="big glow-c">1</span><span class="label">CREDIT</span></div>
+      <div class="op">=</div>
+      <div><span class="big glow-y">$0.01</span><span class="label">USD</span></div>
+      <div class="op">=</div>
+      <div><span class="big glow-g">N</span><span class="label">TOKENS · 看模型</span></div>
+    </div>
+
+    <div class="what-detail reveal">
+      <div class="what-card">
+        <div class="ic">⚡</div>
+        <div class="t">UNLIMITED</div>
+        <div class="d">Code Completions &amp; Next Edit Suggestions 仍然不计费</div>
+      </div>
+      <div class="what-card">
+        <div class="ic">💬</div>
+        <div class="t">METERED</div>
+        <div class="d">Chat / CLI / Cloud Agent / Spaces / Spark / 第三方 Agent 都按 credit 算</div>
+      </div>
+      <div class="what-card">
+        <div class="ic">📊</div>
+        <div class="t">TRANSPARENT</div>
+        <div class="d">每次请求按 token 单价 × 数量精确扣减，账单可逐行核查</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 4: CHIP METAPHOR ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 04 — METAPHOR</div>
+    <h2 class="reveal">把 AI Credit 想成 <span class="glow-p">游戏筹码 / 点券</span></h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.4rem">不同面值的筹码 = 不同模型的"单价"，进了赌场（开发流程），筹码堆起来用</p>
+
+    <div class="chip-hero reveal">
+      <div class="stack">
+        <div class="chip g" style="bottom:0px">$1</div>
+        <div class="chip g" style="bottom:14px">$1</div>
+        <div class="chip g" style="bottom:28px">$1</div>
+        <div class="chip g" style="bottom:42px">$1</div>
+      </div>
+      <div class="stack">
+        <div class="chip c" style="bottom:0px">$5</div>
+        <div class="chip c" style="bottom:14px">$5</div>
+        <div class="chip c" style="bottom:28px">$5</div>
+      </div>
+      <div class="stack">
+        <div class="chip p" style="bottom:0px">$10</div>
+        <div class="chip p" style="bottom:14px">$10</div>
+      </div>
+      <div class="stack">
+        <div class="chip v" style="bottom:0px">$25</div>
+        <div class="chip v" style="bottom:14px">$25</div>
+      </div>
+      <div class="stack">
+        <div class="chip y" style="bottom:0px">$100</div>
+      </div>
+    </div>
+
+    <div class="chip-legend reveal">
+      <div class="item"><div class="dot g"></div>$1 · 轻量调用</div>
+      <div class="item"><div class="dot c"></div>$5 · 中等</div>
+      <div class="item"><div class="dot p"></div>$10 · 重型 Chat</div>
+      <div class="item"><div class="dot v"></div>$25 · 大模型</div>
+      <div class="item"><div class="dot y"></div>$100 · Agent 长时任务</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 5: PLAN ALLOTMENT ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 05 — STANDARD ALLOTMENT</div>
+    <h2 class="reveal">每个套餐发多少筹码？<span style="color:var(--muted);font-size:.6em;font-weight:400">（2026-09-01 起）</span></h2>
+
+    <div class="plans reveal">
+      <div class="plan">
+        <div class="name">PRO</div>
+        <div class="price">$10/mo</div>
+        <div class="stack">
+          <div class="chip g" style="bottom:0px">$1</div>
+          <div class="chip g" style="bottom:11px">$1</div>
+          <div class="chip g" style="bottom:22px">$1</div>
+          <div class="chip g" style="bottom:33px">$1</div>
+        </div>
+        <div class="credits">1,000</div>
+        <div class="cap">credits / 月</div>
+      </div>
+      <div class="plan">
+        <div class="name">PRO+</div>
+        <div class="price">$39/mo</div>
+        <div class="stack">
+          <div class="chip g" style="bottom:0px">$1</div>
+          <div class="chip c" style="bottom:11px">$5</div>
+          <div class="chip c" style="bottom:22px">$5</div>
+          <div class="chip p" style="bottom:33px">$10</div>
+          <div class="chip p" style="bottom:44px">$10</div>
+        </div>
+        <div class="credits">3,900</div>
+        <div class="cap">credits / 月</div>
+      </div>
+      <div class="plan">
+        <div class="name">BUSINESS</div>
+        <div class="price">$19/user/mo</div>
+        <div class="stack">
+          <div class="chip g" style="bottom:0px">$1</div>
+          <div class="chip c" style="bottom:11px">$5</div>
+          <div class="chip c" style="bottom:22px">$5</div>
+          <div class="chip p" style="bottom:33px">$10</div>
+        </div>
+        <div class="credits">1,900</div>
+        <div class="cap">credits / 用户 / 月</div>
+      </div>
+      <div class="plan">
+        <div class="name">ENTERPRISE</div>
+        <div class="price">$39/user/mo</div>
+        <div class="stack">
+          <div class="chip g" style="bottom:0px">$1</div>
+          <div class="chip c" style="bottom:11px">$5</div>
+          <div class="chip p" style="bottom:22px">$10</div>
+          <div class="chip v" style="bottom:33px">$25</div>
+          <div class="chip v" style="bottom:44px">$25</div>
+        </div>
+        <div class="credits">3,900</div>
+        <div class="cap">credits / 用户 / 月</div>
+      </div>
+    </div>
+
+    <p class="reveal" style="text-align:center;font-family:var(--font-mono);font-size:var(--small);color:var(--muted);margin-top:var(--gap);letter-spacing:.05em">
+      // 折合美元：每用户 = 套餐订阅价 1:1 兑换成筹码
+    </p>
+  </div>
+</section>
+
+<!-- ========== SLIDE 6: PROMO ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 06 — LIMITED PROMO</div>
+    <h2 class="reveal"><span class="glow-y">6–8 月</span> 三个月福利期：筹码加量不加价</h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.4rem">2026-06-01 → 2026-09-01 期间，已有付费订阅自动获得"加倍"配额</p>
+
+    <div class="timeline reveal">
+      <div class="month">
+        <div class="m-num">// MONTH 01</div>
+        <div class="m-name glow-y">JUN</div>
+        <div class="chips-row">
+          <div class="chip y">$100</div>
+          <div class="chip y">$100</div>
+          <div class="chip v">$25</div>
+        </div>
+        <div class="vals">Business <b>3,000</b><br>Enterprise <b>7,000</b></div>
+      </div>
+      <div class="month">
+        <div class="m-num">// MONTH 02</div>
+        <div class="m-name glow-y">JUL</div>
+        <div class="chips-row">
+          <div class="chip y">$100</div>
+          <div class="chip y">$100</div>
+          <div class="chip v">$25</div>
+        </div>
+        <div class="vals">Business <b>3,000</b><br>Enterprise <b>7,000</b></div>
+      </div>
+      <div class="month">
+        <div class="m-num">// MONTH 03</div>
+        <div class="m-name glow-y">AUG</div>
+        <div class="chips-row">
+          <div class="chip y">$100</div>
+          <div class="chip y">$100</div>
+          <div class="chip v">$25</div>
+        </div>
+        <div class="vals">Business <b>3,000</b><br>Enterprise <b>7,000</b></div>
+      </div>
+    </div>
+
+    <p class="promo-note reveal">// 09-01 起回归标准配额：Business <b>1,900</b> / Enterprise <b>3,900</b> · 福利仅限<b>已订阅</b>客户</p>
+  </div>
+</section>
+
+<!-- ========== SLIDE 7: POOL with controls ========== -->
+<section class="slide" id="slidePool">
+  <div class="slide-content">
+    <div class="kicker reveal">// 07 — POOL CONCEPT</div>
+    <h2 class="reveal">个人桶 vs <span class="glow-g">共享大池子</span> · 交互演示</h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.3rem">点 ▶ 看 6 个 license 如何合并为 1 个 11,400 大池，并随时扩容</p>
+
+    <div class="pool-stage-v2 reveal">
+      <div class="users-row">
+        <div class="user-bucket-v2"><div class="fill-v2"></div><div class="label">user-1</div></div>
+        <div class="user-bucket-v2"><div class="fill-v2"></div><div class="label">user-2</div></div>
+        <div class="user-bucket-v2"><div class="fill-v2"></div><div class="label">user-3</div></div>
+        <div class="user-bucket-v2"><div class="fill-v2"></div><div class="label">user-4</div></div>
+        <div class="user-bucket-v2"><div class="fill-v2"></div><div class="label">user-5</div></div>
+        <div class="user-bucket-v2"><div class="fill-v2"></div><div class="label">user-6</div></div>
+      </div>
+      <div class="merge-flow">▼ ▼ ▼</div>
+      <div class="pool-with-extras">
+        <div class="big-pool-v2">
+          <div class="liquid-v2"></div>
+          <div class="pool-num">11,400</div>
+        </div>
+        <div class="new-license-tag"><b>+ NEW LICENSE</b><br>+1,900 credits</div>
+      </div>
+    </div>
+
+    <div class="anim-controls reveal">
+      <button class="ctrl" data-act="reset">⟳ 重置</button>
+      <button class="ctrl primary" data-act="play">▶ 自动播放</button>
+      <button class="ctrl" data-act="step">⏭ 单步前进</button>
+    </div>
+
+    <div class="step-narrative reveal"></div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 8: LARGER CONTEXT MODELS ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 08 — UNLOCKED</div>
+    <h2 class="reveal">UBB 解锁的新能力：<span class="glow-c">超大上下文模型</span></h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.4rem">按 token 算后，长上下文不再"按次数"封顶 — 整个 monorepo 也能塞进去</p>
+
+    <div class="models-grid reveal">
+      <div class="model-card">
+        <div class="badge">// OPENAI</div>
+        <h3>GPT-5.4</h3>
+        <div class="ctx-num">400K tokens</div>
+        <div class="ctx-bar"><div class="fill" style="--w:40%"></div></div>
+        <div class="price-line">$2.50 in · <b style="color:var(--green)">$0.25 cached</b> · $15 out</div>
+      </div>
+      <div class="model-card">
+        <div class="badge">// ANTHROPIC</div>
+        <h3>Claude Opus 4.7</h3>
+        <div class="ctx-num">200K → 1M (beta)</div>
+        <div class="ctx-bar"><div class="fill" style="--w:100%"></div></div>
+        <div class="price-line">$5 in · <b style="color:var(--green)">$0.50 cached</b> · $25 out</div>
+      </div>
+      <div class="model-card">
+        <div class="badge">// GOOGLE</div>
+        <h3>Gemini 2.5 / 3 Flash</h3>
+        <div class="ctx-num">1,000K tokens</div>
+        <div class="ctx-bar"><div class="fill" style="--w:100%"></div></div>
+        <div class="price-line">$1.25 in · <b style="color:var(--green)">$0.125 cached</b> · $10 out</div>
+      </div>
+    </div>
+
+    <p class="reveal" style="text-align:center;font-family:var(--font-mono);font-size:var(--small);color:var(--cyan);margin-top:var(--gap);letter-spacing:.05em">
+      // 大上下文 + cache 命中 → 复杂重构 / 全仓审查 / 跨文件 agent 任务终于跑得动
+    </p>
+  </div>
+</section>
+
+<!-- ========== SLIDE 9: BUDGET HIERARCHY ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 09 — BUDGET HIERARCHY</div>
+    <h2 class="reveal">Budget 怎么设？<span class="glow-c">四层金字塔</span></h2>
+
+    <div class="tree">
+      <div class="reveal">
+        <div class="node lvl1"><b>L1 · ENTERPRISE</b> 全企业总预算 · 上限 → 决定整个组织池子的天花板</div>
+      </div>
+      <div class="tree-line reveal"></div>
+      <div class="node-row reveal">
+        <div class="node lvl2"><b>L2 · COST CENTER</b> 业务部门 / 项目组 · 跨 org 分摊</div>
+        <div class="node lvl2"><b>L2 · COST CENTER</b> 财务维度切片</div>
+      </div>
+      <div class="tree-line reveal"></div>
+      <div class="node-row reveal">
+        <div class="node lvl3"><b>L3 · ORGANIZATION</b> GitHub Org · 团队边界</div>
+        <div class="node lvl3"><b>L3 · ORGANIZATION</b> Org-B</div>
+        <div class="node lvl3"><b>L3 · ORGANIZATION</b> Org-C</div>
+      </div>
+      <div class="tree-line reveal"></div>
+      <div class="node-row reveal">
+        <div class="node lvl4"><b>L4 · USER</b> 单个开发者 · 最细粒度，可设每月上限</div>
+      </div>
+    </div>
+
+    <div class="budget-rule reveal">
+      <b>// RULE</b> 取最严格的一层生效。User $50 + Org $100 + Enterprise 无限 → 该用户实际可用 = <b>$50</b>。<br>
+      <b>// WARN</b> 给 user 设 $0 = 直接断网；2025-08-22 之前创建的用户 $0 默认行为将于 2025-11-18 取消，记得检查。
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 10: BURN ORDER with stepped animation ========== -->
+<section class="slide" id="slideBurn">
+  <div class="slide-content">
+    <div class="kicker reveal">// 10 — BURN ORDER</div>
+    <h2 class="reveal">Budget 烧穿顺序：<span class="glow-g">User → Org → CC → Ent</span> · 中间断了就上不去</h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.3rem">先烧个人 19/39 配额 → 溢出到 Org → CC → Enterprise；任何中间层耗尽，上层就够不到</p>
+
+    <div class="burn-stage">
+      <div class="levels-stack reveal">
+        <div class="level l-ent" data-lvl="ent">
+          <div class="lh"><b>L1 · ENTERPRISE POOL</b><span>200,000 credits</span></div>
+          <div class="ltrack"><div class="lfill"></div></div>
+        </div>
+        <div class="gate" data-gate="c-e"><span class="gicon"></span><b>GATE · CC → Ent</b><span class="glabel">· 未触发</span></div>
+        <div class="level l-cc" data-lvl="cc">
+          <div class="lh"><b>L2 · COST CENTER POOL</b><span>50,000 credits</span></div>
+          <div class="ltrack"><div class="lfill"></div></div>
+        </div>
+        <div class="gate" data-gate="o-c"><span class="gicon"></span><b>GATE · Org → CC</b><span class="glabel">· 未触发</span></div>
+        <div class="level l-org" data-lvl="org">
+          <div class="lh"><b>L3 · ORG POOL</b><span>10,000 credits</span></div>
+          <div class="ltrack"><div class="lfill"></div></div>
+        </div>
+        <div class="gate" data-gate="u-o"><span class="gicon"></span><b>GATE · User → Org</b><span class="glabel">· 未触发</span></div>
+        <div class="level l-user" data-lvl="user">
+          <div class="lh"><b>L4 · USER 配额（个人桶）</b><span>1,900 credits / 月</span></div>
+          <div class="ltrack"><div class="lfill"></div></div>
+        </div>
+      </div>
+
+      <div class="burn-side reveal">
+        <div class="legend">
+          <b>// 视觉规则</b>
+          ▮ 绿 = 健康 / 满<br>
+          ▮ 黄 = 正在消耗<br>
+          ▮ 红 = 已耗尽<br>
+          ▮ 灰 + 🔒 = 被锁定（够不到）<br>
+          GATE ✓ = 通道已开启<br>
+          GATE ✕ = 通道关闭，blocked
+        </div>
+        <div class="anim-controls" style="justify-content:flex-start;margin:0">
+          <button class="ctrl" data-act="reset">⟳ 重置</button>
+          <button class="ctrl primary" data-act="play">▶ 自动</button>
+          <button class="ctrl" data-act="step">⏭ 单步</button>
+        </div>
+        <div class="step-narrative" style="margin-top:0"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 11: COST #1 — CACHED ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 11 — COST CUT #1</div>
+    <h2 class="reveal">最大杠杆：<span class="glow-g">Cached Input</span> 比 Input 便宜 <span class="glow-y">10×</span></h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.4rem">所有大模型都对"重复送进去的相同前缀"打到 1/10 价 — 命中缓存就是最直接的省钱</p>
+
+    <table class="price-tbl reveal">
+      <thead>
+        <tr><th>Model</th><th>Input / 1M</th><th>Cached / 1M</th><th>Output / 1M</th><th>省幅</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>GPT-4.1</td><td class="input">$2.00</td><td class="cached">$0.50</td><td class="output">$8.00</td><td class="cached">−75%</td></tr>
+        <tr><td>GPT-5.4</td><td class="input">$2.50</td><td class="cached">$0.25</td><td class="output">$15.00</td><td class="cached">−90%</td></tr>
+        <tr><td>Claude Sonnet 4.5</td><td class="input">$3.00</td><td class="cached">$0.30</td><td class="output">$15.00</td><td class="cached">−90%</td></tr>
+        <tr><td>Claude Opus 4.7</td><td class="input">$5.00</td><td class="cached">$0.50</td><td class="output">$25.00</td><td class="cached">−90%</td></tr>
+        <tr><td>Gemini 2.5 Pro</td><td class="input">$1.25</td><td class="cached">$0.125</td><td class="output">$10.00</td><td class="cached">−90%</td></tr>
+        <tr><td>GPT-5 mini <span style="color:var(--muted)">(included)</span></td><td class="input">$0.25</td><td class="cached">$0.025</td><td class="output">$2.00</td><td class="cached">−90%</td></tr>
+      </tbody>
+    </table>
+
+    <div style="text-align:center" class="reveal">
+      <div class="savings-callout">⚡ 让 prompt 前缀稳定 → cache 命中率 ↑ → 真实账单 <b>−80%</b> 起步</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 12: COST #2 — INSTRUCTIONS.MD ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 12 — COST CUT #2</div>
+    <h2 class="reveal">用 <span class="glow-g">instructions.md</span> 锁住 prompt 前缀，提升 cache 命中率</h2>
+
+    <div class="split">
+      <div class="tip-points reveal">
+        <div class="pt"><b>// WHY</b> 仓库级共享 context — 团队所有人发起 chat 时，前缀完全一致 = cache 命中</div>
+        <div class="pt"><b>// WHERE</b> <span class="mono">.github/copilot-instructions.md</span>（仓库根）<br><span class="mono">.github/instructions/*.instructions.md</span>（按文件 glob 适配）</div>
+        <div class="pt"><b>// WHAT</b> 写代码风格、技术栈版本、命名约定、架构原则、禁用模式、常用术语</div>
+        <div class="pt"><b>// WIN</b> 每条 chat 都自动注入 → 不必每次重复手输 → 还顺便提高输出质量</div>
+      </div>
+
+      <div class="code-blk reveal">
+        <div class="code-hd"><span>.github/copilot-instructions.md</span><span class="lang">markdown</span></div>
+        <div class="code-bd"><span class="c"># Project Conventions</span>
+
+- 语言：<span class="s">TypeScript 5.4 strict</span>
+- 框架：<span class="s">Next.js 14 App Router</span>
+- 状态管理：<span class="s">Zustand</span>，禁用 Redux
+- 测试：<span class="s">Vitest</span>，禁止生成 Jest 写法
+- 命名：<span class="k">camelCase</span> for vars · <span class="k">PascalCase</span> for components
+
+<span class="c">## Style</span>
+- 函数式优先，避免 class
+- 错误处理用 <span class="v">Result&lt;T,E&gt;</span> 而非 throw
+- 不要生成 console.log，用 <span class="v">logger</span>
+
+<span class="c">## Domain</span>
+- "user" 永远指 <span class="v">AuthenticatedUser</span>
+- "order" 字段顺序：id → userId → items → total</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 13: COST #3 — PROMPT FILES ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 13 — COST CUT #3</div>
+    <h2 class="reveal">用 <span class="glow-c">.prompt.md</span> 复用模板：稳定 + 可治理</h2>
+
+    <div class="split">
+      <div class="tip-points reveal">
+        <div class="pt"><b>// FILE</b> <span class="mono">.github/prompts/&lt;name&gt;.prompt.md</span> 在 chat 里输入 <span class="mono">/&lt;name&gt;</span> 直接调用</div>
+        <div class="pt"><b>// REUSE</b> 同一个 prompt 全公司共享 → 同样的前缀 → 同样命中 cache</div>
+        <div class="pt"><b>// FRONT-MATTER</b> 可以指定 <span class="mono">model</span>、<span class="mono">tools</span>、<span class="mono">mode</span>，对齐成本预期</div>
+        <div class="pt"><b>// PATTERNS</b> code-review / refactor-to-hook / write-tests / sec-audit / api-doc</div>
+      </div>
+
+      <div class="code-blk reveal">
+        <div class="code-hd"><span>.github/prompts/code-review.prompt.md</span><span class="lang">markdown</span></div>
+        <div class="code-bd"><span class="k">---</span>
+<span class="v">mode</span>: agent
+<span class="v">model</span>: gpt-5-mini
+<span class="v">description</span>: <span class="s">"Standard PR review"</span>
+<span class="k">---</span>
+
+请按以下步骤审查 <span class="v">${selection}</span>：
+
+1. <span class="c"># 安全</span> 检查注入 / 越权 / 密钥泄漏
+2. <span class="c"># 性能</span> 检查 N+1 / 内存泄漏
+3. <span class="c"># 可读性</span> 命名 / 复杂度 / 注释
+
+输出格式：
+- 严重程度：🔴 / 🟡 / 🟢
+- 行号 + 修复建议（直接给 patch）
+
+参考仓库规则：<span class="v">copilot-instructions.md</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 14: COST #4 — CONTEXT SCOPING ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 14 — COST CUT #4</div>
+    <h2 class="reveal">少塞点东西：<span class="glow-p">避免全仓引用</span></h2>
+
+    <div class="split">
+      <div class="tip-points reveal">
+        <div class="pt"><b>// COST</b> "@workspace 全仓"看似方便，其实把数千文件 token 都塞进去 — output 不变贵，input + cache miss 拉满</div>
+        <div class="pt"><b>// FIX 1</b> 显式选文件：<span class="mono">#file:src/api/orders.ts</span> 比 #workspace 便宜一个数量级</div>
+        <div class="pt"><b>// FIX 2</b> 用 symbol 引用：<span class="mono">#sym:OrderService.calculate</span> 只塞函数体</div>
+        <div class="pt"><b>// FIX 3</b> Agent 模式下，让 agent 自己 read_file 比首轮硬塞所有文件更便宜（按需载入 + cache 友好）</div>
+        <div class="pt"><b>// FIX 4</b> .gitignore + <span class="mono">.copilotignore</span> 排除 build / dist / lock / 大 JSON 数据</div>
+      </div>
+
+      <div class="code-blk reveal">
+        <div class="code-hd"><span>chat 输入对比</span><span class="lang">prompt</span></div>
+        <div class="code-bd"><span class="c">// ❌ 贵 · token 爆炸</span>
+<span class="k">@workspace</span> 给我加一个订单退款逻辑
+
+<span class="c">// ✅ 便宜 · 精确锁定</span>
+<span class="k">#file</span>:src/api/orders.ts
+<span class="k">#file</span>:src/services/refund.ts
+<span class="k">#sym</span>:OrderService.create
+给我加一个订单退款逻辑，复用 refund.ts 里的 RefundPolicy
+
+<span class="c">// 💡 Agent 模式</span>
+让 agent 自己 grep / read_file 探索仓库
+首轮 prompt 只描述目标，不堆 context</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 15: COST #5 — MODEL TIERING ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 15 — COST CUT #5</div>
+    <h2 class="reveal">分层用模型：<span class="glow-g">日常用小</span>，<span class="glow-p">攻坚用大</span></h2>
+
+    <div class="split">
+      <div class="tip-points reveal">
+        <div class="pt"><b>// DAILY (cheap)</b> GPT-5 mini · GPT-4.1 · Claude Haiku — 自动补全提示、改 typo、写正则、生成简单测试</div>
+        <div class="pt"><b>// MIDDLE</b> GPT-5.4 · Claude Sonnet 4.5 — 重构、添新功能、解释陌生代码</div>
+        <div class="pt"><b>// BOSS FIGHT</b> Claude Opus 4.7 · Gemini 2.5 Pro — 跨多文件架构变更、棘手 bug 排查、大上下文 audit</div>
+        <div class="pt"><b>// AGENT</b> 让 cloud agent 跑长任务前先在本地 chat 把方案验明白 — agent 一跑就是数千 credit</div>
+        <div class="pt"><b>// DEFAULT</b> Admin 可以在 org 层级把"默认模型"设为 mini 系列，强力模型按需切换</div>
+      </div>
+
+      <div class="code-blk reveal">
+        <div class="code-hd"><span>实战分层策略</span><span class="lang">strategy</span></div>
+        <div class="code-bd"><span class="c">// 日常 80% 流量</span>
+<span class="k">model</span>: <span class="v">gpt-5-mini</span>      <span class="c">// 含在套餐内</span>
+<span class="k">use</span>:   tab 补全 / Q&amp;A / 小修改
+
+<span class="c">// 中等 18%</span>
+<span class="k">model</span>: <span class="v">gpt-5.4</span>         <span class="c">// 400K context</span>
+<span class="k">use</span>:   写新模块 / 重构
+
+<span class="c">// 王炸 2%</span>
+<span class="k">model</span>: <span class="v">claude-opus-4.7</span> <span class="c">// 1M beta</span>
+<span class="k">use</span>:   monorepo 全局重构 · 难 bug
+
+<span class="c">// 💰 把 cache 写满，让重复调用走 0.5×</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 16: COST #6 — HIDDEN COST ========== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="kicker reveal">// 16 — HIDDEN COST</div>
+    <h2 class="reveal">⚠️ 容易忽视：<span class="glow-p">Code Review</span> 还会消耗 Actions 分钟数</h2>
+
+    <div class="cost-eq reveal">
+      <div class="cost-box">
+        <div class="ic">🤖</div>
+        <div class="v">AI Credits</div>
+        <div class="l">推理 token 计费</div>
+      </div>
+      <div class="plus">+</div>
+      <div class="cost-box hidden">
+        <div class="ic">⏱️</div>
+        <div class="v">Actions Minutes</div>
+        <div class="l">运行环境时长</div>
+      </div>
+      <div class="plus">=</div>
+      <div class="cost-box">
+        <div class="ic">💸</div>
+        <div class="v">真实账单</div>
+        <div class="l">两个口袋一起扣</div>
+      </div>
+    </div>
+
+    <div class="tip-points reveal" style="margin-top:var(--gap)">
+      <div class="pt"><b>// WHEN</b> 2026-06-01 起，Copilot Code Review 在 GitHub Actions runner 里跑，按运行时间扣 Actions 分钟</div>
+      <div class="pt"><b>// MITIGATION</b> 检查 Actions 余额、对大 PR 限制评审范围、用 path-filter 只 review 关键目录</div>
+      <div class="pt"><b>// VISIBILITY</b> 在 billing page 同时盯两条线：AI Credit 用量 + Actions minutes 用量</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 17: PREVIEW BILL WALKTHROUGH ========== -->
+<section class="slide" id="slidePreview">
+  <div class="slide-content">
+    <div class="kicker reveal">// 17 — REHEARSAL</div>
+    <h2 class="reveal">5 月 <span class="glow-g">Preview Bill</span> 实战：上传 CSV → 看真实账单</h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.3rem">2026-05 GitHub 给所有 admin 一份"试运行账单" + 官方分析工具，全程 4 步，<b style="color:var(--green)">不扣一分钱</b></p>
+
+    <div class="preview-flow reveal">
+      <div class="pflow-step">
+        <div class="stp-num">1</div>
+        <div class="stp-ic">📥</div>
+        <div class="stp-title">下载 CSV</div>
+        <div class="stp-body">
+          以 Billing Admin 登录<br>
+          → Settings → Billing &amp; licensing<br>
+          → "Preview your billing impact"<br>
+          → Download CSV
+          <code>github.com/organizations/<br>&lt;org&gt;/settings/billing</code>
+        </div>
+      </div>
+      <div class="pflow-step">
+        <div class="stp-num">2</div>
+        <div class="stp-ic">🌐</div>
+        <div class="stp-title">打开预览工具</div>
+        <div class="stp-body">
+          官方独立站点 · 纯前端 SPA<br>
+          所有解析在<b>浏览器本地</b>完成<br>
+          数据不上传任何服务器
+          <code>copilot-billing-preview<br>.github.com</code>
+        </div>
+      </div>
+      <div class="pflow-step">
+        <div class="stp-num">3</div>
+        <div class="stp-ic">📂</div>
+        <div class="stp-title">拖拽 CSV</div>
+        <div class="stp-body">
+          把第 1 步导出的 CSV<br>
+          直接拖到页面<br>
+          (或点 "Choose file" 上传)
+          <code>copilot-usage-<br>2026-05.csv</code>
+        </div>
+      </div>
+      <div class="pflow-step">
+        <div class="stp-num">4</div>
+        <div class="stp-ic">📊</div>
+        <div class="stp-title">看 breakdown</div>
+        <div class="stp-body">
+          按 user / feature / model<br>
+          列出每行真实 credit 消耗<br>
+          找出 top 10 cost driver<br>
+          导出给财务对账 + 设 budget
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-callout reveal">
+      <div class="ic">🔒</div>
+      <div class="text">
+        <b>// PRIVACY</b> 所有 CSV 在浏览器内 JS 解析，不离开本地。<br>
+        <b>// COMPARE</b> 在 Billing Overview 也能看 GitHub 自动算好的 May Preview Bill，对照核查。
+        <b>// REPEAT</b> 6/7/8 月可以反复跑，跟踪促销期实际消耗曲线，9 月前调整 budget。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLIDE 18: ACTION CHECKLIST ========== -->
+<section class="slide send-off">
+  <div class="slide-content">
+    <div class="kicker reveal" style="justify-content:center">// 18 — DEPLOY CHECKLIST</div>
+    <h1 class="reveal">现在就动手</h1>
+
+    <div class="checklist">
+      <div class="check-card reveal">
+        <div class="when">// PRE-FLIGHT · 2026-05</div>
+        <h3>看 5 月 preview bill</h3>
+        <ul>
+          <li>登录 billing → 查看 May 2026 preview</li>
+          <li>映射现有 PRU 用量到新 credit 模型</li>
+          <li>识别重度用户 / 重度 agent 任务</li>
+          <li>预演各团队真实账单形态</li>
+        </ul>
+      </div>
+
+      <div class="check-card reveal">
+        <div class="when">// ADMIN · 2026-06-01 之前</div>
+        <h3>设置 Budget 与告警</h3>
+        <ul>
+          <li>开启 enterprise / org / cost-center budget</li>
+          <li>配置 50% / 75% / 100% 告警 webhook</li>
+          <li>决定 overage 策略：阻断 or 自费续杯</li>
+          <li>检查 user $0 默认配置（11/18 前调整）</li>
+        </ul>
+      </div>
+
+      <div class="check-card reveal">
+        <div class="when">// DEV TEAM · 立即</div>
+        <h3>把仓库 cache 友好化</h3>
+        <ul>
+          <li>建 <span class="mono">.github/copilot-instructions.md</span></li>
+          <li>抽 5–10 个常用 <span class="mono">.prompt.md</span> 模板</li>
+          <li>培训：禁用 @workspace 全仓引用</li>
+          <li>建立 .copilotignore，排除 dist / data</li>
+        </ul>
+      </div>
+
+      <div class="check-card reveal">
+        <div class="when">// FOLLOW-UP · 2026-09-01</div>
+        <h3>福利期结束前复盘</h3>
+        <ul>
+          <li>对比促销期 vs 标准期消耗曲线</li>
+          <li>评估是否需要购买额外 credit pack</li>
+          <li>给重度用户单独提升上限</li>
+          <li>沉淀团队"Copilot 经济学"最佳实践</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="reveal mono" style="text-align:center;color:var(--muted);margin-top:var(--gap);font-size:var(--small);letter-spacing:.15em">
+      // GAME ON. 把每一个 credit 当成你的筹码 — 押在最有 ROI 的那一手上。
+    </p>
+  </div>
+</section>
+
+<script>
+/* =================================================================
+   STEP ANIMATOR — drives slide 7 (pool) + slide 10 (burn order)
+   Buttons: ⟳ reset, ▶ play (auto-advance), ⏭ step (manual)
+   ================================================================= */
+class StepAnimator{
+  constructor(slide,steps,autoMs){
+    this.slide=slide;
+    this.steps=steps;
+    this.autoMs=autoMs||2600;
+    this.step=0;
+    this.timer=null;
+    this._autoPlayed=false;
+    slide._animator=this;
+    this.bind();
+    this.render();
+  }
+  bind(){
+    this.slide.querySelectorAll('.ctrl').forEach(b=>{
+      b.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        this.act(b.dataset.act);
+      });
+    });
+  }
+  act(a){
+    if(a==='reset'){this.stop();this.step=0;}
+    else if(a==='step'){this.stop();this.step=(this.step+1)%this.steps.length;}
+    else if(a==='play'){this.play();return;}
+    this.render();
+  }
+  play(){
+    this.stop();
+    this.step=0;
+    this.render();
+    this.timer=setInterval(()=>{
+      if(this.step>=this.steps.length-1){this.stop();return;}
+      this.step++;
+      this.render();
+    },this.autoMs);
+  }
+  stop(){
+    if(this.timer){clearInterval(this.timer);this.timer=null;}
+  }
+  render(){
+    const s=this.steps[this.step];
+    const narr=this.slide.querySelector('.step-narrative');
+    if(narr){
+      narr.innerHTML='<span class="num">// STEP '+String(this.step).padStart(2,'0')+' / '+String(this.steps.length-1).padStart(2,'0')+'</span><span class="desc">'+s.text+'</span>';
+    }
+    if(typeof s.apply==='function')s.apply(this.slide);
+  }
+}
+
+/* =================================================================
+   PRESENTATION CONTROLLER
+   ================================================================= */
+class Deck{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.total=this.slides.length;
+    this.current=0;
+    this.progress=document.getElementById('progress');
+    this.dotsEl=document.getElementById('navDots');
+    this.numEl=document.getElementById('slideNum');
+    this.buildDots();
+    this.bindObserver();
+    this.bindKeys();
+    this.bindWheel();
+    this.bindTouch();
+    this.update();
+  }
+  buildDots(){
+    this.slides.forEach((_,i)=>{
+      const b=document.createElement('button');
+      b.setAttribute('aria-label','跳到第 '+(i+1)+' 页');
+      b.addEventListener('click',()=>this.goto(i));
+      this.dotsEl.appendChild(b);
+    });
+    this.dots=[...this.dotsEl.children];
+  }
+  bindObserver(){
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('visible');
+          this.current=this.slides.indexOf(e.target);
+          this.update();
+        }
+      });
+    },{threshold:.55});
+    this.slides.forEach(s=>io.observe(s));
+  }
+  bindKeys(){
+    document.addEventListener('keydown',(e)=>{
+      if(['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();this.goto(this.current+1)}
+      else if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();this.goto(this.current-1)}
+      else if(e.key==='Home'){e.preventDefault();this.goto(0)}
+      else if(e.key==='End'){e.preventDefault();this.goto(this.total-1)}
+    });
+  }
+  bindWheel(){
+    let lock=false;
+    window.addEventListener('wheel',(e)=>{
+      if(lock)return;
+      if(Math.abs(e.deltaY)<30)return;
+      lock=true;
+      this.goto(this.current+(e.deltaY>0?1:-1));
+      setTimeout(()=>lock=false,650);
+    },{passive:true});
+  }
+  bindTouch(){
+    let y0=0;
+    window.addEventListener('touchstart',e=>y0=e.touches[0].clientY,{passive:true});
+    window.addEventListener('touchend',e=>{
+      const dy=y0-e.changedTouches[0].clientY;
+      if(Math.abs(dy)>50)this.goto(this.current+(dy>0?1:-1));
+    },{passive:true});
+  }
+  goto(i){
+    i=Math.max(0,Math.min(this.total-1,i));
+    this.slides[i].scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  update(){
+    this.progress.style.width=((this.current+1)/this.total*100)+'%';
+    this.dots.forEach((d,i)=>d.classList.toggle('active',i===this.current));
+    this.numEl.textContent=String(this.current+1).padStart(2,'0')+' / '+String(this.total).padStart(2,'0');
+  }
+}
+new Deck();
+
+/* =================================================================
+   SLIDE 7 — POOL ANIMATOR
+   ================================================================= */
+const slidePool=document.getElementById('slidePool');
+if(slidePool){
+  const buckets=()=>slidePool.querySelectorAll('.user-bucket-v2');
+  const setMerge=(m)=>buckets().forEach(b=>b.classList.toggle('merging',m));
+  const setBucketHeight=(h)=>buckets().forEach(b=>b.querySelector('.fill-v2').style.height=h+'%');
+  const pool=slidePool.querySelector('.big-pool-v2');
+  const liquid=slidePool.querySelector('.liquid-v2');
+  const poolNum=slidePool.querySelector('.pool-num');
+  const arrow=slidePool.querySelector('.merge-flow');
+  const license=slidePool.querySelector('.new-license-tag');
+
+  new StepAnimator(slidePool,[
+    {
+      text:'初始 — 6 个 Business 用户，看似各自有 1,900 credit 的"个人桶"',
+      apply:()=>{
+        setMerge(false);setBucketHeight(100);
+        arrow.classList.remove('show');
+        pool.classList.remove('show','expanded');
+        license.classList.remove('show');
+        liquid.style.height='0%';
+        poolNum.textContent='11,400';
+      }
+    },
+    {
+      text:'真相 — 6 个 license 实际汇入一个共享池：6 × 1,900 = 11,400 credits（墙是虚的）',
+      apply:()=>{
+        setMerge(true);
+        arrow.classList.add('show');
+        pool.classList.add('show');
+        pool.classList.remove('expanded');
+        license.classList.remove('show');
+        liquid.style.height='95%';
+        poolNum.textContent='11,400 / 11,400';
+      }
+    },
+    {
+      text:'消耗 — alice 写代码 1,200 / bob 跑 agent 3,500 / 其他人 2,800，全从同一池子扣，剩 ~3,900',
+      apply:()=>{
+        setMerge(true);
+        arrow.classList.add('show');
+        pool.classList.add('show');
+        pool.classList.remove('expanded');
+        license.classList.remove('show');
+        liquid.style.height='34%';
+        poolNum.textContent='3,900 / 11,400';
+      }
+    },
+    {
+      text:'弹性扩容 — 本周期新增 1 个 license → 池子立刻 +1,900 → 上限变 13,300，可即时使用',
+      apply:()=>{
+        setMerge(true);
+        arrow.classList.add('show');
+        pool.classList.add('show','expanded');
+        license.classList.add('show');
+        liquid.style.height='44%';
+        poolNum.textContent='5,800 / 13,300';
+      }
+    },
+    {
+      text:'收缩 — 移除 license 不立即退池，下个 billing 周期才生效（防止突然断流）',
+      apply:()=>{
+        setMerge(true);
+        arrow.classList.add('show');
+        pool.classList.add('show');
+        pool.classList.remove('expanded');
+        license.classList.remove('show');
+        liquid.style.height='44%';
+        poolNum.textContent='5,800 / 13,300 → 下周期 11,400';
+      }
+    }
+  ]);
+}
+
+/* =================================================================
+   SLIDE 10 — BURN ORDER ANIMATOR
+   ================================================================= */
+const slideBurn=document.getElementById('slideBurn');
+if(slideBurn){
+  const setLevel=(key,w,state)=>{
+    const lvl=slideBurn.querySelector('[data-lvl="'+key+'"]');
+    if(!lvl)return;
+    lvl.querySelector('.lfill').style.width=w+'%';
+    lvl.classList.remove('draining','empty','locked','active');
+    if(state)lvl.classList.add(state);
+  };
+  const setGate=(key,state,label)=>{
+    const g=slideBurn.querySelector('[data-gate="'+key+'"]');
+    if(!g)return;
+    g.classList.remove('open','closed');
+    if(state)g.classList.add(state);
+    const lbl=g.querySelector('.glabel');
+    if(lbl)lbl.textContent=label||'· 未触发';
+  };
+
+  new StepAnimator(slideBurn,[
+    {
+      text:'初始 — 4 层全满。User 1,900 / Org 10,000 / Cost Center 50,000 / Enterprise 200,000',
+      apply:()=>{
+        setLevel('user',100,'active');
+        setLevel('org',100);
+        setLevel('cc',100);
+        setLevel('ent',100);
+        setGate('u-o','','· 未触发');
+        setGate('o-c','','· 未触发');
+        setGate('c-e','','· 未触发');
+      }
+    },
+    {
+      text:'步骤 1 — 用户日常使用，先烧"个人桶" 1,900 配额（这一层最快被烧穿）',
+      apply:()=>{
+        setLevel('user',0,'empty');
+        setLevel('org',100,'active');
+        setLevel('cc',100);
+        setLevel('ent',100);
+        setGate('u-o','open','✓ 个人耗尽 / 上溯到 Org');
+        setGate('o-c','','· 未触发');
+        setGate('c-e','','· 未触发');
+      }
+    },
+    {
+      text:'步骤 2 — 个人空了 → 自动转入 Org 共享池，Org 余额下降到 ~20%',
+      apply:()=>{
+        setLevel('user',0,'empty');
+        setLevel('org',20,'draining');
+        setLevel('cc',100);
+        setLevel('ent',100);
+        setGate('u-o','open','✓ 通道开');
+        setGate('o-c','','· 未触发');
+        setGate('c-e','','· 未触发');
+      }
+    },
+    {
+      text:'步骤 3 — Org 也烧光 → 自动转入 Cost Center pool，CC 余额下降到 ~30%',
+      apply:()=>{
+        setLevel('user',0,'empty');
+        setLevel('org',0,'empty');
+        setLevel('cc',30,'draining');
+        setLevel('ent',100,'active');
+        setGate('u-o','open','✓ 通道开');
+        setGate('o-c','open','✓ Org 耗尽 / 上溯到 CC');
+        setGate('c-e','','· 未触发');
+      }
+    },
+    {
+      text:'⚠ 步骤 4 — Cost Center 烧到 0 → 通道关闭！Enterprise 还有 100% 但够不到，请求被拒',
+      apply:()=>{
+        setLevel('user',0,'empty');
+        setLevel('org',0,'empty');
+        setLevel('cc',0,'empty');
+        setLevel('ent',100,'locked');
+        setGate('u-o','open','✓ 通道开');
+        setGate('o-c','open','✓ 通道开');
+        setGate('c-e','closed','✕ CC 耗尽 / Ent 不可达');
+      }
+    },
+    {
+      text:'解法 — admin 在被卡的那一层（这里是 CC）提高 budget cap，立刻打通到 Enterprise',
+      apply:()=>{
+        setLevel('user',0,'empty');
+        setLevel('org',0,'empty');
+        setLevel('cc',35,'draining');
+        setLevel('ent',96,'active');
+        setGate('u-o','open','✓ 通道开');
+        setGate('o-c','open','✓ 通道开');
+        setGate('c-e','open','✓ admin 提额 / 通道恢复');
+      }
+    }
+  ]);
+}
+
+/* Auto-play step animators when their slide first becomes visible */
+const animObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting&&e.target._animator&&!e.target._animator._autoPlayed){
+      e.target._animator._autoPlayed=true;
+      setTimeout(()=>e.target._animator.play(),900);
+    }
+  });
+},{threshold:.55});
+[slidePool,slideBurn].forEach(s=>{if(s)animObserver.observe(s);});
+
+/* preload first slide visible */
+document.querySelector('.slide').classList.add('visible');
+</script>
+</body>
+</html>

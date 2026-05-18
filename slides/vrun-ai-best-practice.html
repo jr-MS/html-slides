@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V-Run 产品组 AI 实践方法论</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --surface: rgba(255,255,255,0.04);
+      --surface-2: rgba(255,255,255,0.06);
+      --surface-3: rgba(255,255,255,0.08);
+      --ink: #f0eeeb;
+      --ink-2: rgba(240,238,235,0.72);
+      --ink-3: rgba(240,238,235,0.48);
+      --accent: #6366f1;
+      --accent-2: #818cf8;
+      --accent-glow: rgba(99,102,241,0.15);
+      --green: #34d399;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --cyan: #22d3ee;
+      --border: rgba(255,255,255,0.08);
+      --border-accent: rgba(99,102,241,0.3);
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'Inter','Noto Sans SC',sans-serif}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(99,102,241,0.08),transparent 60%),radial-gradient(ellipse 60% 50% at 100% 100%,rgba(52,211,153,0.04),transparent 50%)}
+
+    .deck{position:relative;width:100vw;height:100vh}
+    .slide{position:absolute;inset:0;padding:clamp(24px,3vh,44px) clamp(32px,4vw,64px) clamp(60px,8vh,88px);opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .4s ease,transform .5s cubic-bezier(.22,1,.36,1),visibility 0s .4s}
+    .slide.active{opacity:1;visibility:visible;transform:translateY(0);transition:opacity .4s ease,transform .5s cubic-bezier(.22,1,.36,1),visibility 0s 0s}
+
+    .slide-inner{width:100%;height:100%;display:flex;flex-direction:column;gap:clamp(12px,2vh,24px)}
+
+    .eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent-2);font-weight:600;display:flex;align-items:center;gap:12px}
+    .eyebrow::before{content:"";width:32px;height:1px;background:var(--accent-2)}
+    .slide-num{font-size:11px;letter-spacing:.2em;color:var(--ink-3);position:absolute;top:clamp(18px,2.5vh,28px);right:clamp(24px,3vw,48px)}
+
+    h1{font-size:clamp(36px,5vw,72px);font-weight:800;line-height:.95;letter-spacing:-.04em;background:linear-gradient(135deg,var(--ink) 60%,var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    h2{font-size:clamp(24px,2.8vw,40px);font-weight:700;line-height:1.05;letter-spacing:-.03em}
+    h3{font-size:clamp(13px,1.4vw,17px);font-weight:600;line-height:1.2;margin-bottom:8px}
+    p,li{font-size:clamp(12px,1.2vw,15px);line-height:1.6;color:var(--ink-2)}
+
+    .subtitle{font-size:clamp(14px,1.5vw,19px);line-height:1.6;color:var(--ink-2);max-width:56ch}
+
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(10px,1.4vw,20px)}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.4vw,20px)}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.2vw,16px)}
+    .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(8px,1vw,14px)}
+
+    .card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:clamp(14px,1.6vw,22px);position:relative;overflow:hidden;transition:border-color .3s}
+    .card:hover{border-color:var(--border-accent)}
+    .card::before{content:"";position:absolute;inset:0;opacity:0;background:linear-gradient(135deg,var(--accent-glow),transparent 60%);transition:opacity .3s}
+    .card:hover::before{opacity:1}
+
+    .card.accent-border{border-color:var(--border-accent)}
+    .card.glow{background:linear-gradient(135deg,rgba(99,102,241,.08),var(--surface));border-color:var(--border-accent)}
+
+    .tag{display:inline-flex;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:500;letter-spacing:.04em;border:1px solid var(--border);background:var(--surface)}
+    .tag.green{color:var(--green);border-color:rgba(52,211,153,.25)}
+    .tag.amber{color:var(--amber);border-color:rgba(251,191,36,.25)}
+    .tag.rose{color:var(--rose);border-color:rgba(251,113,133,.25)}
+    .tag.cyan{color:var(--cyan);border-color:rgba(34,211,238,.25)}
+    .tag.accent{color:var(--accent-2);border-color:rgba(129,140,248,.25)}
+
+    .metric{font-size:clamp(28px,3.2vw,48px);font-weight:800;line-height:1;letter-spacing:-.03em}
+    .metric.green{color:var(--green)}
+    .metric.accent{color:var(--accent-2)}
+    .metric.amber{color:var(--amber)}
+    .metric.rose{color:var(--rose)}
+    .metric.cyan{color:var(--cyan)}
+
+    .quote-block{border-left:3px solid var(--accent);padding:clamp(12px,1.4vw,20px) clamp(16px,1.8vw,24px);background:var(--surface);border-radius:0 12px 12px 0;font-size:clamp(13px,1.4vw,17px);line-height:1.6;color:var(--ink)}
+    .quote-block strong{color:var(--accent-2)}
+
+    ul{list-style:none;padding:0;display:grid;gap:6px}
+    li{padding-left:16px;position:relative}
+    li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--accent-2);opacity:.6}
+
+    .hero-layout{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(20px,3vw,40px);align-items:center;flex:1}
+    .hero-right{display:grid;gap:clamp(10px,1.4vw,18px)}
+
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2vw,28px);flex:1}
+    .split-wide{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(14px,2vw,28px);flex:1}
+
+    .timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(8px,1vw,14px);flex:0}
+    .step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-bottom:8px}
+
+    .pill-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .pill{padding:6px 14px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink-2)}
+    .pill.highlight{border-color:var(--border-accent);color:var(--accent-2)}
+    .arrow-sep{color:var(--ink-3);font-size:14px}
+
+    .footer-bar{margin-top:auto;display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--ink-3);letter-spacing:.1em}
+
+    .nav{position:fixed;left:24px;right:24px;bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:20}
+    .nav button{border:1px solid var(--border);background:rgba(10,10,11,.9);color:var(--ink);padding:10px 18px;font:inherit;font-size:13px;cursor:pointer;border-radius:8px;backdrop-filter:blur(12px);transition:border-color .2s}
+    .nav button:hover{border-color:var(--accent-2)}
+    .dots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .dot{width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);cursor:pointer;padding:0;transition:all .2s}
+    .dot.active{background:var(--accent);border-color:var(--accent);width:20px;border-radius:999px}
+    .progress-track{position:fixed;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.04);z-index:30}
+    .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .3s ease}
+
+    .comparison-table{display:grid;grid-template-columns:.7fr 1fr 1fr;gap:1px;background:var(--border);border-radius:12px;overflow:hidden}
+    .comparison-table>div{padding:clamp(10px,1.2vw,16px);background:var(--bg)}
+    .comparison-table .row-head{background:var(--surface-2);font-weight:600;font-size:clamp(11px,1.1vw,13px);color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase}
+
+    .icon-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;flex-shrink:0}
+    .icon-circle.purple{background:rgba(99,102,241,.15)}
+    .icon-circle.green{background:rgba(52,211,153,.15)}
+    .icon-circle.amber{background:rgba(251,191,36,.15)}
+    .icon-circle.rose{background:rgba(251,113,133,.15)}
+    .icon-circle.cyan{background:rgba(34,211,238,.15)}
+
+    @media(max-width:1100px){
+      html,body{overflow:auto}
+      .slide{position:relative;opacity:1;visibility:visible;transform:none;min-height:100vh;padding:20px 20px 80px}
+      .hero-layout,.two-col,.split-wide,.grid-2,.grid-3,.grid-4,.grid-5,.timeline,.comparison-table{grid-template-columns:1fr}
+      .nav{display:none}
+    }
+
+    @media print{
+      .slide{position:relative;opacity:1!important;visibility:visible!important;transform:none!important;min-height:100vh;page-break-after:always}
+      .nav,.progress-track{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<main class="deck" id="deck">
+
+  <!-- SLIDE 01: Cover -->
+  <section class="slide active">
+    <div class="slide-inner">
+      <div class="slide-num">01 / 13</div>
+      <div class="hero-layout">
+        <div>
+          <div class="eyebrow">V-Run Product Team · AI Best Practice</div>
+          <h1 style="margin-top:16px">产品经理与设计师的 <span style="-webkit-text-fill-color:var(--accent-2)">AI 效能实践</span></h1>
+          <p class="subtitle" style="margin-top:20px">V-Run 产品组如何将 AI 深度融入日常工作流，从需求定义到端到端交付，实现效率跃升与角色进化。</p>
+          <div class="pill-row" style="margin-top:24px">
+            <span class="pill highlight">产品经理</span>
+            <span class="pill highlight">设计师</span>
+            <span class="pill">GitHub Copilot</span>
+            <span class="pill">Claude Code</span>
+            <span class="pill">AI Agent</span>
+            <span class="pill">端到端交付</span>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="card glow">
+            <h3>核心观点</h3>
+            <p>AI 不只是提效工具，而是重构了产品经理和设计师的工作方式——从信息组织者变成 AI 工作流的编排者和端到端的 builder。</p>
+          </div>
+          <div class="card">
+            <h3>方法论来源</h3>
+            <p>基于 V-Run 多位产品经理和设计师的真实工作实践，结合业界前沿方法论整理。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 02: 现状总览 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">02 / 13</div>
+      <div class="eyebrow">Current State</div>
+      <h2>产品组 AI 使用现状：五个关键信号</h2>
+      <div class="grid-5" style="flex:1;align-items:stretch">
+        <div class="card">
+          <div class="icon-circle purple">→</div>
+          <h3>PM 正在 Builder 化</h3>
+          <p>产品经理不再只是需求定义者，而是直接产出原型、代码、文档的全栈贡献者。</p>
+        </div>
+        <div class="card">
+          <div class="icon-circle green">⚡</div>
+          <h3>AI 正在流程化</h3>
+          <p>真正高价值的不是单轮问答，而是会议→文档→代码→评审→总结的连续链路。</p>
+        </div>
+        <div class="card">
+          <div class="icon-circle amber">✎</div>
+          <h3>文档生产方式变了</h3>
+          <p>PRD、spec、summary 越来越是 AI 先起草，人做取舍、判断和润色。</p>
+        </div>
+        <div class="card">
+          <div class="icon-circle cyan">◎</div>
+          <h3>设计稿变成结构化输入</h3>
+          <p>设计不再只是视觉交付，Figma 的 token、组件、层级成为 AI agent 的上下文。</p>
+        </div>
+        <div class="card">
+          <div class="icon-circle rose">△</div>
+          <h3>效率与风险同时放大</h3>
+          <p>速度提升的同时，安全、责任漂移、质量治理成为必须解决的问题。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 03: AI 工具矩阵 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">03 / 13</div>
+      <div class="eyebrow">Tool Stack</div>
+      <h2>产品组正在使用的 AI 工具栈</h2>
+      <div class="grid-3" style="flex:1;align-items:stretch">
+        <div class="card accent-border">
+          <div class="icon-circle purple">⌨</div>
+          <h3>VS Code + GitHub Copilot</h3>
+          <ul>
+            <li>Copilot Agent 模式用于代码生成与 spec 初稿</li>
+            <li>内嵌在编辑器中，摩擦最低</li>
+            <li>适合小到中等规模的代码修改和快速原型</li>
+            <li>与 repo 上下文天然集成</li>
+          </ul>
+        </div>
+        <div class="card accent-border">
+          <div class="icon-circle green">▸</div>
+          <h3>Claude Code (终端 AI)</h3>
+          <ul>
+            <li>CLI 环境下的深度编码与推理工具</li>
+            <li>偏好轻量 CLI 工作流，接入开发流程更自然</li>
+            <li>适合 PR 生成、代码审查、复杂逻辑推演</li>
+            <li>可连续处理信息、文档和代码</li>
+          </ul>
+        </div>
+        <div class="card accent-border">
+          <div class="icon-circle amber">◉</div>
+          <h3>AI Chat & Meeting Tools</h3>
+          <ul>
+            <li>会议录音转 spec 草案与行动项</li>
+            <li>邮件、Teams、SharePoint 上下文聚合</li>
+            <li>双周汇报、newsletter 自动生成</li>
+            <li>跨系统信息拉齐与关键风险总结</li>
+          </ul>
+        </div>
+      </div>
+      <div class="quote-block" style="margin-top:auto">
+        工具选择的核心原则：不迷信平台，重点看是否能<strong>真正嵌入现有工作方式</strong>，减少切换成本。
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 04: PM 工作流变革 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">04 / 13</div>
+      <div class="eyebrow">PM Workflow</div>
+      <h2>产品经理的 AI 工作流：从信息组织到编排执行</h2>
+      <div class="timeline">
+        <div class="card">
+          <div class="step-num">1</div>
+          <h3>信号收集</h3>
+          <p>AI 从 Teams、邮件、文档、工单、代码评论中自动拉齐上下文。</p>
+        </div>
+        <div class="card">
+          <div class="step-num">2</div>
+          <h3>草稿生成</h3>
+          <p>AI 产出 spec、总结、风险点、任务拆解、会议材料的第一版。</p>
+        </div>
+        <div class="card">
+          <div class="step-num">3</div>
+          <h3>人工取舍</h3>
+          <p>PM 围绕已有草稿做判断，而不是从空白页开始。</p>
+        </div>
+        <div class="card">
+          <div class="step-num">4</div>
+          <h3>研发闭环</h3>
+          <p>Agent 接入 PR 流程、review comment 修复与测试环节。</p>
+        </div>
+        <div class="card">
+          <div class="step-num">5</div>
+          <h3>总结沉淀</h3>
+          <p>AI 再把结果反哺回汇报、技能库与流程模板。</p>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top:auto">
+        <div class="card">
+          <h3>高价值用例</h3>
+          <div class="pill-row" style="margin-top:8px">
+            <span class="tag green">PRD 初稿</span>
+            <span class="tag green">会议转 Spec</span>
+            <span class="tag amber">状态追踪</span>
+            <span class="tag amber">Release summary</span>
+            <span class="tag cyan">Prototype</span>
+            <span class="tag accent">工作项创建</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>核心变化</h3>
+          <p>PM 的竞争力不再只是"想明白"，而是能不能在同一天把想法做成可被试用、可被质疑的原型。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 05: 设计师工作流变革 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">05 / 13</div>
+      <div class="eyebrow">Designer Workflow</div>
+      <h2>设计师的 AI 实践：从产出者到质量守门人</h2>
+      <div class="split-wide">
+        <div style="display:grid;gap:clamp(10px,1.4vw,18px)">
+          <div class="card">
+            <h3>AI 已经进入设计流程的环节</h3>
+            <ul>
+              <li>用 VS Code Agent 从 spec 到前端代码的初稿生成</li>
+              <li>AI 辅助 UX spec 起草，减少从零开始的时间</li>
+              <li>组件语义理解 → 自动生成符合设计系统的代码</li>
+              <li>Design review 中 AI 辅助 diff 与 comment 修复</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>设计稿正在工程化</h3>
+            <ul>
+              <li>Figma 不再只输出视觉稿，而是结构化上下文入口</li>
+              <li>Token、feature flag、组件层级 = agent 的上下文契约</li>
+              <li>设计资产越来越像工程接口</li>
+            </ul>
+          </div>
+        </div>
+        <div style="display:grid;gap:clamp(10px,1.4vw,18px)">
+          <div class="card glow">
+            <h3>角色进化</h3>
+            <p style="margin-bottom:12px">设计师的最大转变不是"用 AI 画图"，而是：</p>
+            <ul>
+              <li><strong style="color:var(--accent-2)">规则定义者</strong> — 把隐性设计规则写清楚，让 AI 可执行</li>
+              <li><strong style="color:var(--green)">质量把关者</strong> — 从视觉产出转向验证、审核与标准制定</li>
+              <li><strong style="color:var(--amber)">上下文建模者</strong> — 建立 agent 可读的设计语义</li>
+            </ul>
+          </div>
+          <div class="quote-block">
+            难的不是生成，而是让系统理解那些<strong>设计师默认知道、但从不写明的规则</strong>。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 06: 端到端交付 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">06 / 13</div>
+      <div class="eyebrow">End-to-End Delivery</div>
+      <h2>端到端产品交付：PM 和设计师的新能力边界</h2>
+      <div class="two-col" style="flex:1">
+        <div style="display:grid;gap:clamp(10px,1.4vw,18px);align-content:start">
+          <div class="card">
+            <h3>PM 的端到端路径</h3>
+            <div class="pill-row" style="margin:12px 0">
+              <span class="pill highlight">需求定义</span>
+              <span class="arrow-sep">→</span>
+              <span class="pill highlight">AI 起草 spec</span>
+              <span class="arrow-sep">→</span>
+              <span class="pill highlight">原型构建</span>
+              <span class="arrow-sep">→</span>
+              <span class="pill highlight">代码 PR</span>
+              <span class="arrow-sep">→</span>
+              <span class="pill highlight">发布</span>
+            </div>
+            <p>PM 不再只是提要求的人，而是越来越多地直接产出可讨论对象——从 spec 到原型到轻量代码，甚至直接参与 PR。</p>
+          </div>
+          <div class="card">
+            <h3>设计师的端到端路径</h3>
+            <div class="pill-row" style="margin:12px 0">
+              <span class="pill highlight">Insight</span>
+              <span class="arrow-sep">→</span>
+              <span class="pill highlight">UX Spec</span>
+              <span class="arrow-sep">→</span>
+              <span class="pill highlight">Figma Design</span>
+              <span class="arrow-sep">→</span>
+              <span class="pill highlight">前端代码</span>
+              <span class="arrow-sep">→</span>
+              <span class="pill highlight">验证</span>
+            </div>
+            <p>设计师开始从设计稿直接推进到代码实现，AI 补齐了中间的工程断层。</p>
+          </div>
+        </div>
+        <div style="display:grid;gap:clamp(10px,1.4vw,18px);align-content:start">
+          <div class="card glow">
+            <div class="metric accent" style="margin-bottom:8px">Builder 化</div>
+            <h3>岗位边界正在模糊化</h3>
+            <p>PM、工程、设计的边界比以往更模糊。Builder 能力正在成为新竞争力——"只会写文档"或"只会画视觉稿"会越来越不够。</p>
+          </div>
+          <div class="card">
+            <h3>代表性场景</h3>
+            <ul>
+              <li>PM 用 Claude Code 直接创建功能分支并提交 PR</li>
+              <li>设计师用 Copilot 从 Figma token 生成前端组件</li>
+              <li>Meeting recording 直接转成规格草案并创建 work item</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 07: 提效成果 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">07 / 13</div>
+      <div class="eyebrow">Impact & Efficiency</div>
+      <h2>AI 带来的实际提效与效果</h2>
+      <div class="grid-4" style="align-items:stretch">
+        <div class="card" style="text-align:center">
+          <div class="metric green">↑ 显著</div>
+          <h3 style="margin-top:12px">初稿生成速度</h3>
+          <p>PRD、spec、migration doc、summary 的初稿时间大幅缩短，从小时级降到分钟级。</p>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="metric accent">↑ 连续</div>
+          <h3 style="margin-top:12px">工作流连贯性</h3>
+          <p>从信息收集到文档再到代码，不再需要频繁切换工具和手动搬运上下文。</p>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="metric cyan">↑ 扩展</div>
+          <h3 style="margin-top:12px">个人产出边界</h3>
+          <p>PM 和设计师可以直接产出原型和代码，能力半径显著扩大。</p>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="metric amber">↑ 精准</div>
+          <h3 style="margin-top:12px">上下文整合质量</h3>
+          <p>AI 从多个系统拉齐会议、文档、代码信息，减少信息遗漏。</p>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top:auto">
+        <div class="card">
+          <h3>文档类提效</h3>
+          <p>PRD 初稿、one-pager、双周汇报、newsletter——AI 先写，人审校。</p>
+        </div>
+        <div class="card">
+          <h3>会议类提效</h3>
+          <p>会前准备、录音转 spec、行动项提取、关键风险总结——自动化率大幅提升。</p>
+        </div>
+        <div class="card">
+          <h3>研发类提效</h3>
+          <p>prototype、轻量 coding、PR summary、review comment 修复——从提需求到直接参与。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 08: 知识技能化 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">08 / 13</div>
+      <div class="eyebrow">Knowledge as Skill</div>
+      <h2>Best Practice：把专家经验变成可调用的 AI 技能</h2>
+      <div class="split-wide" style="flex:1">
+        <div style="display:grid;gap:clamp(10px,1.4vw,18px)">
+          <div class="card glow">
+            <h3>什么是"技能化"</h3>
+            <p>把组织中资深成员的隐性判断——review 规则、metrics 解释、release 经验——固化成 AI 可调用的 skill，而不是停留在个人脑中。</p>
+          </div>
+          <div class="card">
+            <h3>已沉淀的技能类型</h3>
+            <ul>
+              <li>Release readiness 检查规则 → AI 自动评估</li>
+              <li>Metrics 团队的判断逻辑 → AI 可解释指标变化</li>
+              <li>Review checklist → AI 辅助代码审查</li>
+              <li>UX spec 模板 → AI 生成符合团队规范的设计文档</li>
+            </ul>
+          </div>
+        </div>
+        <div style="display:grid;gap:clamp(10px,1.4vw,18px)">
+          <div class="card">
+            <h3>对组织的价值</h3>
+            <ul>
+              <li>减少对少数关键人的依赖</li>
+              <li>让判断标准更一致、可传播</li>
+              <li>新成员更快接近资深员工的工作水位</li>
+              <li>更容易接入审计、效果评估和治理</li>
+            </ul>
+          </div>
+          <div class="quote-block">
+            AI 的价值不是替某个人干活，而是把那些<strong>"本来只能找资深同事口头请教"的判断流程</strong>变成组织能力接口。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 09: PM 方法论 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">09 / 13</div>
+      <div class="eyebrow">PM Methodology</div>
+      <h2>产品经理 AI 时代四项行动准则</h2>
+      <div class="grid-4" style="flex:1;align-items:stretch">
+        <div class="card">
+          <div class="tag accent" style="margin-bottom:12px">准则 01</div>
+          <h3>短冲刺取代长路线图</h3>
+          <p>模型能力以指数级提升，长期路线图容易失真。高频小实验比季度规划更有竞争力——先试、用户喜欢、再迅速上线。</p>
+        </div>
+        <div class="card">
+          <div class="tag green" style="margin-bottom:12px">准则 02</div>
+          <h3>Demo / Eval 优先于文档</h3>
+          <p>用 AI 做出一个工作原型，比写一篇说明文档更快、更高保真。产品讨论应围绕 demo 和 eval 展开。</p>
+        </div>
+        <div class="card">
+          <div class="tag amber" style="margin-bottom:12px">准则 03</div>
+          <h3>新模型到来时回看旧功能</h3>
+          <p>每次模型发布后，回测上一代做不到的功能；删掉已不需要的 scaffolding。持续用新模型做"看似太难"的事。</p>
+        </div>
+        <div class="card">
+          <div class="tag rose" style="margin-bottom:12px">准则 04</div>
+          <h3>先做最简单有效的方案</h3>
+          <p>在 agentic 系统里，复杂度会层层放大失败。先找到最简单但真正有效的路径，再去做优化。</p>
+        </div>
+      </div>
+      <div class="quote-block" style="margin-top:auto">
+        PM 的核心任务不再是提前把未来规划对，而是<strong>更快看见边界变化、推动实验、用原型验证方向</strong>。
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: 设计师方法论 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">10 / 13</div>
+      <div class="eyebrow">Designer Methodology</div>
+      <h2>设计师 AI 时代四项行动准则</h2>
+      <div class="grid-4" style="flex:1;align-items:stretch">
+        <div class="card">
+          <div class="tag accent" style="margin-bottom:12px">准则 01</div>
+          <h3>建立统一 UX Spec 模板</h3>
+          <p>让设计意图变成结构化语言，使 AI 和工程师都能准确读取——这是设计资产工程化的第一步。</p>
+        </div>
+        <div class="card">
+          <div class="tag green" style="margin-bottom:12px">准则 02</div>
+          <h3>Figma 从稿子升级成上下文入口</h3>
+          <p>Token、组件语义、flag 命名、层级关系——Figma 不只产出视觉，更要成为 agent 能理解的知识源。</p>
+        </div>
+        <div class="card">
+          <div class="tag amber" style="margin-bottom:12px">准则 03</div>
+          <h3>把验证链条拆成更小的 Gate</h3>
+          <p>不要等最终成品才做 review。在每个关键节点设立自动或半自动检查门槛，让问题更早暴露。</p>
+        </div>
+        <div class="card">
+          <div class="tag rose" style="margin-bottom:12px">准则 04</div>
+          <h3>少量 Agent + 明确 Skill</h3>
+          <p>优先于复杂编排。先把一两个 agent 做好、做深，确保 skill 边界清晰，再扩展到更多场景。</p>
+        </div>
+      </div>
+      <div class="quote-block" style="margin-top:auto">
+        未来最稀缺的设计能力，不是把界面画出来，而是<strong>把规则写清楚、把判断前移、把质量门槛系统化</strong>。
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: 困境与风险 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">11 / 13</div>
+      <div class="eyebrow">Challenges & Risks</div>
+      <h2>当前面临的困境与风险</h2>
+      <div class="grid-2" style="flex:1;align-items:stretch">
+        <div class="card">
+          <div class="icon-circle rose">⚠</div>
+          <h3>思考外包风险</h3>
+          <p>AI 初稿太强，容易让团队跳过问题定义和自我辩论。"写得完整"不等于"想得透彻"——效率提升不代表判断质量同步提升。</p>
+          <div class="quote-block" style="margin-top:12px;font-size:13px">人类思考节点必须被刻意保留——成熟的 AI 工作流不是"全自动无摩擦"，而是在关键处停下让人重新判断。</div>
+        </div>
+        <div class="card">
+          <div class="icon-circle amber">⚡</div>
+          <h3>工程落地摩擦</h3>
+          <p>环境配置、依赖安装、权限、coverage、测试链路——这些往往比写代码本身更难。很多 AI demo 很亮眼，但企业落地并不顺滑。</p>
+          <div class="quote-block" style="margin-top:12px;font-size:13px">加速发生在前面，阻力堆积在后面。</div>
+        </div>
+        <div class="card">
+          <div class="icon-circle cyan">🔒</div>
+          <h3>安全与权限边界</h3>
+          <p>AI 访问企业数据、代码库、本地文件、命令执行环境时，风险迅速扩大。本地 agent 一旦具备行动能力，错误已不只是文本错误。</p>
+        </div>
+        <div class="card">
+          <div class="icon-circle purple">⟲</div>
+          <h3>责任漂移与质量治理</h3>
+          <p>AI 起草越来越多内容，谁对错误负责需重新定义。AI 输出可能结构完整但事实不准，若上游数据错误，下游文档和代码都会被污染。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 12: 上下文整合 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">12 / 13</div>
+      <div class="eyebrow">Context Integration</div>
+      <h2>核心能力：上下文整合是真正的护城河</h2>
+      <div class="split-wide" style="flex:1">
+        <div style="display:grid;gap:clamp(10px,1.4vw,18px)">
+          <div class="card glow">
+            <h3>为什么上下文整合是关键</h3>
+            <ul>
+              <li>模型能力会越来越商品化，但企业上下文连接能力不会轻易标准化</li>
+              <li>真正决定输出质量的，是 AI 是否拿到了完整、可信、可追溯的信息</li>
+              <li>上下文越完整，AI 越可能从助手升级为 workflow engine</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>需要打通的上下文层</h3>
+            <div class="pill-row" style="margin-top:12px;gap:6px">
+              <span class="tag cyan">Teams</span>
+              <span class="tag cyan">Outlook</span>
+              <span class="tag green">SharePoint</span>
+              <span class="tag green">ADO</span>
+              <span class="tag accent">Repo</span>
+              <span class="tag accent">Meeting</span>
+              <span class="tag amber">Figma</span>
+            </div>
+            <p style="margin-top:12px">这些系统的统一接入，是 AI 从个人工具升级为组织级能力的基础。</p>
+          </div>
+        </div>
+        <div style="display:grid;gap:clamp(10px,1.4vw,18px)">
+          <div class="comparison-table">
+            <div class="row-head">维度</div>
+            <div class="row-head">单点 AI</div>
+            <div class="row-head">上下文整合 AI</div>
+            <div>信息来源</div><div>单一对话</div><div>多系统聚合</div>
+            <div>输出质量</div><div>通用回答</div><div>组织特定回答</div>
+            <div>可追溯性</div><div>无</div><div>完整引用链</div>
+            <div>可治理性</div><div>难</div><div>有审计层</div>
+            <div>真实价值</div><div>个人提效</div><div>团队工作流升级</div>
+          </div>
+          <div class="quote-block">
+            未来的核心竞争，不是谁能做出更花哨的 Chat UI，而是谁能更安全地<strong>整合企业上下文</strong>并把组织经验封装成可执行能力。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 13: 总结与行动建议 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="slide-num">13 / 13</div>
+      <div class="eyebrow">Summary & Next Steps</div>
+      <h2>总结：V-Run 产品组 AI 实践路线</h2>
+      <div class="grid-3" style="flex:1;align-items:stretch">
+        <div class="card glow">
+          <div class="tag green" style="margin-bottom:12px">短期</div>
+          <h3>Quick Wins</h3>
+          <ul>
+            <li>选 2–3 个高频低风险场景试点：会议总结、work item 提取、双周更新</li>
+            <li>建设 spec 模板与 prompt 资产，避免每人各自摸索</li>
+            <li>确保 GitHub Copilot / Claude Code 配置到位并培训</li>
+            <li>先解决上下文接入与可追溯引用</li>
+          </ul>
+        </div>
+        <div class="card glow">
+          <div class="tag amber" style="margin-bottom:12px">中期</div>
+          <h3>平台化建设</h3>
+          <ul>
+            <li>企业上下文层：Teams / Outlook / ADO / Repo 统一接入</li>
+            <li>治理护栏：权限分层、审计留痕、人工审批点、回滚机制</li>
+            <li>技能库建设：组织经验从个人习惯变成平台资产</li>
+            <li>验证链条自动化：把 review gate 嵌入工作流</li>
+          </ul>
+        </div>
+        <div class="card glow">
+          <div class="tag accent" style="margin-bottom:12px">长期</div>
+          <h3>能力模型升级</h3>
+          <ul>
+            <li>培养 builder 型 PM：会定义流程、校准 AI、判断质量</li>
+            <li>培养系统型设计师：会建模上下文、定义规则、把控验证</li>
+            <li>端到端闭环：从 insight 到 rollout 的 AI 原生工作流</li>
+            <li>在关键节点保留人类思考与判断的空间</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card glow" style="margin-top:auto;text-align:center;padding:clamp(16px,2vh,28px)">
+        <h2 style="font-size:clamp(18px,2.2vw,30px)">未来不是 PM 和设计师被 AI 替代，而是<span style="color:var(--accent-2)">会使用 AI 工作流的人</span>，逐步替代不会使用的人。</h2>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="nav" aria-label="Slide navigation">
+  <button type="button" id="prevBtn">← Prev</button>
+  <div class="dots" id="dots"></div>
+  <button type="button" id="nextBtn">Next →</button>
+</nav>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+<script>
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  const dotsRoot=document.getElementById('dots');
+  const progressFill=document.getElementById('progressFill');
+  const prevBtn=document.getElementById('prevBtn');
+  const nextBtn=document.getElementById('nextBtn');
+  let index=0,wheelLocked=false;
+
+  slides.forEach((_,i)=>{const d=document.createElement('button');d.type='button';d.className='dot';d.setAttribute('aria-label',`Slide ${i+1}`);d.addEventListener('click',()=>show(i));dotsRoot.appendChild(d)});
+  const dots=Array.from(document.querySelectorAll('.dot'));
+
+  function show(n){
+    index=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,i)=>s.classList.toggle('active',i===index));
+    dots.forEach((d,i)=>d.classList.toggle('active',i===index));
+    progressFill.style.width=((index+1)/slides.length*100)+'%';
+    prevBtn.disabled=index===0;nextBtn.disabled=index===slides.length-1;
+  }
+
+  prevBtn.addEventListener('click',()=>show(index-1));
+  nextBtn.addEventListener('click',()=>show(index+1));
+
+  window.addEventListener('keydown',e=>{
+    if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(index+1)}
+    if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(index-1)}
+    if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1);
+  });
+
+  window.addEventListener('wheel',e=>{
+    if(window.innerWidth<=1100||wheelLocked)return;
+    if(Math.abs(e.deltaY)<20)return;
+    wheelLocked=true;
+    e.deltaY>0?show(index+1):show(index-1);
+    setTimeout(()=>wheelLocked=false,500);
+  },{passive:true});
+
+  show(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+[
+  {
+    "id": "openclaw-team-share-v2",
+    "title": "OpenClaw Team Share v2",
+    "description": "A presentation deck showing how OpenClaw became a practical system for notes, reminders, and day-to-day workflows.",
+    "category": "Showcase",
+    "tags": [
+      "OpenClaw",
+      "Workflow"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/openclaw-team-share-v2.html",
+    "featured": true,
+    "updated": "2026-03-17"
+  },
+  {
+    "id": "github-copilot-report",
+    "title": "GitHub Copilot — 2026 Q1 Report",
+    "description": "A quarterly update deck summarizing GitHub Copilot releases, AI-native development patterns, and CLI best practices.",
+    "category": "Report",
+    "tags": [
+      "Copilot",
+      "Report"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/github-copilot-report.html",
+    "featured": false,
+    "updated": "2026-03-19"
+  },
+  {
+    "id": "interview-analysis-slides",
+    "title": "AI PM Interview Analysis",
+    "description": "An analysis deck that distills interview findings, recurring themes, and product insights for AI-era PM roles.",
+    "category": "Showcase",
+    "tags": [
+      "Interview",
+      "Analysis"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/interview-analysis-slides.html",
+    "featured": false,
+    "updated": "2026-03-19"
+  },
+  {
+    "id": "designer-discussion-report",
+    "title": "两场设计对谈匿名洞察报告",
+    "description": "基于两场匿名化设计对谈整理的 HTML 报告，聚焦设计、AI 与研发协作的结构性洞察。",
+    "category": "Report",
+    "tags": [
+      "Design",
+      "AI",
+      "Workflow",
+      "Report"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/designer-discussion-report.html",
+    "featured": false,
+    "updated": "2026-03-20"
+  },
+  {
+    "id": "call-to-action-slide-full",
+    "title": "Call to Action",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Call",
+      "Action"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/call-to-action-slide-full.html",
+    "featured": false,
+    "updated": "2026-03-20"
+  },
+  {
+    "id": "pm-ai-exponential-slide",
+    "title": "PM on the AI Exponential — Slide Deck",
+    "description": "A shareable HTML slide deck published from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "PM",
+      "On",
+      "AI",
+      "Exponential"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/pm-ai-exponential-slide.html",
+    "featured": false,
+    "updated": "2026-03-27"
+  },
+  {
+    "id": "medical-insights-hub-azure",
+    "title": "Medical Insights Hub — Azure Architecture",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Medical",
+      "Insights",
+      "Hub",
+      "Azure"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/medical-insights-hub-azure.html",
+    "featured": false,
+    "updated": "2026-04-01"
+  },
+  {
+    "id": "azure-translator-slides",
+    "title": "Azure Translator · 深度解析",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Azure",
+      "Translator"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/azure-translator-slides.html",
+    "featured": false,
+    "updated": "2026-04-02"
+  },
+  {
+    "id": "microsoft-product-design-ai-playbook",
+    "title": "微软产品与设计团队的 AI 提效实践",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "AI"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/microsoft-product-design-ai-playbook.html",
+    "featured": false,
+    "updated": "2026-04-14"
+  },
+  {
+    "id": "copilot-best-practices-claude",
+    "title": "让 Copilot 真正读懂你的 OA 系统 · 工程化最佳实践",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Copilot",
+      "OA"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/copilot-best-practices-claude.html",
+    "featured": false,
+    "updated": "2026-05-15"
+  },
+  {
+    "id": "copilot-ubb-deck",
+    "title": "GitHub Copilot 计费革命 // UBB 来了",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Github",
+      "Copilot",
+      "UBB"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/copilot-ubb-deck.html",
+    "featured": false,
+    "updated": "2026-05-15"
+  }
+]
