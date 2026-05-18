@@ -500,36 +500,44 @@ h3{font-size:var(--h3)}
 .model-card .price-line b{color:var(--text)}
 
 /* =================================================================
-   9. BUDGET HIERARCHY (TREE)
+   9. BUDGET SCOPES
    ================================================================= */
-.tree{
-  display:flex;flex-direction:column;align-items:center;gap:clamp(.5rem,1.5vh,1rem);
-  margin-top:var(--gap);
+.scope-map{
+  display:grid;grid-template-columns:1.05fr .95fr;gap:var(--gap);
+  margin-top:var(--gap);align-items:stretch;
 }
-.node{
-  font-family:var(--font-mono);
-  padding:.5rem 1rem;border-radius:5px;
-  border:1.5px solid var(--cyan);background:rgba(0,217,255,.05);
-  font-size:var(--small);letter-spacing:.05em;
-  display:flex;align-items:center;gap:.5rem;
-  position:relative;
+.scope-stack{display:flex;flex-direction:column;gap:.6rem}
+.scope-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+  padding:clamp(.75rem,1.4vw,1rem);
+  font-family:var(--font-mono);font-size:var(--small);
+  position:relative;overflow:hidden;
 }
-.node b{color:var(--cyan)}
-.node.lvl1{border-color:var(--pink);background:rgba(255,0,110,.05)}
-.node.lvl1 b{color:var(--pink)}
-.node.lvl2{border-color:var(--gold);background:rgba(255,184,0,.05)}
-.node.lvl2 b{color:var(--gold)}
-.node.lvl3{border-color:var(--cyan)}
-.node.lvl4{border-color:var(--green);background:rgba(0,255,159,.05)}
-.node.lvl4 b{color:var(--green)}
-.node-row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
-.tree-line{width:2px;height:20px;background:var(--muted);position:relative}
-.tree-line::after{content:"▼";position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:.7rem}
+.scope-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan)}
+.scope-card.enterprise::before{background:var(--pink)}
+.scope-card.org::before{background:var(--cyan)}
+.scope-card.cc::before{background:var(--gold)}
+.scope-card.user::before{background:var(--green)}
+.scope-card b{display:block;letter-spacing:.12em;margin-bottom:.25rem}
+.scope-card.enterprise b{color:var(--pink)}
+.scope-card.org b{color:var(--cyan)}
+.scope-card.cc b{color:var(--gold)}
+.scope-card.user b{color:var(--green)}
+.scope-card span{color:var(--muted);line-height:1.55}
+.scope-note{
+  background:linear-gradient(180deg,rgba(0,255,159,.08),rgba(0,217,255,.04));
+  border:1px solid rgba(0,255,159,.25);border-radius:8px;
+  padding:clamp(.85rem,1.6vw,1.25rem);
+  display:flex;flex-direction:column;justify-content:center;gap:.7rem;
+}
+.scope-note .headline{font-family:var(--font-display);font-size:clamp(1rem,2vw,1.45rem);font-weight:600;color:var(--green)}
+.scope-note p{font-size:var(--small);color:var(--muted);line-height:1.6}
+.scope-note b{color:var(--text);font-family:var(--font-mono)}
 .budget-rule{
-  margin-top:var(--gap);padding:.8rem 1rem;
+  margin-top:var(--gap);padding:.75rem 1rem;
   background:var(--bg-2);border-left:3px solid var(--green);
   font-family:var(--font-mono);font-size:var(--small);
-  border-radius:0 4px 4px 0;
+  border-radius:0 4px 4px 0;line-height:1.65;
 }
 .budget-rule b{color:var(--green)}
 
@@ -803,75 +811,45 @@ h3{font-size:var(--h3)}
 .new-license-tag.show{opacity:1;transform:translateX(0)}
 .new-license-tag b{color:var(--gold);font-weight:700}
 
-/* === Burn-down v2 (Slide 10) === */
-.burn-stage{
-  display:grid;grid-template-columns:1.5fr 1fr;gap:var(--gap);
-  margin-top:var(--gap);
-  align-items:start;
+/* === Budget evaluation (Slide 10) === */
+.budget-eval{
+  display:grid;grid-template-columns:1.05fr .95fr;gap:var(--gap);
+  margin-top:var(--gap);align-items:stretch;
 }
-.levels-stack{display:flex;flex-direction:column;gap:.3rem}
-.level{
-  background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
-  padding:.5rem .75rem;
-  transition:all .5s var(--ease);
-  position:relative;
+.mini-org{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+  padding:clamp(.8rem,1.5vw,1.1rem);
+  font-family:var(--font-mono);font-size:var(--small);
 }
-.level .lh{
-  display:flex;justify-content:space-between;align-items:center;
-  font-family:var(--font-mono);font-size:.62rem;
-  letter-spacing:.05em;color:var(--muted);
-  margin-bottom:.3rem;
+.mini-org .ent-node{
+  border:1px solid var(--pink);color:var(--pink);border-radius:6px;
+  padding:.55rem .7rem;text-align:center;margin-bottom:.75rem;
+  background:rgba(255,0,110,.05);font-weight:700;letter-spacing:.1em;
 }
-.level .lh b{font-weight:700;letter-spacing:.1em}
-.level.l-user .lh b{color:var(--green)}
-.level.l-org .lh b{color:var(--cyan)}
-.level.l-cc .lh b{color:var(--gold)}
-.level.l-ent .lh b{color:var(--pink)}
-.level .ltrack{
-  height:14px;background:rgba(255,255,255,.06);border-radius:7px;
-  overflow:hidden;border:1px solid var(--line);position:relative;
+.org-branches{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.branch{border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:.55rem;background:rgba(255,255,255,.025)}
+.branch .org-name{color:var(--cyan);font-weight:700;margin-bottom:.45rem;letter-spacing:.1em}
+.cc-node{border:1px solid var(--gold);border-radius:5px;padding:.4rem;margin:.35rem 0;color:var(--gold);background:rgba(255,184,0,.04)}
+.user-row{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin-top:.4rem}
+.user-pill{border:1px solid rgba(0,255,159,.3);border-radius:999px;padding:.25rem .45rem;color:var(--green);text-align:center;background:rgba(0,255,159,.035)}
+.eval-list{display:flex;flex-direction:column;gap:.55rem}
+.eval-item{
+  display:grid;grid-template-columns:1fr auto;gap:.7rem;align-items:center;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:7px;
+  padding:.65rem .75rem;font-family:var(--font-mono);font-size:var(--small);
 }
-.level .lfill{
-  height:100%;border-radius:7px;width:100%;
-  transition:width 1.1s var(--ease),background .4s ease,box-shadow .4s ease;
-  background:linear-gradient(90deg,var(--green),var(--cyan));
+.eval-item b{letter-spacing:.08em}
+.eval-item .ok{color:var(--green)}.eval-item .warn{color:var(--gold)}.eval-item .stop{color:var(--pink)}
+.eval-item .meter2{grid-column:1/-1;height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.eval-item .meter2 span{display:block;height:100%;width:var(--w);background:linear-gradient(90deg,var(--green),var(--cyan))}
+.eval-item.warn .meter2 span{background:linear-gradient(90deg,var(--gold),#ff9800)}
+.eval-item.stop .meter2 span{background:linear-gradient(90deg,var(--pink),var(--red))}
+.decision{
+  margin-top:.7rem;padding:.7rem .8rem;border-left:3px solid var(--pink);
+  background:rgba(255,0,110,.06);font-family:var(--font-mono);font-size:var(--small);
+  border-radius:0 4px 4px 0;line-height:1.6;
 }
-.level.draining .lfill{background:linear-gradient(90deg,var(--gold),#ff9800);box-shadow:0 0 10px rgba(255,184,0,.3)}
-.level.empty .lfill{background:linear-gradient(90deg,var(--pink),var(--red));box-shadow:0 0 14px var(--pink)}
-.level.locked{opacity:.45;filter:grayscale(.5)}
-.level.locked .ltrack::after{
-  content:"🔒 不可达";position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
-  font-family:var(--font-mono);font-size:.6rem;color:var(--pink);
-  letter-spacing:.1em;background:var(--bg-2);padding:0 .3rem;border-radius:3px;
-}
-.level.active{box-shadow:0 0 16px rgba(0,255,159,.18);border-color:var(--green)}
-.gate{
-  display:flex;align-items:center;justify-content:center;gap:.5rem;
-  font-family:var(--font-mono);font-size:.6rem;
-  color:var(--muted);letter-spacing:.12em;
-  padding:.15rem 0;
-  transition:color .3s ease;
-}
-.gate .gicon{
-  display:inline-block;width:14px;height:14px;
-  border-radius:3px;background:var(--muted);
-  position:relative;flex-shrink:0;
-  transition:all .3s ease;
-}
-.gate.open .gicon{background:var(--green);box-shadow:0 0 10px var(--green)}
-.gate.open .gicon::before{content:"";position:absolute;inset:3px;background:var(--bg);border-radius:1px}
-.gate.closed .gicon{background:var(--pink);box-shadow:0 0 12px var(--pink);animation:flash 1.2s ease infinite}
-.gate.closed .gicon::after{content:"✕";position:absolute;inset:0;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:900}
-.gate.open b{color:var(--green)}
-.gate.closed b{color:var(--pink)}
-.gate.closed{color:var(--pink);font-weight:700}
-.burn-side{display:flex;flex-direction:column;gap:.55rem}
-.burn-side .legend{
-  background:var(--bg-2);border-left:3px solid var(--cyan);
-  padding:.55rem .7rem;border-radius:0 4px 4px 0;
-  font-family:var(--font-mono);font-size:.68rem;line-height:1.7;
-}
-.burn-side .legend b{color:var(--cyan);display:block;letter-spacing:.1em;margin-bottom:.3rem}
+.decision b{color:var(--pink)}
 
 /* === Preview Bill Slide === */
 .preview-flow{
@@ -1254,83 +1232,108 @@ h3{font-size:var(--h3)}
 <!-- ========== SLIDE 9: BUDGET HIERARCHY ========== -->
 <section class="slide">
   <div class="slide-content">
-    <div class="kicker reveal">// 09 — BUDGET HIERARCHY</div>
-    <h2 class="reveal">Budget 怎么设？<span class="glow-c">四层金字塔</span></h2>
+    <div class="kicker reveal">// 09 — BUDGET SCOPES</div>
+    <h2 class="reveal">Budget 怎么设：先选 <span class="glow-c">作用域</span>，再定 <span class="glow-g">是否阻断</span></h2>
 
-    <div class="tree">
-      <div class="reveal">
-        <div class="node lvl1"><b>L1 · ENTERPRISE</b> 全企业总预算 · 上限 → 决定整个组织池子的天花板</div>
+    <div class="scope-map reveal">
+      <div class="scope-stack">
+        <div class="scope-card enterprise">
+          <b>ENTERPRISE · 全企业总闸</b>
+          <span>适合做最高 spend cap / failsafe。官方说明：Enterprise-level budgets 会覆盖企业内来源，包括 cost centers。</span>
+        </div>
+        <div class="scope-card org">
+          <b>ORGANIZATION · GitHub Org / 大团队</b>
+          <span>适合按事业部、研发组织、独立 GitHub Org 管控。组织预算可直接设置，但与 cost center 重叠时要谨慎。</span>
+        </div>
+        <div class="scope-card cc">
+          <b>COST CENTER · 财务核算 / 项目 / 试点人群</b>
+          <span>Enterprise 专属。可把 users、organizations、repositories 放进去，用于分摊成本和设置独立上限。</span>
+        </div>
+        <div class="scope-card user">
+          <b>USER · 单个开发者的实际体验</b>
+          <span>每人先消耗 plan 自带 allowance；重度用户通常用 cost center、paid usage policy 或升级 Enterprise 来管理。</span>
+        </div>
       </div>
-      <div class="tree-line reveal"></div>
-      <div class="node-row reveal">
-        <div class="node lvl2"><b>L2 · COST CENTER</b> 业务部门 / 项目组 · 跨 org 分摊</div>
-        <div class="node lvl2"><b>L2 · COST CENTER</b> 财务维度切片</div>
-      </div>
-      <div class="tree-line reveal"></div>
-      <div class="node-row reveal">
-        <div class="node lvl3"><b>L3 · ORGANIZATION</b> GitHub Org · 团队边界</div>
-        <div class="node lvl3"><b>L3 · ORGANIZATION</b> Org-B</div>
-        <div class="node lvl3"><b>L3 · ORGANIZATION</b> Org-C</div>
-      </div>
-      <div class="tree-line reveal"></div>
-      <div class="node-row reveal">
-        <div class="node lvl4"><b>L4 · USER</b> 单个开发者 · 最细粒度，可设每月上限</div>
+
+      <div class="scope-note">
+        <div class="headline">客户落地建议：先简单，后精细</div>
+        <p><b>大多数企业第一阶段：</b>先设 Enterprise 总预算 + 开启告警，再按用户/重度人群观察用量。</p>
+        <p><b>业务复杂后：</b>再增加 Organization 或 Cost Center，用于区分生产/研发/实验、项目组或试点团队。</p>
+        <p><b>避免过度重叠：</b>官方建议不要无必要地叠加多个会阻断的预算，否则用户可能被意外拦截。</p>
       </div>
     </div>
 
     <div class="budget-rule reveal">
-      <b>// RULE</b> 取最严格的一层生效。User $50 + Org $100 + Enterprise 无限 → 该用户实际可用 = <b>$50</b>。<br>
-      <b>// WARN</b> 给 user 设 $0 = 直接断网；2025-08-22 之前创建的用户 $0 默认行为将于 2025-11-18 取消，记得检查。
+      <b>// DEFAULT</b> Premium request paid usage 默认启用；没有设置可阻断 budget 时，超出 allowance 后可能继续产生费用。<br>
+      <b>// ALERT</b> Budget 可发 75% / 90% / 100% 告警；只有勾选 Stop usage when budget limit is reached 才会阻断。
     </div>
   </div>
 </section>
 
-<!-- ========== SLIDE 10: BURN ORDER with stepped animation ========== -->
-<section class="slide" id="slideBurn">
+<!-- ========== SLIDE 10: BUDGET EVALUATION ========== -->
+<section class="slide">
   <div class="slide-content">
-    <div class="kicker reveal">// 10 — BURN ORDER</div>
-    <h2 class="reveal">Budget 烧穿顺序：<span class="glow-g">User → Org → CC → Ent</span> · 中间断了就上不去</h2>
-    <p class="reveal" style="color:var(--muted);margin-top:.3rem">先烧个人 19/39 配额 → 溢出到 Org → CC → Enterprise；任何中间层耗尽，上层就够不到</p>
+    <div class="kicker reveal">// 10 — BUDGET EVALUATION</div>
+    <h2 class="reveal">预算判断逻辑：<span class="glow-g">一次请求同时命中多个预算</span></h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.3rem">如果某个适用预算启用了 Stop usage 并已耗尽，请求会被拦截；企业总预算也可以作为最后保护线。</p>
 
-    <div class="burn-stage">
-      <div class="levels-stack reveal">
-        <div class="level l-ent" data-lvl="ent">
-          <div class="lh"><b>L1 · ENTERPRISE POOL</b><span>200,000 credits</span></div>
-          <div class="ltrack"><div class="lfill"></div></div>
+    <div class="budget-eval reveal">
+      <div class="mini-org">
+        <div class="ent-node">ENTERPRISE · $20,000 cap</div>
+        <div class="org-branches">
+          <div class="branch">
+            <div class="org-name">ORG-A · Core R&D</div>
+            <div class="cc-node">CC-Platform · $5,000</div>
+            <div class="user-row">
+              <div class="user-pill">Alice</div>
+              <div class="user-pill">Ben</div>
+            </div>
+            <div class="cc-node">CC-Experiment · $800</div>
+            <div class="user-row">
+              <div class="user-pill">Chen</div>
+              <div class="user-pill">Dana</div>
+            </div>
+          </div>
+          <div class="branch">
+            <div class="org-name">ORG-B · Product</div>
+            <div class="cc-node">CC-Product · $3,000</div>
+            <div class="user-row">
+              <div class="user-pill">Eva</div>
+              <div class="user-pill">Frank</div>
+            </div>
+            <div class="cc-node">No extra CC</div>
+            <div class="user-row">
+              <div class="user-pill">Grace</div>
+              <div class="user-pill">Hank</div>
+            </div>
+          </div>
         </div>
-        <div class="gate" data-gate="c-e"><span class="gicon"></span><b>GATE · CC → Ent</b><span class="glabel">· 未触发</span></div>
-        <div class="level l-cc" data-lvl="cc">
-          <div class="lh"><b>L2 · COST CENTER POOL</b><span>50,000 credits</span></div>
-          <div class="ltrack"><div class="lfill"></div></div>
-        </div>
-        <div class="gate" data-gate="o-c"><span class="gicon"></span><b>GATE · Org → CC</b><span class="glabel">· 未触发</span></div>
-        <div class="level l-org" data-lvl="org">
-          <div class="lh"><b>L3 · ORG POOL</b><span>10,000 credits</span></div>
-          <div class="ltrack"><div class="lfill"></div></div>
-        </div>
-        <div class="gate" data-gate="u-o"><span class="gicon"></span><b>GATE · User → Org</b><span class="glabel">· 未触发</span></div>
-        <div class="level l-user" data-lvl="user">
-          <div class="lh"><b>L4 · USER 配额（个人桶）</b><span>1,900 credits / 月</span></div>
-          <div class="ltrack"><div class="lfill"></div></div>
-        </div>
+        <div class="decision"><b>示例请求：</b>Alice 使用高级模型产生 $12 overage。系统会同时检查 Alice 所属的 org / cost center / enterprise 等适用预算。</div>
       </div>
 
-      <div class="burn-side reveal">
-        <div class="legend">
-          <b>// 视觉规则</b>
-          ▮ 绿 = 健康 / 满<br>
-          ▮ 黄 = 正在消耗<br>
-          ▮ 红 = 已耗尽<br>
-          ▮ 灰 + 🔒 = 被锁定（够不到）<br>
-          GATE ✓ = 通道已开启<br>
-          GATE ✕ = 通道关闭，blocked
+      <div>
+        <div class="eval-list">
+          <div class="eval-item">
+            <b>ENTERPRISE</b><span class="ok">$9,200 / $20,000</span>
+            <div class="meter2"><span style="--w:46%"></span></div>
+          </div>
+          <div class="eval-item warn">
+            <b>ORG-A</b><span class="warn">$7,600 / $8,000</span>
+            <div class="meter2"><span style="--w:95%"></span></div>
+          </div>
+          <div class="eval-item stop">
+            <b>CC-PLATFORM</b><span class="stop">$5,000 / $5,000</span>
+            <div class="meter2"><span style="--w:100%"></span></div>
+          </div>
+          <div class="eval-item">
+            <b>ALICE INCLUDED ALLOWANCE</b><span class="ok">已用完，进入 paid usage</span>
+            <div class="meter2"><span style="--w:100%"></span></div>
+          </div>
         </div>
-        <div class="anim-controls" style="justify-content:flex-start;margin:0">
-          <button class="ctrl" data-act="reset">⟳ 重置</button>
-          <button class="ctrl primary" data-act="play">▶ 自动</button>
-          <button class="ctrl" data-act="step">⏭ 单步</button>
+        <div class="decision">
+          <b>结果：</b>即使 Enterprise 还有余额，只要 CC-Platform 这个适用预算启用了 Stop usage 且已经到顶，这次请求就会被 block。<br>
+          <b>运营建议：</b>先用 alert-only 观察 1-2 个周期；确认阈值后，再给关键预算开启阻断。
         </div>
-        <div class="step-narrative" style="margin-top:0"></div>
       </div>
     </div>
   </div>
@@ -1872,103 +1875,6 @@ if(slidePool){
   ]);
 }
 
-/* =================================================================
-   SLIDE 10 — BURN ORDER ANIMATOR
-   ================================================================= */
-const slideBurn=document.getElementById('slideBurn');
-if(slideBurn){
-  const setLevel=(key,w,state)=>{
-    const lvl=slideBurn.querySelector('[data-lvl="'+key+'"]');
-    if(!lvl)return;
-    lvl.querySelector('.lfill').style.width=w+'%';
-    lvl.classList.remove('draining','empty','locked','active');
-    if(state)lvl.classList.add(state);
-  };
-  const setGate=(key,state,label)=>{
-    const g=slideBurn.querySelector('[data-gate="'+key+'"]');
-    if(!g)return;
-    g.classList.remove('open','closed');
-    if(state)g.classList.add(state);
-    const lbl=g.querySelector('.glabel');
-    if(lbl)lbl.textContent=label||'· 未触发';
-  };
-
-  new StepAnimator(slideBurn,[
-    {
-      text:'初始 — 4 层全满。User 1,900 / Org 10,000 / Cost Center 50,000 / Enterprise 200,000',
-      apply:()=>{
-        setLevel('user',100,'active');
-        setLevel('org',100);
-        setLevel('cc',100);
-        setLevel('ent',100);
-        setGate('u-o','','· 未触发');
-        setGate('o-c','','· 未触发');
-        setGate('c-e','','· 未触发');
-      }
-    },
-    {
-      text:'步骤 1 — 用户日常使用，先烧"个人桶" 1,900 配额（这一层最快被烧穿）',
-      apply:()=>{
-        setLevel('user',0,'empty');
-        setLevel('org',100,'active');
-        setLevel('cc',100);
-        setLevel('ent',100);
-        setGate('u-o','open','✓ 个人耗尽 / 上溯到 Org');
-        setGate('o-c','','· 未触发');
-        setGate('c-e','','· 未触发');
-      }
-    },
-    {
-      text:'步骤 2 — 个人空了 → 自动转入 Org 共享池，Org 余额下降到 ~20%',
-      apply:()=>{
-        setLevel('user',0,'empty');
-        setLevel('org',20,'draining');
-        setLevel('cc',100);
-        setLevel('ent',100);
-        setGate('u-o','open','✓ 通道开');
-        setGate('o-c','','· 未触发');
-        setGate('c-e','','· 未触发');
-      }
-    },
-    {
-      text:'步骤 3 — Org 也烧光 → 自动转入 Cost Center pool，CC 余额下降到 ~30%',
-      apply:()=>{
-        setLevel('user',0,'empty');
-        setLevel('org',0,'empty');
-        setLevel('cc',30,'draining');
-        setLevel('ent',100,'active');
-        setGate('u-o','open','✓ 通道开');
-        setGate('o-c','open','✓ Org 耗尽 / 上溯到 CC');
-        setGate('c-e','','· 未触发');
-      }
-    },
-    {
-      text:'⚠ 步骤 4 — Cost Center 烧到 0 → 通道关闭！Enterprise 还有 100% 但够不到，请求被拒',
-      apply:()=>{
-        setLevel('user',0,'empty');
-        setLevel('org',0,'empty');
-        setLevel('cc',0,'empty');
-        setLevel('ent',100,'locked');
-        setGate('u-o','open','✓ 通道开');
-        setGate('o-c','open','✓ 通道开');
-        setGate('c-e','closed','✕ CC 耗尽 / Ent 不可达');
-      }
-    },
-    {
-      text:'解法 — admin 在被卡的那一层（这里是 CC）提高 budget cap，立刻打通到 Enterprise',
-      apply:()=>{
-        setLevel('user',0,'empty');
-        setLevel('org',0,'empty');
-        setLevel('cc',35,'draining');
-        setLevel('ent',96,'active');
-        setGate('u-o','open','✓ 通道开');
-        setGate('o-c','open','✓ 通道开');
-        setGate('c-e','open','✓ admin 提额 / 通道恢复');
-      }
-    }
-  ]);
-}
-
 /* Auto-play step animators when their slide first becomes visible */
 const animObserver=new IntersectionObserver((entries)=>{
   entries.forEach(e=>{
@@ -1978,7 +1884,7 @@ const animObserver=new IntersectionObserver((entries)=>{
     }
   });
 },{threshold:.55});
-[slidePool,slideBurn].forEach(s=>{if(s)animObserver.observe(s);});
+[slidePool].forEach(s=>{if(s)animObserver.observe(s);});
 
 /* preload first slide visible */
 document.querySelector('.slide').classList.add('visible');
