@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Copilot 深度介绍 | AI-Native Software Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ===========================================
+       VIEWPORT FITTING: MANDATORY BASE STYLES
+       每页严格等于一个视口高度，不允许页内滚动。
+       =========================================== */
+    :root {
+      --bg: #07100c;
+      --bg-2: #0d1117;
+      --panel: rgba(13, 17, 23, 0.82);
+      --panel-2: rgba(22, 27, 34, 0.9);
+      --line: rgba(57, 211, 83, 0.22);
+      --line-2: rgba(0, 255, 204, 0.2);
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --muted-2: #b7c1cc;
+      --green: #39d353;
+      --cyan: #00ffcc;
+      --blue: #58a6ff;
+      --magenta: #ff4fd8;
+      --yellow: #d4ff00;
+      --danger: #ff7b72;
+      --title-size: clamp(1.6rem, 5vw, 4.9rem);
+      --h2-size: clamp(1.25rem, 3.3vw, 2.7rem);
+      --h3-size: clamp(1rem, 2.2vw, 1.55rem);
+      --body-size: clamp(0.76rem, 1.35vw, 1.08rem);
+      --small-size: clamp(0.58rem, 0.92vw, 0.82rem);
+      --micro-size: clamp(0.5rem, 0.76vw, 0.68rem);
+      --slide-padding: clamp(1rem, 3.6vw, 3.6rem);
+      --content-gap: clamp(0.6rem, 1.7vw, 1.6rem);
+      --element-gap: clamp(0.36rem, 1vw, 0.9rem);
+      --radius: clamp(12px, 2vw, 24px);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      font-family: "Noto Sans SC", "Space Grotesk", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(57, 211, 83, 0.18), transparent 30vw),
+        radial-gradient(circle at 80% 70%, rgba(0, 255, 204, 0.14), transparent 35vw),
+        linear-gradient(135deg, #050806 0%, #0d1117 45%, #08120e 100%);
+    }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(57, 211, 83, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(57, 211, 83, 0.05) 1px, transparent 1px);
+      background-size: clamp(28px, 4vw, 58px) clamp(28px, 4vw, 58px);
+      mask-image: radial-gradient(circle at 50% 50%, black, transparent 78%);
+      z-index: -3;
+    }
+
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(57, 211, 83, 0.03), transparent 18%, transparent 82%, rgba(0, 255, 204, 0.04)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.018), rgba(255,255,255,0.018) 1px, transparent 1px, transparent 6px);
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-height: 100%;
+      overflow: hidden;
+      padding: var(--slide-padding);
+      gap: var(--content-gap);
+    }
+
+    .kicker {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--green);
+      font-size: var(--small-size);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      font-family: "Space Grotesk", "Noto Sans SC", sans-serif;
+      letter-spacing: -0.04em;
+      line-height: 0.98;
+    }
+
+    h1 {
+      font-size: var(--title-size);
+      max-width: 12ch;
+      text-shadow: 0 0 34px rgba(57, 211, 83, 0.22);
+    }
+
+    h2 {
+      font-size: var(--h2-size);
+      max-width: 18ch;
+    }
+
+    h3 {
+      font-size: var(--h3-size);
+      color: var(--text);
+    }
+
+    p, li {
+      font-size: var(--body-size);
+      line-height: 1.45;
+      color: var(--muted-2);
+    }
+
+    strong { color: var(--text); }
+
+    .muted { color: var(--muted); }
+    .green { color: var(--green); }
+    .cyan { color: var(--cyan); }
+    .blue { color: var(--blue); }
+    .magenta { color: var(--magenta); }
+    .yellow { color: var(--yellow); }
+    .danger { color: var(--danger); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: var(--content-gap);
+      align-items: center;
+      min-height: 0;
+    }
+
+    .terminal-card, .card, .metric, .timeline-item, .source-card {
+      background: linear-gradient(145deg, rgba(13,17,23,0.92), rgba(22,27,34,0.74));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 0 0 1px rgba(0,255,204,0.03), 0 22px 70px rgba(0,0,0,0.28);
+      backdrop-filter: blur(14px);
+    }
+
+    .terminal-card {
+      padding: clamp(0.85rem, 1.8vw, 1.35rem);
+      font-family: "JetBrains Mono", monospace;
+      position: relative;
+      min-height: 0;
+      max-height: min(72vh, 650px);
+      overflow: hidden;
+    }
+
+    .terminal-card::before {
+      content: "● ● ●";
+      display: block;
+      color: #ff7b72;
+      letter-spacing: 0.35em;
+      font-size: var(--small-size);
+      margin-bottom: clamp(0.55rem, 1.2vw, 0.9rem);
+    }
+
+    .cmd {
+      color: var(--green);
+      font-size: clamp(0.68rem, 1.08vw, 0.94rem);
+      line-height: 1.62;
+      white-space: pre-wrap;
+    }
+
+    .cmd .comment { color: var(--muted); }
+    .cmd .value { color: var(--cyan); }
+
+    .subtitle {
+      max-width: 56ch;
+      font-size: clamp(0.88rem, 1.55vw, 1.28rem);
+      color: var(--muted-2);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--content-gap);
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--element-gap);
+      min-height: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+      gap: var(--element-gap);
+      min-height: 0;
+    }
+
+    .card, .metric, .source-card {
+      padding: clamp(0.72rem, 1.45vw, 1.15rem);
+      max-width: min(90vw, 1000px);
+      max-height: min(80vh, 700px);
+      overflow: hidden;
+    }
+
+    .card h3, .metric h3 {
+      margin-bottom: clamp(0.32rem, 0.9vw, 0.7rem);
+    }
+
+    .card p, .metric p, .source-card p {
+      font-size: clamp(0.68rem, 1.08vw, 0.96rem);
+    }
+
+    .metric .num {
+      font-family: "JetBrains Mono", monospace;
+      font-size: clamp(1.45rem, 4.5vw, 3.8rem);
+      line-height: 1;
+      color: var(--cyan);
+      text-shadow: 0 0 24px rgba(0,255,204,0.22);
+      letter-spacing: -0.06em;
+    }
+
+    .metric .label {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--green);
+      font-size: var(--small-size);
+      margin-top: clamp(0.3rem, 0.8vw, 0.6rem);
+    }
+
+    .bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.42rem, 1vh, 0.82rem);
+      min-height: 0;
+    }
+
+    .bullets li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: clamp(0.45rem, 1vw, 0.8rem);
+      align-items: start;
+    }
+
+    .bullets li::before {
+      content: ">";
+      font-family: "JetBrains Mono", monospace;
+      color: var(--green);
+      text-shadow: 0 0 12px rgba(57,211,83,0.55);
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--element-gap);
+      min-height: 0;
+    }
+
+    .timeline-item {
+      padding: clamp(0.7rem, 1.2vw, 1rem);
+      overflow: hidden;
+      border-color: rgba(88,166,255,0.23);
+    }
+
+    .timeline-item .year {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--cyan);
+      font-size: clamp(0.82rem, 1.4vw, 1.05rem);
+      margin-bottom: 0.35rem;
+    }
+
+    .timeline-item p {
+      font-size: clamp(0.62rem, 0.96vw, 0.86rem);
+      line-height: 1.36;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: clamp(0.32rem, 0.8vw, 0.65rem);
+      min-height: 0;
+    }
+
+    .pill {
+      font-family: "JetBrains Mono", monospace;
+      font-size: var(--small-size);
+      color: var(--text);
+      border: 1px solid rgba(57,211,83,0.28);
+      background: rgba(57,211,83,0.08);
+      border-radius: 999px;
+      padding: clamp(0.24rem, 0.6vw, 0.42rem) clamp(0.45rem, 1vw, 0.76rem);
+      white-space: nowrap;
+    }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-size: clamp(0.56rem, 0.92vw, 0.78rem);
+    }
+
+    .matrix th, .matrix td {
+      border-bottom: 1px solid rgba(57,211,83,0.13);
+      border-right: 1px solid rgba(57,211,83,0.1);
+      padding: clamp(0.38rem, 0.85vw, 0.7rem);
+      text-align: left;
+      vertical-align: top;
+      color: var(--muted-2);
+      line-height: 1.34;
+    }
+
+    .matrix th {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--green);
+      background: rgba(57,211,83,0.08);
+      font-weight: 700;
+    }
+
+    .matrix tr:last-child td { border-bottom: 0; }
+    .matrix td:last-child, .matrix th:last-child { border-right: 0; }
+
+    .tag {
+      display: inline-block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: var(--micro-size);
+      color: var(--cyan);
+      border: 1px solid rgba(0,255,204,0.24);
+      border-radius: 999px;
+      padding: 0.14rem 0.38rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .quote {
+      font-size: clamp(1.1rem, 2.6vw, 2.25rem);
+      line-height: 1.22;
+      max-width: 28ch;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+
+    .footer {
+      position: absolute;
+      left: var(--slide-padding);
+      right: var(--slide-padding);
+      bottom: clamp(0.55rem, 1.4vw, 1rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: var(--micro-size);
+      color: rgba(139,148,158,0.86);
+      pointer-events: none;
+    }
+
+    .slide-no { color: var(--green); }
+
+    .progress {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 3px;
+      width: 0%;
+      z-index: 9999;
+      background: linear-gradient(90deg, var(--green), var(--cyan), var(--magenta));
+      box-shadow: 0 0 18px rgba(0,255,204,0.55);
+      transition: width 0.25s ease;
+    }
+
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.35rem, 1vw, 0.85rem);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 9998;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .nav-dots button {
+      width: clamp(6px, 0.7vw, 9px);
+      height: clamp(6px, 0.7vw, 9px);
+      border-radius: 999px;
+      border: 1px solid rgba(57,211,83,0.45);
+      background: rgba(57,211,83,0.08);
+      cursor: pointer;
+    }
+
+    .nav-dots button.active {
+      background: var(--green);
+      box-shadow: 0 0 16px rgba(57,211,83,0.75);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+
+    .visible .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal:nth-child(1) { transition-delay: 0.05s; }
+    .reveal:nth-child(2) { transition-delay: 0.12s; }
+    .reveal:nth-child(3) { transition-delay: 0.19s; }
+    .reveal:nth-child(4) { transition-delay: 0.26s; }
+    .reveal:nth-child(5) { transition-delay: 0.33s; }
+
+    .orbit {
+      position: absolute;
+      width: clamp(180px, 32vw, 520px);
+      height: clamp(180px, 32vw, 520px);
+      border: 1px solid rgba(57,211,83,0.16);
+      border-radius: 50%;
+      right: calc(-1 * clamp(70px, 8vw, 140px));
+      top: calc(-1 * clamp(60px, 7vw, 120px));
+      z-index: -1;
+      animation: spin 22s linear infinite;
+    }
+
+    .orbit::before, .orbit::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 26px rgba(0,255,204,0.75);
+    }
+
+    .orbit::before { width: 10px; height: 10px; top: 20%; left: 8%; }
+    .orbit::after { width: 7px; height: 7px; bottom: 16%; right: 22%; background: var(--green); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .edit-hotzone {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 86px;
+      height: 86px;
+      z-index: 10000;
+      cursor: pointer;
+    }
+
+    .edit-toggle, .save-toggle {
+      position: fixed;
+      left: 18px;
+      z-index: 10001;
+      opacity: 0;
+      pointer-events: none;
+      border: 1px solid rgba(57,211,83,0.42);
+      background: rgba(13,17,23,0.92);
+      color: var(--green);
+      border-radius: 999px;
+      padding: 0.45rem 0.7rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: var(--small-size);
+      cursor: pointer;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .edit-toggle { top: 16px; }
+    .save-toggle { top: 58px; color: var(--cyan); border-color: rgba(0,255,204,0.42); }
+    .edit-toggle.show, .edit-toggle.active, .save-toggle.show, .save-toggle.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    body.editing [data-editable="true"] {
+      outline: 1px dashed rgba(0,255,204,0.45);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    @media (max-height: 700px) {
+      :root {
+        --slide-padding: clamp(0.75rem, 3vw, 2rem);
+        --content-gap: clamp(0.4rem, 1.3vw, 1rem);
+        --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+        --h2-size: clamp(1rem, 3vw, 1.75rem);
+      }
+      .timeline { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .card, .metric, .timeline-item { padding: clamp(0.48rem, 1vw, 0.8rem); }
+    }
+
+    @media (max-height: 600px) {
+      :root {
+        --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+        --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+        --title-size: clamp(1.1rem, 4vw, 2rem);
+        --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+      }
+      .nav-dots, .footer, .orbit { display: none; }
+    }
+
+    @media (max-height: 500px) {
+      :root {
+        --slide-padding: clamp(0.4rem, 2vw, 1rem);
+        --title-size: clamp(1rem, 3.5vw, 1.5rem);
+        --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+        --body-size: clamp(0.65rem, 1vw, 0.85rem);
+      }
+    }
+
+    @media (max-width: 760px) {
+      :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+      .hero, .two-col, .three-col { grid-template-columns: 1fr; }
+      .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .matrix th, .matrix td { padding: 0.32rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+      }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+  <div class="edit-hotzone" id="editHotzone" title="编辑模式"></div>
+  <button class="edit-toggle" id="editToggle" type="button">EDIT · E</button>
+  <button class="save-toggle" id="saveToggle" type="button">SAVE HTML</button>
+
+  <main>
+    <section class="slide">
+      <div class="orbit decorative"></div>
+      <div class="slide-content hero">
+        <div>
+          <div class="kicker reveal">GitHub Copilot / AI-native development</div>
+          <h1 class="reveal" data-editable="true">AI 原生软件开发平台</h1>
+          <p class="subtitle reveal" data-editable="true">从代码补全到 Agentic SDLC：GitHub Copilot 如何帮助团队更快、更安全、更可治理地交付软件。</p>
+          <div class="pill-row reveal">
+            <span class="pill">IDE</span><span class="pill">GitHub.com</span><span class="pill">CLI</span><span class="pill">Agents</span><span class="pill">Governance</span>
+          </div>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="cmd">$ copilot init ai-native-sdlc
+<span class="comment"># scope</span> <span class="value">history · models · IDEs · adoption · features · UBB · competitors</span>
+<span class="comment"># style</span> <span class="value">github-dark / neon-terminal / enterprise-ready</span>
+<span class="comment"># message</span> <span class="value">sell the platform, not just autocomplete</span></div>
+        </div>
+      </div>
+      <div class="footer"><span>Microsoft / GitHub Copilot</span><span class="slide-no">01</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Executive takeaway</div>
+        <h2 class="reveal" data-editable="true">Copilot 已经不是“写代码插件”</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>1. 覆盖面</h3><p>从 IDE 自动补全扩展到 Chat、PR、Code Review、CLI、移动端、GitHub.com 和云端 coding agent。</p></div>
+          <div class="card"><h3>2. 平台化</h3><p>深度嵌入 GitHub 仓库、Issue、Pull Request、Actions、规则与安全工作流。</p></div>
+          <div class="card"><h3>3. 多模型</h3><p>不再绑定单一模型；支持 OpenAI、Anthropic、Google、Qwen 等多模型和自动模型选择。</p></div>
+          <div class="card"><h3>4. 企业治理</h3><p>策略、内容排除、模型控制、预算、指标、审计、数据驻留与合规能力逐步完善。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Positioning</span><span class="slide-no">02</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Why now</div>
+        <h2 class="reveal" data-editable="true">真正的价值：研发吞吐量 + 风险控制</h2>
+        <div class="two-col">
+          <ul class="bullets reveal">
+            <li>开发者时间被需求澄清、读代码、写样板、查文档、修测试、写 PR 描述反复切碎。</li>
+            <li>AI 编程工具从“个人效率工具”进入“团队生产系统”：需要权限、预算、指标和安全边界。</li>
+            <li>Kiro、通义灵码等工具各有特色；Copilot 的差异化在于 SDLC 平台深度，而不是只比补全。</li>
+          </ul>
+          <div class="terminal-card reveal">
+            <div class="cmd"><span class="comment">// old world</span>
+dev writes code → asks review → fixes CI → writes docs
+
+<span class="comment">// copilot-native</span>
+intent → plan → edit → test → PR → review → govern
+
+<span class="value">Human stays in control. AI removes toil.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Why it matters</span><span class="slide-no">03</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Product evolution</div>
+        <h2 class="reveal" data-editable="true">发展史：从 Pair Programmer 到 Agentic Platform</h2>
+        <div class="timeline reveal">
+          <div class="timeline-item"><div class="year">2021</div><p><strong>技术预览</strong><br>GitHub + OpenAI 推出 AI pair programmer，最初由 Codex 驱动。</p></div>
+          <div class="timeline-item"><div class="year">2022</div><p><strong>个人版 GA</strong><br>面向开发者正式商用，主打代码补全、测试、样板代码。</p></div>
+          <div class="timeline-item"><div class="year">2023</div><p><strong>Business / X</strong><br>组织集中管理；Copilot X 提出贯穿 SDLC 的愿景。</p></div>
+          <div class="timeline-item"><div class="year">2024</div><p><strong>Enterprise GA</strong><br>GitHub.com Chat、组织知识、PR 摘要、企业能力。</p></div>
+        </div>
+        <div class="timeline reveal">
+          <div class="timeline-item"><div class="year">2024</div><p><strong>Workspace</strong><br>从 issue/repo 到计划、代码、测试、PR 的自然语言工作流。</p></div>
+          <div class="timeline-item"><div class="year">2024</div><p><strong>Extensions</strong><br>第三方和内部工具接入 Copilot Chat。</p></div>
+          <div class="timeline-item"><div class="year">2025</div><p><strong>Agent Mode</strong><br>IDE 内多文件编辑、命令建议、自我迭代修复。</p></div>
+          <div class="timeline-item"><div class="year">2025</div><p><strong>Coding Agent</strong><br>分配 issue，后台工作并提交 draft PR。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Source: GitHub Blog timeline</span><span class="slide-no">04</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content hero">
+        <div>
+          <div class="kicker reveal">Core narrative</div>
+          <h2 class="reveal" data-editable="true">Copilot 的演进主线：越来越接近真实工程闭环</h2>
+          <p class="subtitle reveal">从“给一行建议”到“理解仓库、修改多文件、跑测试、提 PR、接受 Review 反馈”。</p>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="cmd">2021 autocomplete
+  └─ code context
+2023 chat + business controls
+  └─ team context
+2024 enterprise + extensions
+  └─ org knowledge + tools
+2025 agent mode + coding agent
+  └─ repo workflow + PR loop</div>
+        </div>
+      </div>
+      <div class="footer"><span>Evolution</span><span class="slide-no">05</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Model choice</div>
+        <h2 class="reveal" data-editable="true">模型集合：从单模型走向多模型组合</h2>
+        <div class="grid reveal">
+          <div class="card"><span class="tag">OpenAI</span><h3>GPT / Codex 系列</h3><p>通用编码、复杂推理、Agentic software development 等任务可选择不同强度模型。</p></div>
+          <div class="card"><span class="tag">Anthropic</span><h3>Claude 系列</h3><p>Sonnet、Opus、Haiku 等模型适合从快速问答到复杂推理的不同场景。</p></div>
+          <div class="card"><span class="tag">Google</span><h3>Gemini 系列</h3><p>面向深度推理、视觉输入、快速轻量任务提供更多模型选择。</p></div>
+          <div class="card"><span class="tag">Open / Other</span><h3>Qwen / Raptor 等</h3><p>官方文档列出 Qwen2.5、Raptor mini 等模型；可用性依计划和使用端变化。</p></div>
+        </div>
+        <p class="muted reveal">注：模型清单、倍率、使用端可用性变化快，具体以 GitHub 官方文档和管理员策略为准。</p>
+      </div>
+      <div class="footer"><span>Source: GitHub Docs supported AI models</span><span class="slide-no">06</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Model routing</div>
+        <h2 class="reveal" data-editable="true">不是“哪个模型最好”，而是“哪个任务用哪个模型”</h2>
+        <div class="three-col reveal">
+          <div class="card"><h3>快速日常</h3><p><strong>目标：</strong>低延迟、低成本、快速解释和小改动。<br><span class="cyan">适用：</span>语法问答、utility function、轻量重构。</p></div>
+          <div class="card"><h3>复杂推理</h3><p><strong>目标：</strong>跨文件理解、架构分析、深度调试。<br><span class="cyan">适用：</span>复杂 bug、设计取舍、日志分析。</p></div>
+          <div class="card"><h3>Agentic 任务</h3><p><strong>目标：</strong>计划、编辑、测试、迭代。<br><span class="cyan">适用：</span>多文件需求、低中复杂度 issue、PR 自动化。</p></div>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="cmd">model = auto(task, policy, availability, cost)
+<span class="comment"># Auto model selection 可按任务选择合适模型，并支持管理员策略约束。</span></div>
+        </div>
+      </div>
+      <div class="footer"><span>Auto model selection</span><span class="slide-no">07</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Where developers use it</div>
+        <h2 class="reveal" data-editable="true">使用入口：覆盖开发者每天工作的主战场</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>IDE</h3><p>VS Code、Visual Studio、JetBrains、Xcode、Eclipse、Vim/Neovim、Azure Data Studio 等。</p></div>
+          <div class="card"><h3>GitHub.com</h3><p>在仓库、issue、PR、文件页面中直接提问、总结、审查、生成上下文回答。</p></div>
+          <div class="card"><h3>CLI / Terminal</h3><p>GitHub CLI 和 Copilot CLI 中解释命令、修复报错、创建 PR、执行开发任务。</p></div>
+          <div class="card"><h3>Mobile / Cloud</h3><p>GitHub Mobile 访问 Chat；coding agent 在 GitHub Actions 安全环境中后台工作。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>IDE + Web + CLI + Cloud</span><span class="slide-no">08</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">IDE support detail</div>
+        <h2 class="reveal" data-editable="true">IDE 支持：不同使用端能力不同，但覆盖面很广</h2>
+        <table class="matrix reveal">
+          <tr><th>平台</th><th>典型能力</th><th>场景价值</th></tr>
+          <tr><td>VS Code</td><td>补全、Chat、Edits、Agent Mode、MCP、模型选择</td><td>能力最完整、演示效果最好</td></tr>
+          <tr><td>Visual Studio</td><td>补全、Chat、Edits/Agent 能力逐步增强</td><td>.NET / Windows 企业开发友好</td></tr>
+          <tr><td>JetBrains</td><td>补全、Chat、Agent/MCP preview 相关能力</td><td>Java、Python、Go、前端团队常用</td></tr>
+          <tr><td>Xcode / Eclipse</td><td>补全、Chat、Agent preview 相关能力</td><td>移动端与传统企业开发场景</td></tr>
+          <tr><td>Vim/Neovim / Azure Data Studio</td><td>主要补全能力</td><td>覆盖资深开发者和数据开发工作流</td></tr>
+        </table>
+      </div>
+      <div class="footer"><span>Source: GitHub Docs plan footnotes / setup docs</span><span class="slide-no">09</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Feature map</div>
+        <h2 class="reveal" data-editable="true">主要功能版图：覆盖从编码到交付的关键节点</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>写代码</h3><p>Inline suggestions、Next Edit Suggestions、函数/测试/样板代码生成。</p></div>
+          <div class="card"><h3>问代码</h3><p>Chat 解释仓库、文件、错误、API、框架和最佳实践。</p></div>
+          <div class="card"><h3>改代码</h3><p>Copilot Edits / Agent Mode 做多文件修改和迭代。</p></div>
+          <div class="card"><h3>审代码</h3><p>Copilot Code Review、PR Summary、Review 重点提示。</p></div>
+          <div class="card"><h3>交付代码</h3><p>Coding agent 接 issue，开分支，提交 draft PR，接受反馈。</p></div>
+          <div class="card"><h3>治理代码</h3><p>策略、预算、指标、内容排除、模型控制、安全与合规。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>SDLC coverage</span><span class="slide-no">10</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content hero">
+        <div>
+          <div class="kicker reveal">Autocomplete is still the baseline</div>
+          <h2 class="reveal" data-editable="true">代码补全：最低摩擦的“心流加速器”</h2>
+          <ul class="bullets reveal">
+            <li>在当前文件和上下文中给出行级、函数级、代码块建议。</li>
+            <li>适合样板代码、测试、数据结构转换、API 调用、注释驱动生成。</li>
+            <li>低学习成本：开发者不改变工作方式即可开始获得价值。</li>
+          </ul>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="cmd"><span class="comment">// before</span>
+function validateOrder(order) {
+  ...
+}
+
+<span class="comment">// Copilot suggests</span>
+if (!order.items?.length) throw new Error("empty order")
+if (order.total <= 0) throw new Error("invalid total")
+return order.items.every(item => item.sku && item.qty > 0)</div>
+        </div>
+      </div>
+      <div class="footer"><span>Code completions</span><span class="slide-no">11</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Chat everywhere</div>
+        <h2 class="reveal" data-editable="true">Copilot Chat：把“读代码”和“问专家”前移到工作现场</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>解释</h3><p>“这段代码在做什么？”“这个错误为什么出现？”</p></div>
+          <div class="card"><h3>生成</h3><p>“为这个函数补测试”“生成迁移脚本”“写 PR 描述”。</p></div>
+          <div class="card"><h3>定位</h3><p>结合仓库上下文找到相关文件、依赖、调用关系。</p></div>
+          <div class="card"><h3>学习</h3><p>用自然语言理解新框架、内部 API、遗留系统。</p></div>
+        </div>
+        <p class="muted reveal">场景价值：减少 context switching，降低新人上手和跨团队协作成本。</p>
+      </div>
+      <div class="footer"><span>Copilot Chat</span><span class="slide-no">12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content hero">
+        <div>
+          <div class="kicker reveal">Multi-file editing</div>
+          <h2 class="reveal" data-editable="true">Copilot Edits / Agent Mode：从“回答问题”到“执行任务”</h2>
+          <ul class="bullets reveal">
+            <li>开发者用自然语言描述目标，Copilot 选择相关文件并提出修改。</li>
+            <li>Agent Mode 可迭代运行、识别错误、建议终端命令和修复路径。</li>
+            <li>人仍然负责 review、接受修改、运行验证和决定是否合并。</li>
+          </ul>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="cmd">$ ask copilot:
+<span class="value">"把订单折扣逻辑抽成策略类，补单测，并更新文档"</span>
+
+plan → edit files → run tests → fix failures → summarize diff</div>
+        </div>
+      </div>
+      <div class="footer"><span>Agent mode</span><span class="slide-no">13</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Cloud coding agent</div>
+        <h2 class="reveal" data-editable="true">Coding Agent：像分配同事一样分配 issue</h2>
+        <div class="two-col">
+          <ul class="bullets reveal">
+            <li>在 GitHub.com、Mobile、CLI 或 VS Code 中把 issue 分配给 Copilot。</li>
+            <li>Agent 在 GitHub Actions 支持的安全环境中 clone repo、分析、改代码、运行验证。</li>
+            <li>持续推送 commits 到 draft PR，并在完成后请求人类 review。</li>
+            <li>适合低到中等复杂度、测试充分的任务：bug、测试、文档、小功能、重构。</li>
+          </ul>
+          <div class="terminal-card reveal">
+            <div class="cmd">issue #482 assigned to @copilot
+  ↳ creates branch
+  ↳ opens draft PR
+  ↳ runs validation
+  ↳ waits for human approval
+
+<span class="comment">Branch protection and review rules still apply.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Source: GitHub Blog, May 2025</span><span class="slide-no">14</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Code review + pull requests</div>
+        <h2 class="reveal" data-editable="true">PR 场景：让 Review 更快进入重点</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>PR Summary</h3><p>自动总结变更范围、影响文件和审查重点，减少作者写描述的负担。</p></div>
+          <div class="card"><h3>Code Review</h3><p>对 PR 或代码提出潜在问题和改进建议，但不替代 required approval。</p></div>
+          <div class="card"><h3>Review Follow-up</h3><p>Coding agent 可读取评论并继续提交改动，形成更完整的闭环。</p></div>
+          <div class="card"><h3>Governed Merge</h3><p>分支保护、规则集、CI/CD 审批仍然生效，AI 不绕过企业流程。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>PR workflow</span><span class="slide-no">15</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content hero">
+        <div>
+          <div class="kicker reveal">Context engineering</div>
+          <h2 class="reveal" data-editable="true">让 AI 更懂团队：Instructions、Spaces、MCP 与 Extensions</h2>
+          <p class="subtitle reveal">AI 编程的核心不只是模型，而是把正确的上下文、工具和边界交给模型。</p>
+        </div>
+        <div class="grid reveal">
+          <div class="card"><h3>Custom Instructions</h3><p>个人、仓库、组织级编码规范和回答风格。</p></div>
+          <div class="card"><h3>Copilot Spaces</h3><p>组织和分享上下文，让回答更贴合项目。</p></div>
+          <div class="card"><h3>MCP</h3><p>把外部工具、数据源、内部系统接入 Agent。</p></div>
+          <div class="card"><h3>Extensions</h3><p>Marketplace 或私有扩展连接第三方/内部工具。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Context + tools</span><span class="slide-no">16</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Adoption</div>
+        <h2 class="reveal" data-editable="true">用户体量与社区热度：公开信号很强</h2>
+        <div class="three-col reveal">
+          <div class="metric"><div class="num">20M</div><div class="label">users</div><p>Microsoft FY25 Q4 财报披露 GitHub Copilot 用户达到 2,000 万。</p></div>
+          <div class="metric"><div class="num">90%</div><div class="label">Fortune 100</div><p>同一公开财报披露 90% Fortune 100 已使用 GitHub Copilot。</p></div>
+          <div class="metric"><div class="num">4×</div><div class="label">YoY signal</div><p>FY25 Q3 曾披露 1,500 万+用户、同比增长 4 倍以上。</p></div>
+        </div>
+        <p class="muted reveal">说明：这是公开财报级别采用信号，不等同于某地区付费 seat 数。</p>
+      </div>
+      <div class="footer"><span>Source: Microsoft FY25 earnings transcripts</span><span class="slide-no">17</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Productivity evidence</div>
+        <h2 class="reveal" data-editable="true">生产力证据：来自研究与真实企业实践</h2>
+        <div class="grid reveal">
+          <div class="metric"><div class="num">55%</div><div class="label">faster in controlled task</div><p>GitHub 研究：使用 Copilot 的专业开发者在特定实验任务中平均更快完成。</p></div>
+          <div class="metric"><div class="num">94%</div><div class="label">flow</div><p>Accenture 研究：开发者表示更能保持 flow、减少重复劳动。</p></div>
+          <div class="metric"><div class="num">90%</div><div class="label">less search</div><p>Accenture 研究：减少搜索信息时间，也报告更好代码体验。</p></div>
+          <div class="metric"><div class="num">88%</div><div class="label">retained suggestions</div><p>Accenture 报告：开发者保留大量 Copilot 建议代码。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Use with context, not as guarantee</span><span class="slide-no">18</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Enterprise governance</div>
+        <h2 class="reveal" data-editable="true">企业治理：规模化使用 AI 的关键能力</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>Feature Policies</h3><p>企业可控制 Copilot、Agents、MCP 等功能是否启用或下放组织管理。</p></div>
+          <div class="card"><h3>Model Policies</h3><p>控制可用模型，满足成本、风险、合规、数据驻留要求。</p></div>
+          <div class="card"><h3>Content Exclusion</h3><p>按仓库/路径排除敏感文件，不让 Copilot 使用这些内容作为上下文。</p></div>
+          <div class="card"><h3>Public Code References</h3><p>匹配公开代码时可展示引用信息，也可策略阻止相关建议。</p></div>
+          <div class="card"><h3>Audit / Access</h3><p>seat 分配、团队同步、权限控制、活动报告和审计信号。</p></div>
+          <div class="card"><h3>Data Residency</h3><p>GitHub Enterprise Cloud 数据驻留场景可约束推理处理区域。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Governance</span><span class="slide-no">19</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content hero">
+        <div>
+          <div class="kicker reveal">Metrics & observability</div>
+          <h2 class="reveal" data-editable="true">全面指标监控：让 AI 投入可观察、可管理</h2>
+          <ul class="bullets reveal">
+            <li>活跃用户、engaged users、IDE 补全建议数与接受数。</li>
+            <li>按语言、编辑器、模型拆分补全和 Chat 使用数据。</li>
+            <li>PR Summary 创建数、Chat 插入/复制事件等使用指标。</li>
+            <li>可用 REST API 接入内部 FinOps、DevEx、工程效能看板。</li>
+          </ul>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="cmd">GET /orgs/{org}/copilot/metrics
+  total_active_users
+  total_engaged_users
+  total_code_suggestions
+  total_code_acceptances
+  total_chats
+  total_pr_summaries_created</div>
+        </div>
+      </div>
+      <div class="footer"><span>Source: GitHub REST API - Copilot metrics</span><span class="slide-no">20</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Security posture</div>
+        <h2 class="reveal" data-editable="true">安全边界：AI 加速，但不绕过企业工程控制</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>Human-in-the-loop</h3><p>建议、修改、PR 都需要人类审查和接受；Copilot review 不算 required approval。</p></div>
+          <div class="card"><h3>Branch Protection</h3><p>Coding agent 只能推送到自己创建的分支，现有规则集和保护策略继续生效。</p></div>
+          <div class="card"><h3>Workflow Approval</h3><p>Agent PR 的 Actions workflow 运行前需要人工审批，降低 CI/CD 环境风险。</p></div>
+          <div class="card"><h3>Trusted Network</h3><p>Agent 网络访问可限制到可信目的地；MCP 也可通过策略控制。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Security design</span><span class="slide-no">21</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Pricing</div>
+        <h2 class="reveal" data-editable="true">定价结构：Seat + Premium Requests 的组合</h2>
+        <table class="matrix reveal">
+          <tr><th>计划</th><th>公开价格 / 定位</th><th>Premium Requests 月额度</th><th>备注</th></tr>
+          <tr><td>Free</td><td>个人试用</td><td>50</td><td>有限补全与 Chat；适合体验。</td></tr>
+          <tr><td>Pro</td><td>$10 / user / month</td><td>300</td><td>个人开发者；无限补全和 included models Chat。</td></tr>
+          <tr><td>Pro+</td><td>$39 / user / month</td><td>1,500</td><td>AI power user，更高额度和高级模型。</td></tr>
+          <tr><td>Business</td><td>$19 / user / month</td><td>300 / user</td><td>组织集中管理、策略控制。</td></tr>
+          <tr><td>Enterprise</td><td>$39 / user / month</td><td>1,000 / user</td><td>企业级能力、GitHub.com 深度集成。</td></tr>
+        </table>
+        <p class="muted reveal">价格、额度、模型倍率会变化；实际价格以 GitHub 官网、合同或采购报价为准。</p>
+      </div>
+      <div class="footer"><span>Pricing snapshot</span><span class="slide-no">22</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content hero">
+        <div>
+          <div class="kicker reveal">UBB after premium requests</div>
+          <h2 class="reveal" data-editable="true">UBB 之后怎么讲：不是“涨价”，是“高级算力可计量可控”</h2>
+          <ul class="bullets reveal">
+            <li>付费计划仍包含 unlimited inline suggestions 和 included models 的 unlimited chat。</li>
+            <li>更高级模型、Agentic 功能等会消耗 premium requests，按模型 multiplier 扣减。</li>
+            <li>超出月额度后，可设置额外预算；企业可配置达到预算后停止使用。</li>
+            <li>2025-11 起 Spark、Copilot cloud agent 等 premium request SKU 拆分，增强成本可见性。</li>
+          </ul>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="cmd">included models: no premium request
+premium model: requests × multiplier
+auto model selection: eligible discount signal
+budget: alert at 75% / 90% / 100%
+optional: stop usage at budget limit</div>
+        </div>
+      </div>
+      <div class="footer"><span>Source: GitHub Docs billing / budgets</span><span class="slide-no">23</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Cost governance</div>
+        <h2 class="reveal" data-editable="true">成本治理：可预测、可限制、可归因</h2>
+        <div class="three-col reveal">
+          <div class="card"><h3>可预测</h3><p>基础 seat 价格清晰；每个计划有月度 premium request allowance。</p></div>
+          <div class="card"><h3>可限制</h3><p>预算可设置阈值告警，也可对 metered usage 启用超额停止。</p></div>
+          <div class="card"><h3>可归因</h3><p>企业维度、组织/仓库/成本中心维度的预算和使用数据支持 FinOps。</p></div>
+        </div>
+        <p class="quote reveal">“AI 规模化落地的关键，不是让每个人无限调用，而是让组织能安全、透明、可治理地使用。”</p>
+      </div>
+      <div class="footer"><span>FinOps message</span><span class="slide-no">24</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Competitive landscape</div>
+        <h2 class="reveal" data-editable="true">竞品速览：Kiro 与通义灵码各有亮点</h2>
+        <table class="matrix reveal">
+          <tr><th>产品</th><th>核心卖点</th><th>企业能力</th><th>观察</th></tr>
+          <tr><td>Amazon Kiro</td><td>Spec-driven development：需求、设计、任务、代码、hooks。</td><td>AWS IAM Identity Center、区域/GovCloud、MCP、企业登录。</td><td>强在结构化从需求到实现；团队 billing/management 仍在发展中。</td></tr>
+          <tr><td>通义灵码</td><td>代码补全、智能问答、Agent、终端命令、多文件编辑、200 种语言宣传。</td><td>专属版、VPC/IP 白名单、审计、知识库、自定义扩展、统计报表。</td><td>中国本地生态和阿里云适配强；多模型开放选择不如 Copilot 明确。</td></tr>
+          <tr><td>GitHub Copilot</td><td>IDE + GitHub.com + CLI + PR + Actions + Agents 的 SDLC 平台。</td><td>策略、模型治理、预算、指标、内容排除、代码引用、数据驻留。</td><td>优势在 GitHub 生态、开源社区、交付流程和企业治理闭环。</td></tr>
+        </table>
+      </div>
+      <div class="footer"><span>Competitor comparison</span><span class="slide-no">25</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Why GitHub Copilot wins</div>
+        <h2 class="reveal" data-editable="true">我们的优势：卖“完整研发平台”，不是单点 AI 插件</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>GitHub 原生工作流</h3><p>Issue、PR、Review、Actions、Rules、Security、Packages 与 Copilot 形成闭环。</p></div>
+          <div class="card"><h3>社区与开源网络效应</h3><p>GitHub 是全球开发者协作中心，Copilot Free/Student/开源维护者权益强化生态入口。</p></div>
+          <div class="card"><h3>模型选择权</h3><p>多供应商、多任务模型和 Auto model selection，避免组织被单一模型路线锁定。</p></div>
+          <div class="card"><h3>治理成熟度</h3><p>预算、指标、策略、内容排除、模型控制、审计和数据驻留是企业规模化落地关键。</p></div>
+          <div class="card"><h3>工具扩展性</h3><p>MCP、Extensions、CLI 和 GitHub MCP Server 把 Copilot 接入组织现有工具链。</p></div>
+          <div class="card"><h3>安全默认值</h3><p>Branch protection、human approval、workflow approval 等机制让 Agent 不绕过工程控制。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Platform advantages</span><span class="slide-no">26</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Key questions</div>
+        <h2 class="reveal" data-editable="true">关键问题：安全、质量、成本与平台选择</h2>
+        <div class="grid reveal">
+          <div class="card"><h3>“会不会泄露代码？”</h3><p>企业可用内容排除、策略控制、数据驻留；GitHub 公开说明不会用组织私有仓库、prompts、suggestions 训练产品模型，除非组织明确指示。</p></div>
+          <div class="card"><h3>“AI 写错怎么办？”</h3><p>Copilot 是加速器，不是替代工程责任；测试、review、branch protection 和 CI/CD 仍是必要控制。</p></div>
+          <div class="card"><h3>“成本会不会失控？”</h3><p>Premium request 有月额度、倍率、预算、告警和可选停止使用策略，可接入企业 FinOps。</p></div>
+          <div class="card"><h3>“为什么不用单点工具？”</h3><p>单点工具解决局部效率；Copilot 连接 IDE、仓库、PR、Actions、安全和治理，更适合组织规模化。</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Key questions</span><span class="slide-no">27</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content hero">
+        <div>
+          <div class="kicker reveal">Rollout playbook</div>
+          <h2 class="reveal" data-editable="true">建议落地路径：先证明价值，再规模治理</h2>
+          <ul class="bullets reveal">
+            <li><strong>Phase 1：</strong>选择 2–3 个团队试点，覆盖前端/后端/测试/维护场景。</li>
+            <li><strong>Phase 2：</strong>定义安全边界：内容排除、模型策略、MCP 策略、预算阈值。</li>
+            <li><strong>Phase 3：</strong>用 Metrics API 看活跃、接受率、Chat、PR summary、团队反馈。</li>
+            <li><strong>Phase 4：</strong>推广到更多团队，建立 prompt/instructions 最佳实践和内部 Champion 网络。</li>
+          </ul>
+        </div>
+        <div class="terminal-card reveal">
+          <div class="cmd">pilot.success =
+  adoption ↑
+  repetitive toil ↓
+  cycle time ↓
+  review quality stable
+  security posture unchanged_or_better</div>
+        </div>
+      </div>
+      <div class="footer"><span>Adoption plan</span><span class="slide-no">28</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">Closing thought</div>
+        <h2 class="reveal" data-editable="true">总结：AI 原生研发平台的核心价值</h2>
+        <div class="terminal-card reveal">
+          <div class="cmd">GitHub Copilot 的价值不是让开发者少写几行代码，
+而是让团队把更多时间花在设计、判断和交付结果上。
+
+它已经从补全工具演进为 AI 原生研发平台：
+  IDE 内协作
+  GitHub 上交付
+  Agent 处理低中复杂度任务
+  企业用策略、预算、指标和安全边界规模化治理
+
+<span class="value">这就是 Microsoft / GitHub 在 AI 编程时代的核心优势。</span></div>
+        </div>
+      </div>
+      <div class="footer"><span>Closing</span><span class="slide-no">29</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-content">
+        <div class="kicker reveal">References</div>
+        <h2 class="reveal" data-editable="true">主要来源与边界说明</h2>
+        <div class="grid reveal">
+          <div class="source-card"><h3>GitHub Docs</h3><p>What is Copilot、features、plans、supported models、premium requests、policies、metrics API、budgets。</p></div>
+          <div class="source-card"><h3>GitHub Blog</h3><p>2021 preview、2022 GA、Copilot X、Enterprise GA、Agent Mode、Coding Agent。</p></div>
+          <div class="source-card"><h3>Microsoft Earnings</h3><p>20M users、90% Fortune 100、增长信号。该数据不等同于某地区付费 seat 数。</p></div>
+          <div class="source-card"><h3>Competitor Sources</h3><p>Kiro 官网/FAQ/pricing；通义灵码官网、Alibaba Cloud 产品与帮助页。</p></div>
+        </div>
+        <ul class="bullets reveal">
+          <li>模型、价格、premium request multiplier、可售状态变化很快，实际价格以官网/合同/采购报价为准。</li>
+          <li>生产力数据来自特定研究，实际效果会随团队、代码库、流程和采用方式变化。</li>
+        </ul>
+      </div>
+      <div class="footer"><span>References</span><span class="slide-no">30</span></div>
+    </section>
+  </main>
+
+  <script>
+    /* ===========================================
+       SLIDE PRESENTATION CONTROLLER
+       键盘、滚轮、触控、进度条和导航点。
+       =========================================== */
+    class SlidePresentation {
+      constructor() {
+        this.slides = [...document.querySelectorAll('.slide')];
+        this.index = 0;
+        this.progress = document.getElementById('progress');
+        this.nav = document.getElementById('navDots');
+        this.isScrolling = false;
+        this.touchStartY = 0;
+        this.createDots();
+        this.bindEvents();
+        this.observeSlides();
+        this.goTo(0, false);
+      }
+
+      createDots() {
+        this.slides.forEach((_, i) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.setAttribute('aria-label', `Go to slide ${i + 1}`);
+          button.addEventListener('click', () => this.goTo(i));
+          this.nav.appendChild(button);
+        });
+        this.dots = [...this.nav.querySelectorAll('button')];
+      }
+
+      bindEvents() {
+        document.addEventListener('keydown', (event) => {
+          const editingText = event.target && event.target.getAttribute && event.target.getAttribute('contenteditable') === 'true';
+          if (editingText) return;
+          if (['ArrowDown', 'ArrowRight', ' ', 'PageDown'].includes(event.key)) {
+            event.preventDefault();
+            this.next();
+          }
+          if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(event.key)) {
+            event.preventDefault();
+            this.prev();
+          }
+          if (event.key === 'Home') this.goTo(0);
+          if (event.key === 'End') this.goTo(this.slides.length - 1);
+        });
+
+        window.addEventListener('wheel', (event) => {
+          if (this.isScrolling) return;
+          this.isScrolling = true;
+          event.deltaY > 0 ? this.next() : this.prev();
+          setTimeout(() => { this.isScrolling = false; }, 520);
+        }, { passive: true });
+
+        window.addEventListener('touchstart', (event) => {
+          this.touchStartY = event.touches[0].clientY;
+        }, { passive: true });
+
+        window.addEventListener('touchend', (event) => {
+          const delta = this.touchStartY - event.changedTouches[0].clientY;
+          if (Math.abs(delta) > 42) delta > 0 ? this.next() : this.prev();
+        }, { passive: true });
+      }
+
+      observeSlides() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              this.index = this.slides.indexOf(entry.target);
+              this.updateUi();
+            }
+          });
+        }, { threshold: 0.58 });
+        this.slides.forEach(slide => observer.observe(slide));
+      }
+
+      updateUi() {
+        const pct = ((this.index + 1) / this.slides.length) * 100;
+        this.progress.style.width = `${pct}%`;
+        this.dots.forEach((dot, i) => dot.classList.toggle('active', i === this.index));
+      }
+
+      goTo(index, smooth = true) {
+        this.index = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.slides[this.index].scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+        this.updateUi();
+      }
+
+      next() { this.goTo(this.index + 1); }
+      prev() { this.goTo(this.index - 1); }
+    }
+
+    /* ===========================================
+       INLINE EDITOR
+       按 E 或点击左上角进入编辑；可导出当前 HTML。
+       =========================================== */
+    class InlineEditor {
+      constructor() {
+        this.isActive = false;
+        this.editables = [...document.querySelectorAll('[data-editable="true"]')];
+        this.storageKey = 'github-copilot-deep-dive-edits';
+        this.load();
+      }
+
+      toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle('editing', this.isActive);
+        this.editables.forEach((element) => {
+          element.setAttribute('contenteditable', this.isActive ? 'true' : 'false');
+        });
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        document.getElementById('saveToggle').classList.toggle('active', this.isActive);
+        if (!this.isActive) this.persist();
+      }
+
+      persist() {
+        const data = this.editables.map((element) => element.innerHTML);
+        localStorage.setItem(this.storageKey, JSON.stringify(data));
+      }
+
+      load() {
+        const raw = localStorage.getItem(this.storageKey);
+        if (!raw) return;
+        try {
+          JSON.parse(raw).forEach((html, index) => {
+            if (this.editables[index]) this.editables[index].innerHTML = html;
+          });
+        } catch (error) {
+          console.warn('Could not load saved edits', error);
+        }
+      }
+
+      exportHtml() {
+        this.persist();
+        const clone = document.documentElement.cloneNode(true);
+        clone.querySelectorAll('[contenteditable]').forEach((el) => el.setAttribute('contenteditable', 'false'));
+        const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'github-copilot-deep-dive-edited.html';
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    const deck = new SlidePresentation();
+    const editor = new InlineEditor();
+
+    const hotzone = document.getElementById('editHotzone');
+    const editToggle = document.getElementById('editToggle');
+    const saveToggle = document.getElementById('saveToggle');
+    let hideTimeout = null;
+
+    function showEditButtons() {
+      clearTimeout(hideTimeout);
+      editToggle.classList.add('show');
+      saveToggle.classList.add('show');
+    }
+
+    function hideEditButtons() {
+      hideTimeout = setTimeout(() => {
+        if (!editor.isActive) {
+          editToggle.classList.remove('show');
+          saveToggle.classList.remove('show');
+        }
+      }, 400);
+    }
+
+    hotzone.addEventListener('mouseenter', showEditButtons);
+    hotzone.addEventListener('mouseleave', hideEditButtons);
+    hotzone.addEventListener('click', () => editor.toggleEditMode());
+    editToggle.addEventListener('mouseenter', showEditButtons);
+    editToggle.addEventListener('mouseleave', hideEditButtons);
+    saveToggle.addEventListener('mouseenter', showEditButtons);
+    saveToggle.addEventListener('mouseleave', hideEditButtons);
+    editToggle.addEventListener('click', () => editor.toggleEditMode());
+    saveToggle.addEventListener('click', () => editor.exportHtml());
+
+    document.addEventListener('keydown', (event) => {
+      const editingText = event.target && event.target.getAttribute && event.target.getAttribute('contenteditable') === 'true';
+      if ((event.key === 'e' || event.key === 'E') && !editingText) {
+        editor.toggleEditMode();
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        editor.exportHtml();
+      }
+    });
+  </script>
+</body>
+</html>

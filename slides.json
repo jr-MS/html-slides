@@ -169,5 +169,22 @@
     "path": "slides/copilot-ubb-deck.html",
     "featured": false,
     "updated": "2026-05-15"
+  },
+  {
+    "id": "github-copilot-customer-deck",
+    "title": "GitHub Copilot 深度介绍 | AI-Native Software Development",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Github",
+      "Copilot",
+      "Ai-Native",
+      "Software"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/github-copilot-customer-deck.html",
+    "featured": false,
+    "updated": "2026-05-19"
   }
 ]
