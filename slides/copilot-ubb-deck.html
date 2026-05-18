@@ -356,18 +356,9 @@ h3{font-size:var(--h3)}
   font-size:clamp(1.05rem,2.1vw,1.55rem);color:var(--green);
 }
 .plan .cap{font-size:var(--small);color:var(--muted);margin-top:.2rem}
-.meter{height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin:.9rem 0 .65rem;border:1px solid rgba(255,255,255,.08)}
-.meter .fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--cyan),var(--pink));box-shadow:0 0 16px rgba(0,217,255,.55);transition:width 1.2s var(--ease) .25s}
-.slide.visible .meter .fill{width:var(--w,50%)}
-.plan .usd{font-family:var(--font-mono);font-size:var(--small);color:var(--text);margin-top:auto}
+.plan .usd{font-family:var(--font-mono);font-size:var(--small);color:var(--text);margin-top:.9rem}
 .plan .usd b{color:var(--gold)}
-.plan.highlight{border-color:var(--green);box-shadow:0 0 0 1px var(--green),0 0 30px rgba(0,255,159,.15)}
-.plan.highlight::after{
-  content:"ORG POOL";position:absolute;top:.5rem;right:.5rem;
-  font-family:var(--font-mono);font-size:.55rem;letter-spacing:.15em;
-  background:var(--gold);color:var(--bg);padding:.15em .5em;border-radius:3px;
-}
-
+.plan .note{font-size:var(--small);color:var(--muted);margin-top:.65rem;line-height:1.45}
 /* Promo three-month timeline */
 .timeline{
   display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);
@@ -1069,13 +1060,13 @@ h3{font-size:var(--h3)}
 <section class="slide">
   <div class="slide-content">
     <div class="kicker reveal">// 04 — UNIT ECONOMICS</div>
-    <h2 class="reveal">不要想成筹码，想成 <span class="glow-c">一次调用的小票</span></h2>
-    <p class="reveal" style="color:var(--muted);margin-top:.4rem">1 AI Credit = $0.01。每次 Copilot 调用按 token 类型分别计价，最后折算成 credits。</p>
+    <h2 class="reveal">AI Credit 是 Copilot 的 <span class="glow-c">用量计费单位</span></h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.4rem">1 AI Credit = $0.01。每次请求都会生成一笔用量明细：输入、缓存输入、输出分别计价，再折算成 credits。</p>
 
     <div class="receipt-layout reveal">
       <div class="receipt">
         <div class="r-head"><span>COPILOT REQUEST RECEIPT</span><span>#UBB-042</span></div>
-        <div class="r-title">示例：一次大型 Chat / Agent 调用</div>
+        <div class="r-title">示例：一次 Copilot Chat / Agent 请求</div>
         <div class="row"><span>Input tokens</span><b>120K × input rate</b></div>
         <div class="row"><span>Cached input tokens</span><b>80K × cache rate</b></div>
         <div class="row"><span>Output tokens</span><b>12K × output rate</b></div>
@@ -1106,7 +1097,7 @@ h3{font-size:var(--h3)}
 <section class="slide">
   <div class="slide-content">
     <div class="kicker reveal">// 05 — STANDARD ALLOTMENT</div>
-    <h2 class="reveal">套餐 = 每月包含的 <span class="glow-g">AI Credit 预算额度</span><span style="color:var(--muted);font-size:.6em;font-weight:400">（2026-09-01 起）</span></h2>
+    <h2 class="reveal">每个套餐都包含一笔 <span class="glow-g">月度 AI Credit 额度</span><span style="color:var(--muted);font-size:.6em;font-weight:400">（2026-09-01 起）</span></h2>
 
     <div class="plans reveal">
       <div class="plan">
@@ -1114,37 +1105,37 @@ h3{font-size:var(--h3)}
         <div class="price">$10/mo</div>
         <div class="credits">1,000</div>
         <div class="cap">credits / 月</div>
-        <div class="meter"><div class="fill" style="--w:26%"></div></div>
-        <div class="usd">≈ <b>$10</b> included AI usage</div>
+        <div class="usd">≈ <b>$10</b> AI 用量</div>
+        <div class="note">适合个人日常补全与轻量 Chat。</div>
       </div>
       <div class="plan">
         <div class="name">PRO+</div>
         <div class="price">$39/mo</div>
         <div class="credits">3,900</div>
         <div class="cap">credits / 月</div>
-        <div class="meter"><div class="fill" style="--w:100%"></div></div>
-        <div class="usd">≈ <b>$39</b> included AI usage</div>
+        <div class="usd">≈ <b>$39</b> AI 用量</div>
+        <div class="note">个人更高频使用高级模型时更合适。</div>
       </div>
-      <div class="plan highlight">
+      <div class="plan">
         <div class="name">BUSINESS</div>
         <div class="price">$19/user/mo</div>
         <div class="credits">1,900</div>
         <div class="cap">credits / 用户 / 月</div>
-        <div class="meter"><div class="fill" style="--w:49%"></div></div>
-        <div class="usd">≈ <b>$19</b> per user allowance</div>
+        <div class="usd">≈ <b>$19</b> / 用户 AI 用量</div>
+        <div class="note">团队按用户获得额度，并可结合预算策略治理。</div>
       </div>
-      <div class="plan highlight">
+      <div class="plan">
         <div class="name">ENTERPRISE</div>
         <div class="price">$39/user/mo</div>
         <div class="credits">3,900</div>
         <div class="cap">credits / 用户 / 月</div>
-        <div class="meter"><div class="fill" style="--w:100%"></div></div>
-        <div class="usd">≈ <b>$39</b> per user allowance</div>
+        <div class="usd">≈ <b>$39</b> / 用户 AI 用量</div>
+        <div class="note">更高月度额度，适合大模型和 Agent 使用更频繁的团队。</div>
       </div>
     </div>
 
     <p class="reveal" style="text-align:center;font-family:var(--font-mono);font-size:var(--small);color:var(--muted);margin-top:var(--gap);letter-spacing:.05em">
-      // 额度不是不同面额的币，而是账单预算池：实际消耗 = token 用量 × 对应单价
+      // 使用时按实际 token 成本扣减额度；超出包含额度后，再进入预算与账单控制。
     </p>
   </div>
 </section>
@@ -1153,8 +1144,8 @@ h3{font-size:var(--h3)}
 <section class="slide">
   <div class="slide-content">
     <div class="kicker reveal">// 06 — LIMITED PROMO</div>
-    <h2 class="reveal"><span class="glow-y">6–8 月</span> 三个月福利期：临时提高月度额度</h2>
-    <p class="reveal" style="color:var(--muted);margin-top:.4rem">2026-06-01 → 2026-09-01 期间，已有付费订阅自动获得更高 AI Credit allowance。</p>
+    <h2 class="reveal"><span class="glow-y">6–8 月</span> 三个月福利期：已有订阅获得更高额度</h2>
+    <p class="reveal" style="color:var(--muted);margin-top:.4rem">2026-06-01 → 2026-09-01 期间，Business / Enterprise 的月度 AI Credit 包含额度临时提升。</p>
 
     <div class="timeline reveal">
       <div class="month">
