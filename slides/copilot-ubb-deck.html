@@ -1327,16 +1327,16 @@ h3{font-size:var(--h3)}
             <div class="meter2"><span style="--w:82%"></span></div>
           </div>
           <div class="eval-item" data-budget="enterprise">
-            <b>ENTERPRISE OVERAGE BUDGET</b><span class="ok">$9,200 / $20,000</span>
-            <div class="meter2"><span style="--w:46%"></span></div>
+            <b>ENTERPRISE OVERAGE BUDGET</b><span class="ok">$0 / $20,000</span>
+            <div class="meter2"><span style="--w:0%"></span></div>
           </div>
-          <div class="eval-item warn" data-budget="org">
-            <b>ORG OVERAGE BUDGET</b><span class="warn">$7,600 / $8,000</span>
-            <div class="meter2"><span style="--w:95%"></span></div>
+          <div class="eval-item" data-budget="org">
+            <b>ORG OVERAGE BUDGET</b><span class="ok">$0 / $8,000</span>
+            <div class="meter2"><span style="--w:0%"></span></div>
           </div>
-          <div class="eval-item stop" data-budget="cc">
-            <b>COST CENTER OVERAGE BUDGET</b><span class="stop">$5,000 / $5,000</span>
-            <div class="meter2"><span style="--w:100%"></span></div>
+          <div class="eval-item" data-budget="cc">
+            <b>COST CENTER OVERAGE BUDGET</b><span class="ok">$0 / $5,000</span>
+            <div class="meter2"><span style="--w:0%"></span></div>
           </div>
         </div>
         <div class="budget-actions">
@@ -1903,6 +1903,19 @@ if(slideBudget){
     el.classList.remove('dim','active','pass','block');
     if(state)el.classList.add(state);
   };
+  const setBudget=(key,label,width,tone)=>{
+    const el=slideBudget.querySelector('[data-budget="'+key+'"]');
+    if(!el)return;
+    el.classList.remove('warn','stop');
+    if(tone)el.classList.add(tone);
+    const value=el.querySelector('span');
+    if(value){
+      value.className=tone==='stop'?'stop':tone==='warn'?'warn':'ok';
+      value.textContent=label;
+    }
+    const bar=el.querySelector('.meter2 span');
+    if(bar)bar.style.setProperty('--w',width);
+  };
   const markPhase=(key,state)=>{
     const el=slideBudget.querySelector('[data-phase="'+key+'"]');
     if(!el)return;
@@ -1910,7 +1923,7 @@ if(slideBudget){
     if(state)el.classList.add(state);
   };
   const resetMarks=()=>{
-    budgetItems().forEach(el=>el.classList.remove('dim','active','pass','block'));
+    budgetItems().forEach(el=>el.classList.remove('dim','active','pass','block','warn','stop'));
     phaseItems().forEach(el=>el.classList.remove('active','warn','block'));
   };
   const dimAll=()=>budgetItems().forEach(el=>el.classList.add('dim'));
@@ -1927,6 +1940,10 @@ if(slideBudget){
       text:'阶段 1 — 先消耗共享包含额度。只要共享池仍有余额，通常还不会进入额外付费预算判断。',
       apply:()=>{
         resetMarks();dimAll();
+        setBudget('pool','82% used','82%');
+        setBudget('enterprise','$0 / $20,000','0%');
+        setBudget('org','$0 / $8,000','0%');
+        setBudget('cc','$0 / $5,000','0%');
         markPhase('pool','active');
         mark('pool','active');
         setDecision('[data-budget-result]','ok','<b>客户版理解：</b>所有 license 带来的 allowance 先形成共享额度池；日常请求优先从这里消耗。');
@@ -1937,6 +1954,10 @@ if(slideBudget){
       text:'阶段 1 耗尽 — 共享池用完后，请求要继续就会进入 paid usage / overage。',
       apply:()=>{
         resetMarks();dimAll();
+        setBudget('pool','100% used','100%','stop');
+        setBudget('enterprise','$0 / $20,000','0%');
+        setBudget('org','$0 / $8,000','0%');
+        setBudget('cc','$0 / $5,000','0%');
         markPhase('pool','warn');
         markPhase('policy','active');
         mark('pool','block');
@@ -1948,6 +1969,10 @@ if(slideBudget){
       text:'阶段 2 — 进入 overage 后，Enterprise / Org / Cost Center 等适用预算同时检查。',
       apply:()=>{
         resetMarks();dimAll();
+        setBudget('pool','100% used','100%','stop');
+        setBudget('enterprise','$9,200 / $20,000','46%');
+        setBudget('org','$7,600 / $8,000','95%','warn');
+        setBudget('cc','$3,500 / $5,000','70%');
         markPhase('overage','active');
         mark('enterprise','pass');
         mark('org','pass');
@@ -1960,6 +1985,10 @@ if(slideBudget){
       text:'示例 — Cost Center 到顶且启用 Stop usage；即使企业总预算还有余额，这个团队的 overage 请求也会被拦截。',
       apply:()=>{
         resetMarks();
+        setBudget('pool','100% used','100%','stop');
+        setBudget('enterprise','$9,200 / $20,000','46%');
+        setBudget('org','$7,600 / $8,000','95%','warn');
+        setBudget('cc','$5,000 / $5,000','100%','stop');
         markPhase('overage','block');
         mark('enterprise','pass');
         mark('org','pass');
@@ -1972,6 +2001,10 @@ if(slideBudget){
       text:'管理动作 — 企业总预算控风险，Cost Center 控团队/项目，User 级限制控制重度个人；先告警，再逐步阻断。',
       apply:()=>{
         resetMarks();
+        setBudget('pool','100% used','100%','stop');
+        setBudget('enterprise','$9,200 / $20,000','46%');
+        setBudget('org','$7,600 / $8,000','95%','warn');
+        setBudget('cc','$5,000 / $5,000','100%','stop');
         markPhase('pool','active');
         markPhase('policy','active');
         markPhase('overage','warn');
