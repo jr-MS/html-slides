@@ -621,12 +621,12 @@ h3{font-size:var(--h3)}
 .tip-points .pt{
   background:var(--bg-2);border-left:3px solid var(--green);
   padding:.7rem 1rem;border-radius:0 5px 5px 0;
-  font-size:var(--body);
+  font-size:var(--body);line-height:1.55;
 }
-.tip-points .pt b{color:var(--green);font-family:var(--font-mono)}
+.tip-points .pt b{color:var(--green);font-family:var(--font-mono);display:block;margin-bottom:.2rem;letter-spacing:.06em}
 .code-blk{
   background:var(--bg-2);border:1px solid var(--line);border-radius:6px;
-  font-family:var(--font-mono);font-size:var(--mono);
+  font-family:var(--font-mono);font-size:clamp(.66rem,1vw,.86rem);
   overflow:hidden;
 }
 .code-hd{
@@ -636,7 +636,11 @@ h3{font-size:var(--h3)}
   display:flex;justify-content:space-between;align-items:center;
 }
 .code-hd .lang{color:var(--muted)}
-.code-bd{padding:.9rem 1rem;line-height:1.65;color:var(--text);overflow:auto;max-height:48vh}
+.code-bd{
+  padding:.75rem .9rem;line-height:1.5;color:var(--text);
+  overflow:hidden;max-height:52vh;
+  white-space:pre-wrap;overflow-wrap:anywhere;
+}
 .code-bd .c{color:var(--muted)}
 .code-bd .k{color:var(--pink)}
 .code-bd .s{color:var(--green)}
@@ -1388,7 +1392,7 @@ h3{font-size:var(--h3)}
 
     <div class="split">
       <div class="tip-points reveal">
-        <div class="pt"><b>// WHY</b> 仓库级共享 context — 团队所有人发起 chat 时，前缀完全一致 = cache 命中</div>
+        <div class="pt"><b>// WHY</b> 仓库级共享 context。团队所有人发起 chat 时，前缀稳定一致，更容易命中 cache。</div>
         <div class="pt"><b>// WHERE</b> <span class="mono">.github/copilot-instructions.md</span>（仓库根）<br><span class="mono">.github/instructions/*.instructions.md</span>（按文件 glob 适配）</div>
         <div class="pt"><b>// WHAT</b> 写代码风格、技术栈版本、命名约定、架构原则、禁用模式、常用术语</div>
         <div class="pt"><b>// WIN</b> 每条 chat 都自动注入 → 不必每次重复手输 → 还顺便提高输出质量</div>
@@ -1402,7 +1406,9 @@ h3{font-size:var(--h3)}
 - 框架：<span class="s">Next.js 14 App Router</span>
 - 状态管理：<span class="s">Zustand</span>，禁用 Redux
 - 测试：<span class="s">Vitest</span>，禁止生成 Jest 写法
-- 命名：<span class="k">camelCase</span> for vars · <span class="k">PascalCase</span> for components
+- 命名：
+  - <span class="k">camelCase</span> for vars
+  - <span class="k">PascalCase</span> for components
 
 <span class="c">## Style</span>
 - 函数式优先，避免 class
@@ -1411,7 +1417,8 @@ h3{font-size:var(--h3)}
 
 <span class="c">## Domain</span>
 - "user" 永远指 <span class="v">AuthenticatedUser</span>
-- "order" 字段顺序：id → userId → items → total</div>
+- "order" 字段顺序：
+  id → userId → items → total</div>
       </div>
     </div>
   </div>
@@ -1425,7 +1432,7 @@ h3{font-size:var(--h3)}
 
     <div class="split">
       <div class="tip-points reveal">
-        <div class="pt"><b>// FILE</b> <span class="mono">.github/prompts/&lt;name&gt;.prompt.md</span> 在 chat 里输入 <span class="mono">/&lt;name&gt;</span> 直接调用</div>
+        <div class="pt"><b>// FILE</b> <span class="mono">.github/prompts/&lt;name&gt;.prompt.md</span><br>在 chat 里输入 <span class="mono">/&lt;name&gt;</span> 直接调用</div>
         <div class="pt"><b>// REUSE</b> 同一个 prompt 全公司共享 → 同样的前缀 → 同样命中 cache</div>
         <div class="pt"><b>// FRONT-MATTER</b> 可以指定 <span class="mono">model</span>、<span class="mono">tools</span>、<span class="mono">mode</span>，对齐成本预期</div>
         <div class="pt"><b>// PATTERNS</b> code-review / refactor-to-hook / write-tests / sec-audit / api-doc</div>
@@ -1447,7 +1454,9 @@ h3{font-size:var(--h3)}
 
 输出格式：
 - 严重程度：🔴 / 🟡 / 🟢
-- 行号 + 修复建议（直接给 patch）
+- 行号
+- 修复建议
+- 如可行，直接给 patch
 
 参考仓库规则：<span class="v">copilot-instructions.md</span></div>
       </div>
@@ -1479,7 +1488,10 @@ h3{font-size:var(--h3)}
 <span class="k">#file</span>:src/api/orders.ts
 <span class="k">#file</span>:src/services/refund.ts
 <span class="k">#sym</span>:OrderService.create
-给我加一个订单退款逻辑，复用 refund.ts 里的 RefundPolicy
+
+给我加一个订单退款逻辑：
+- 复用 refund.ts 里的 RefundPolicy
+- 只改订单退款相关路径
 
 <span class="c">// 💡 Agent 模式</span>
 让 agent 自己 grep / read_file 探索仓库
