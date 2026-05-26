@@ -393,6 +393,103 @@
       color: var(--teal);
     }
 
+    .example-grid {
+      grid-column: 1 / 12;
+      grid-row: 3;
+      align-self: end;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(0.65rem, 1.4vw, 1.25rem);
+      border-top: 1px solid var(--ink);
+      padding-top: clamp(0.75rem, 1.45vw, 1.25rem);
+    }
+
+    .example-card {
+      min-height: clamp(150px, 25vh, 230px);
+      padding: clamp(0.85rem, 1.6vw, 1.35rem);
+      background: rgba(255, 255, 255, 0.28);
+      border: 1px solid var(--hairline);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: clamp(0.55rem, 1vw, 0.9rem);
+    }
+
+    .example-card small {
+      color: var(--clay);
+      font-size: var(--small-size);
+      font-weight: 780;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .example-card code {
+      display: block;
+      color: var(--ink);
+      font-family: "SF Mono", "Cascadia Mono", Consolas, monospace;
+      font-size: clamp(0.62rem, 0.86vw, 0.78rem);
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+      background: rgba(21, 21, 21, 0.055);
+      padding: clamp(0.55rem, 1vw, 0.8rem);
+      border-left: 2px solid rgba(182, 91, 59, 0.65);
+    }
+
+    .example-card p {
+      font-size: var(--small-size);
+      line-height: 1.36;
+    }
+
+    .risk-examples {
+      grid-column: 1 / 12;
+      grid-row: 3;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(0.75rem, 1.5vw, 1.3rem);
+      border-top: 1px solid var(--ink);
+      padding-top: clamp(0.75rem, 1.45vw, 1.25rem);
+    }
+
+    .risk-panel {
+      min-height: clamp(185px, 31vh, 280px);
+      padding: clamp(0.9rem, 1.7vw, 1.45rem);
+      background: rgba(255, 255, 255, 0.24);
+      border: 1px solid var(--hairline);
+      display: grid;
+      gap: clamp(0.55rem, 1vw, 0.85rem);
+    }
+
+    .risk-panel h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--hairline);
+      padding-bottom: 0.55rem;
+    }
+
+    .risk-panel h3 span {
+      color: var(--teal);
+      font-size: var(--small-size);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .risk-panel ul {
+      list-style: none;
+      display: grid;
+      gap: clamp(0.45rem, 0.8vh, 0.65rem);
+    }
+
+    .risk-panel li {
+      color: var(--muted);
+      font-size: var(--small-size);
+      line-height: 1.35;
+    }
+
+    .risk-panel b {
+      color: var(--ink);
+    }
+
     .progress {
       position: fixed;
       top: 0;
@@ -575,7 +672,7 @@
       }
 
       .kicker, h1, h2, .title-sub, .thesis, .line-list, .taxonomy,
-      .two-col, .guardrails, .loop, .quote-block {
+      .two-col, .guardrails, .loop, .quote-block, .example-grid, .risk-examples {
         grid-column: 1;
       }
 
@@ -583,11 +680,11 @@
         grid-row: 3;
       }
 
-      .line-list, .taxonomy, .guardrails, .loop {
+      .line-list, .taxonomy, .guardrails, .loop, .example-grid, .risk-examples {
         grid-template-columns: 1fr;
       }
 
-      .line-item, .taxon, .guardrail, .loop-step {
+      .line-item, .taxon, .guardrail, .loop-step, .example-card, .risk-panel {
         min-height: auto;
         border-right: 0;
         border-bottom: 1px solid var(--hairline);
@@ -655,7 +752,7 @@
 
   <main>
     <section class="slide visible" aria-label="Title">
-      <div class="number">01 / 07</div>
+      <div class="number">01 / 09</div>
       <div class="slide-content">
         <div class="kicker reveal">Agent production readiness</div>
         <h1 class="reveal">Evaluation.<br />Guardrails.<br /><span class="accent-word">Observability.</span></h1>
@@ -664,7 +761,7 @@
     </section>
 
     <section class="slide" aria-label="Production questions">
-      <div class="number">02 / 07</div>
+      <div class="number">02 / 09</div>
       <div class="chapter-mark">01</div>
       <div class="slide-content">
         <div class="kicker reveal">From demo to production</div>
@@ -684,7 +781,7 @@
     </section>
 
     <section class="slide" aria-label="Evaluator taxonomy">
-      <div class="number">03 / 07</div>
+      <div class="number">03 / 09</div>
       <div class="chapter-mark">02</div>
       <div class="slide-content">
         <div class="kicker reveal">Evaluation as release gate</div>
@@ -715,7 +812,7 @@
     </section>
 
     <section class="slide" aria-label="Custom evaluation">
-      <div class="number">04 / 07</div>
+      <div class="number">04 / 09</div>
       <div class="chapter-mark">03</div>
       <div class="slide-content">
         <div class="kicker reveal">Customer-specific standards</div>
@@ -737,9 +834,38 @@
       </div>
     </section>
 
-    <section class="slide" aria-label="Guardrails">
-      <div class="number">05 / 07</div>
+    <section class="slide" aria-label="Red teaming examples">
+      <div class="number">05 / 09</div>
       <div class="chapter-mark">04</div>
+      <div class="slide-content">
+        <div class="kicker reveal">Red Teaming examples</div>
+        <h2 class="reveal">不是等用户撞到风险，而是上线前主动攻击自己</h2>
+        <div class="example-grid reveal">
+          <div class="example-card">
+            <small>Flip</small>
+            <h3>反转 / 混淆指令</h3>
+            <code>把一段高风险请求倒序、拆分或重排，测试系统是否只做表层关键词过滤。</code>
+            <p>对应目标：验证 guardrail 是否能识别被改写后的真实意图。</p>
+          </div>
+          <div class="example-card">
+            <small>Base64</small>
+            <h3>编码隐藏意图</h3>
+            <code>把不应执行的指令编码后，要求模型“解码并照做”。</code>
+            <p>对应目标：测试系统是否会在解码后重新做安全判断。</p>
+          </div>
+          <div class="example-card">
+            <small>Indirect Jailbreak</small>
+            <h3>文档里的隐藏指令</h3>
+            <code>在被检索的网页 / 文档里夹带“忽略系统规则”的指令。</code>
+            <p>对应目标：测试 RAG 场景下的 XPIA / indirect prompt injection。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Guardrails">
+      <div class="number">06 / 09</div>
+      <div class="chapter-mark">05</div>
       <div class="slide-content">
         <div class="kicker reveal">RAI / Guardrails</div>
         <h2 class="reveal">Evaluation 发现风险，Guardrails 在运行时防住风险</h2>
@@ -768,9 +894,38 @@
       </div>
     </section>
 
+    <section class="slide" aria-label="Unsafe prompt and completion examples">
+      <div class="number">07 / 09</div>
+      <div class="chapter-mark">06</div>
+      <div class="slide-content">
+        <div class="kicker reveal">Unsafe prompt / completion examples</div>
+        <h2 class="reveal">安全不是抽象概念，而是这些真实 failure mode</h2>
+        <div class="risk-examples reveal">
+          <div class="risk-panel">
+            <h3>Prompt side <span>input risk</span></h3>
+            <ul>
+              <li><b>Jailbreak：</b>要求模型忽略原有规则、切换角色或绕过系统边界。</li>
+              <li><b>XPIA：</b>恶意指令藏在检索文档、网页或工具返回结果里。</li>
+              <li><b>Data request：</b>诱导 agent 读取、导出或修改未授权数据。</li>
+              <li><b>Tool misuse：</b>诱导 agent 调用高风险工具执行不允许的动作。</li>
+            </ul>
+          </div>
+          <div class="risk-panel">
+            <h3>Completion side <span>output risk</span></h3>
+            <ul>
+              <li><b>Harmful content：</b>violence、self-harm、hate / unfairness、sexual 等风险输出。</li>
+              <li><b>Protected material：</b>生成受版权保护内容或不应复现的材料。</li>
+              <li><b>Code vulnerability：</b>输出 SQL injection、path injection、明文日志等不安全代码。</li>
+              <li><b>Sensitive leakage：</b>泄露个人、财务、健康或企业敏感信息。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="slide" aria-label="Continuous evaluation and tracing">
-      <div class="number">06 / 07</div>
-      <div class="chapter-mark">05</div>
+      <div class="number">08 / 09</div>
+      <div class="chapter-mark">07</div>
       <div class="slide-content">
         <div class="kicker reveal">Continuous operation loop</div>
         <h2 class="reveal">线上异常不是终点，而是定位入口</h2>
