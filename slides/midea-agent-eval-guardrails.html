@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Evaluation, Guardrails & Observability</title>
+  <style>
+    :root {
+      --paper: #f6f1e8;
+      --paper-2: #ebe4d7;
+      --ink: #151515;
+      --muted: #68635b;
+      --hairline: rgba(21, 21, 21, 0.16);
+      --teal: #0d6f73;
+      --blue: #1f4f88;
+      --clay: #b65b3b;
+      --gold: #c9922a;
+      --title-size: clamp(2.4rem, 7vw, 7.5rem);
+      --h2-size: clamp(1.7rem, 4.4vw, 4.8rem);
+      --h3-size: clamp(1rem, 1.7vw, 1.45rem);
+      --body-size: clamp(0.82rem, 1.18vw, 1.08rem);
+      --small-size: clamp(0.62rem, 0.9vw, 0.82rem);
+      --slide-padding: clamp(1.15rem, 4.8vw, 5.6rem);
+      --gap: clamp(0.8rem, 2vw, 2.2rem);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Aptos", "Helvetica Neue", Arial, sans-serif;
+      letter-spacing: -0.035em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 78% 12%, rgba(13, 111, 115, 0.15), transparent 28vw),
+        radial-gradient(circle at 8% 82%, rgba(182, 91, 59, 0.12), transparent 32vw),
+        linear-gradient(120deg, var(--paper), #fbf8f2 56%, var(--paper-2));
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: 0.28;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(21, 21, 21, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(21, 21, 21, 0.05) 1px, transparent 1px);
+      background-size: 8.333vw 8.333vw;
+    }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto auto auto;
+      align-content: center;
+      gap: var(--gap);
+      max-height: 100%;
+      overflow: hidden;
+      padding: var(--slide-padding);
+    }
+
+    .kicker {
+      grid-column: 1 / 5;
+      color: var(--teal);
+      font-size: var(--small-size);
+      font-weight: 760;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .number {
+      position: absolute;
+      right: var(--slide-padding);
+      top: var(--slide-padding);
+      color: rgba(21, 21, 21, 0.34);
+      font-size: var(--small-size);
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      height: 1px;
+      background: var(--hairline);
+      transform-origin: left;
+    }
+
+    h1, h2, h3 {
+      font-weight: 820;
+      line-height: 0.9;
+      text-wrap: balance;
+    }
+
+    h1 {
+      grid-column: 1 / 11;
+      grid-row: 2;
+      align-self: end;
+      max-width: 1120px;
+      font-size: var(--title-size);
+    }
+
+    h2 {
+      grid-column: 1 / 9;
+      grid-row: 2;
+      align-self: start;
+      max-width: 920px;
+      font-size: var(--h2-size);
+    }
+
+    h3 {
+      font-size: var(--h3-size);
+      line-height: 1.02;
+    }
+
+    p {
+      color: var(--muted);
+      font-size: var(--body-size);
+      line-height: 1.48;
+      letter-spacing: -0.015em;
+      text-wrap: pretty;
+    }
+
+    .title-sub {
+      grid-column: 7 / 12;
+      grid-row: 3;
+      align-self: end;
+      max-width: 520px;
+      border-top: 1px solid var(--ink);
+      padding-top: clamp(0.7rem, 1.2vw, 1rem);
+    }
+
+    .accent-word {
+      color: var(--teal);
+      font-style: italic;
+    }
+
+    .chapter-mark {
+      position: absolute;
+      right: clamp(1rem, 7vw, 8rem);
+      bottom: clamp(1rem, 9vh, 6rem);
+      font-size: clamp(8rem, 23vw, 24rem);
+      font-weight: 900;
+      line-height: 0.7;
+      color: rgba(13, 111, 115, 0.07);
+      letter-spacing: -0.12em;
+      pointer-events: none;
+    }
+
+    .thesis {
+      grid-column: 8 / 12;
+      grid-row: 2;
+      align-self: end;
+      display: grid;
+      gap: clamp(0.6rem, 1.2vw, 1rem);
+      border-left: 1px solid var(--hairline);
+      padding-left: clamp(1rem, 2vw, 2rem);
+    }
+
+    .thesis strong {
+      color: var(--ink);
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .line-list {
+      grid-column: 1 / 12;
+      grid-row: 3;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      border-top: 1px solid var(--ink);
+    }
+
+    .line-item {
+      min-height: clamp(90px, 17vh, 150px);
+      padding: clamp(0.75rem, 1.4vw, 1.25rem) clamp(0.5rem, 1vw, 0.9rem);
+      border-right: 1px solid var(--hairline);
+      display: grid;
+      align-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .line-item:last-child {
+      border-right: 0;
+    }
+
+    .line-item span {
+      color: rgba(21, 21, 21, 0.42);
+      font-size: var(--small-size);
+      letter-spacing: 0.08em;
+    }
+
+    .line-item b {
+      font-size: clamp(0.9rem, 1.4vw, 1.22rem);
+      letter-spacing: -0.04em;
+    }
+
+    .line-item p {
+      font-size: var(--small-size);
+      line-height: 1.35;
+    }
+
+    .taxonomy {
+      grid-column: 1 / 12;
+      grid-row: 3;
+      display: grid;
+      grid-template-columns: 1.05fr 0.9fr 1.05fr 1.05fr;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .taxon {
+      min-height: clamp(135px, 24vh, 220px);
+      padding: clamp(0.8rem, 1.7vw, 1.55rem);
+      border-right: 1px solid var(--hairline);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .taxon:last-child {
+      border-right: 0;
+    }
+
+    .taxon small {
+      color: var(--teal);
+      font-size: var(--small-size);
+      font-weight: 760;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .taxon p {
+      font-size: var(--small-size);
+    }
+
+    .quote-block {
+      grid-column: 1 / 7;
+      grid-row: 3;
+      align-self: end;
+      padding-top: clamp(0.8rem, 1.5vw, 1.2rem);
+      border-top: 1px solid var(--ink);
+    }
+
+    .quote-block p {
+      color: var(--ink);
+      font-size: clamp(1.15rem, 2.1vw, 2rem);
+      line-height: 1.12;
+      font-weight: 760;
+    }
+
+    .two-col {
+      grid-column: 1 / 12;
+      grid-row: 3;
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: clamp(1.2rem, 3vw, 4rem);
+      align-items: end;
+    }
+
+    .giant {
+      font-size: clamp(8rem, 20vw, 20rem);
+      font-weight: 930;
+      line-height: 0.72;
+      color: var(--clay);
+      letter-spacing: -0.13em;
+    }
+
+    .plain-list {
+      display: grid;
+      gap: clamp(0.6rem, 1.3vh, 0.95rem);
+      list-style: none;
+      border-top: 1px solid var(--ink);
+      padding-top: clamp(0.8rem, 1.4vw, 1.2rem);
+    }
+
+    .plain-list li {
+      display: grid;
+      grid-template-columns: minmax(72px, 0.28fr) 1fr;
+      gap: clamp(0.6rem, 1.2vw, 1rem);
+      color: var(--muted);
+      font-size: var(--body-size);
+      line-height: 1.35;
+      border-bottom: 1px solid var(--hairline);
+      padding-bottom: clamp(0.45rem, 0.9vw, 0.7rem);
+    }
+
+    .plain-list b {
+      color: var(--ink);
+      font-size: var(--small-size);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .guardrails {
+      grid-column: 1 / 12;
+      grid-row: 3;
+      align-self: end;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--ink);
+    }
+
+    .guardrail {
+      min-height: clamp(150px, 28vh, 245px);
+      padding: clamp(0.85rem, 1.6vw, 1.35rem);
+      border-right: 1px solid var(--hairline);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .guardrail:last-child {
+      border-right: 0;
+    }
+
+    .guardrail .label {
+      color: var(--teal);
+      font-size: var(--small-size);
+      font-weight: 760;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .loop {
+      grid-column: 1 / 12;
+      grid-row: 3;
+      align-self: end;
+      display: grid;
+      grid-template-columns: 1.1fr 0.8fr 1.1fr 0.8fr;
+      border-top: 1px solid var(--ink);
+    }
+
+    .loop-step {
+      min-height: clamp(145px, 25vh, 230px);
+      padding: clamp(0.85rem, 1.6vw, 1.35rem);
+      border-right: 1px solid var(--hairline);
+      display: grid;
+      align-content: space-between;
+      position: relative;
+    }
+
+    .loop-step:last-child {
+      border-right: 0;
+    }
+
+    .loop-step::after {
+      content: "→";
+      position: absolute;
+      top: clamp(0.7rem, 1vw, 1rem);
+      right: clamp(0.7rem, 1vw, 1rem);
+      color: rgba(21, 21, 21, 0.35);
+      font-size: clamp(1.4rem, 2vw, 2rem);
+    }
+
+    .loop-step:last-child::after {
+      content: "↺";
+      color: var(--teal);
+    }
+
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: var(--ink);
+      z-index: 20;
+      transition: width 260ms var(--ease);
+    }
+
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.7rem, 1.5vw, 1.3rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      gap: 0.55rem;
+      z-index: 20;
+    }
+
+    .nav-dots button {
+      width: 7px;
+      height: 7px;
+      border: 1px solid rgba(21, 21, 21, 0.45);
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 200ms ease, transform 200ms ease;
+    }
+
+    .nav-dots button.active {
+      background: var(--ink);
+      transform: scale(1.45);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+    }
+
+    .slide.visible .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .slide.visible .rule.reveal {
+      transform: scaleX(1);
+    }
+
+    .reveal:nth-child(2) { transition-delay: 100ms; }
+    .reveal:nth-child(3) { transition-delay: 190ms; }
+    .reveal:nth-child(4) { transition-delay: 280ms; }
+
+    .closing {
+      color: #f7f0e5;
+      background:
+        radial-gradient(circle at 52% 50%, rgba(255, 255, 255, 0.12), transparent 24%),
+        radial-gradient(circle at 70% 35%, rgba(13, 111, 115, 0.45), transparent 24%),
+        radial-gradient(circle at 25% 75%, rgba(182, 91, 59, 0.38), transparent 30%),
+        #080808;
+    }
+
+    .closing .slide-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--slide-padding);
+    }
+
+    .closing::before {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px solid rgba(247, 240, 229, 0.13);
+      transform: scaleX(0);
+      transform-origin: left;
+      transform: scaleX(0);
+    }
+
+    .closing::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(78vw, 1180px);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(247, 240, 229, 0.35), transparent);
+      transform: translate(-50%, -50%) scaleX(0);
+      transform: translate(-50%, -50%) scaleX(0);
+    }
+
+    .final-words {
+      width: min(1200px, 92vw);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: end;
+      gap: clamp(0.5rem, 2vw, 2.5rem);
+      z-index: 2;
+    }
+
+    .final-word {
+      font-size: clamp(2.2rem, 8.4vw, 10rem);
+      font-weight: 900;
+      line-height: 0.82;
+      letter-spacing: -0.09em;
+      color: rgba(247, 240, 229, 0.28);
+      opacity: 0;
+      transform: translateY(55px);
+      filter: blur(16px);
+    }
+
+    .final-word:nth-child(2) {
+      color: rgba(247, 240, 229, 0.58);
+    }
+
+    .final-word:nth-child(3) {
+      color: #fffaf0;
+      text-shadow:
+        0 0 20px rgba(255, 255, 255, 0.55),
+        0 0 70px rgba(13, 111, 115, 0.55),
+        0 0 120px rgba(201, 146, 42, 0.36);
+    }
+
+    .closing.visible::before {
+      animation: frameDraw 1.5s var(--ease) 0.2s forwards;
+    }
+
+    .closing.visible::after {
+      animation: beam 1.2s var(--ease) 1.35s forwards;
+    }
+
+    .closing.visible .final-word:nth-child(1) {
+      animation: wordRise 1.1s var(--ease) 0.1s forwards;
+    }
+
+    .closing.visible .final-word:nth-child(2) {
+      animation: wordRise 1.1s var(--ease) 0.62s forwards;
+    }
+
+    .closing.visible .final-word:nth-child(3) {
+      animation: wordRise 1.1s var(--ease) 1.12s forwards, pulseBest 2.2s ease-in-out 2.2s infinite;
+    }
+
+    @keyframes wordRise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes frameDraw {
+      to { transform: scaleX(1); }
+    }
+
+    @keyframes beam {
+      to { transform: translate(-50%, -50%) scaleX(1); }
+    }
+
+    @keyframes pulseBest {
+      0%, 100% {
+        text-shadow:
+          0 0 20px rgba(255, 255, 255, 0.55),
+          0 0 70px rgba(13, 111, 115, 0.55),
+          0 0 120px rgba(201, 146, 42, 0.36);
+      }
+      50% {
+        text-shadow:
+          0 0 34px rgba(255, 255, 255, 0.85),
+          0 0 100px rgba(13, 111, 115, 0.75),
+          0 0 170px rgba(201, 146, 42, 0.58);
+      }
+    }
+
+    @media (max-width: 820px) {
+      .slide-content {
+        grid-template-columns: 1fr;
+      }
+
+      .kicker, h1, h2, .title-sub, .thesis, .line-list, .taxonomy,
+      .two-col, .guardrails, .loop, .quote-block {
+        grid-column: 1;
+      }
+
+      .thesis {
+        grid-row: 3;
+      }
+
+      .line-list, .taxonomy, .guardrails, .loop {
+        grid-template-columns: 1fr;
+      }
+
+      .line-item, .taxon, .guardrail, .loop-step {
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .final-words {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-height: 700px) {
+      :root {
+        --slide-padding: clamp(0.8rem, 3vw, 2.3rem);
+        --gap: clamp(0.45rem, 1.3vw, 1rem);
+        --title-size: clamp(1.8rem, 5vw, 4.4rem);
+        --h2-size: clamp(1.3rem, 3.4vw, 3rem);
+        --body-size: clamp(0.68rem, 0.95vw, 0.9rem);
+      }
+
+      .chapter-mark, .nav-dots {
+        display: none;
+      }
+    }
+
+    @media (max-height: 600px) {
+      :root {
+        --slide-padding: clamp(0.55rem, 2.3vw, 1.5rem);
+        --title-size: clamp(1.35rem, 4.2vw, 3rem);
+        --h2-size: clamp(1.05rem, 2.8vw, 2rem);
+        --body-size: clamp(0.62rem, 0.85vw, 0.78rem);
+      }
+
+      .number {
+        display: none;
+      }
+    }
+
+    @media (max-height: 500px) {
+      :root {
+        --slide-padding: clamp(0.4rem, 1.8vw, 1rem);
+        --title-size: clamp(1rem, 3.4vw, 2rem);
+        --h2-size: clamp(0.9rem, 2.3vw, 1.45rem);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"></div>
+  <nav class="nav-dots" aria-label="Slide navigation"></nav>
+
+  <main>
+    <section class="slide visible" aria-label="Title">
+      <div class="number">01 / 07</div>
+      <div class="slide-content">
+        <div class="kicker reveal">Agent production readiness</div>
+        <h1 class="reveal">Evaluation.<br />Guardrails.<br /><span class="accent-word">Observability.</span></h1>
+        <p class="title-sub reveal">让 Agent 从“demo 能跑”，走向“可验证、可防护、可持续运营”。</p>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Production questions">
+      <div class="number">02 / 07</div>
+      <div class="chapter-mark">01</div>
+      <div class="slide-content">
+        <div class="kicker reveal">From demo to production</div>
+        <h2 class="reveal">Demo 之后，企业真正要回答的是：</h2>
+        <div class="thesis reveal">
+          <strong>准不准？安不安全？出了问题能不能定位？</strong>
+          <p>这不是一个功能点，而是一套 production readiness 体系。</p>
+        </div>
+        <div class="line-list reveal">
+          <div class="line-item"><span>01</span><b>质量</b><p>任务完成度、相关性、连贯性</p></div>
+          <div class="line-item"><span>02</span><b>知识</b><p>grounding、retrieval、引用依据</p></div>
+          <div class="line-item"><span>03</span><b>安全</b><p>越狱、注入、敏感信息</p></div>
+          <div class="line-item"><span>04</span><b>动作</b><p>工具调用、权限、确认机制</p></div>
+          <div class="line-item"><span>05</span><b>运营</b><p>持续评估、追踪、治理</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Evaluator taxonomy">
+      <div class="number">03 / 07</div>
+      <div class="chapter-mark">02</div>
+      <div class="slide-content">
+        <div class="kicker reveal">Evaluation as release gate</div>
+        <h2 class="reveal">Foundry Evaluators：把上线标准变成可度量信号</h2>
+        <div class="taxonomy reveal">
+          <div class="taxon">
+            <small>Quality</small>
+            <h3>回答质量</h3>
+            <p>coherence、fluency、relevance、similarity</p>
+          </div>
+          <div class="taxon">
+            <small>RAG</small>
+            <h3>知识可信</h3>
+            <p>groundedness、retrieval、document retrieval、response completeness</p>
+          </div>
+          <div class="taxon">
+            <small>Agent</small>
+            <h3>行为正确</h3>
+            <p>intent resolution、task adherence、tool call accuracy</p>
+          </div>
+          <div class="taxon">
+            <small>Safety</small>
+            <h3>风险安全</h3>
+            <p>hate / unfairness、violence、self-harm、sexual、indirect attack、protected material、code vulnerability</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Custom evaluation">
+      <div class="number">04 / 07</div>
+      <div class="chapter-mark">03</div>
+      <div class="slide-content">
+        <div class="kicker reveal">Customer-specific standards</div>
+        <h2 class="reveal">标准指标之外，还要评估“美的自己的标准”</h2>
+        <div class="two-col">
+          <div class="reveal">
+            <div class="giant">2</div>
+            <div class="quote-block">
+              <p>LLM-based evaluator + code-based evaluator</p>
+            </div>
+          </div>
+          <ul class="plain-list reveal">
+            <li><b>业务语义</b>判断答案是否符合场景、流程、角色和业务口径。</li>
+            <li><b>确定规则</b>检查字段、格式、权限、步骤、阈值等硬性约束。</li>
+            <li><b>红队测试</b>上线前主动挑战越狱、prompt injection、敏感信息和危险输出。</li>
+            <li><b>回归资产</b>把失败样本沉淀为 eval dataset，持续复用。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Guardrails">
+      <div class="number">05 / 07</div>
+      <div class="chapter-mark">04</div>
+      <div class="slide-content">
+        <div class="kicker reveal">RAI / Guardrails</div>
+        <h2 class="reveal">Evaluation 发现风险，Guardrails 在运行时防住风险</h2>
+        <div class="guardrails reveal">
+          <div class="guardrail">
+            <span class="label">Input</span>
+            <h3>输入防护</h3>
+            <p>识别 jailbreak、prompt injection、恶意请求和不合规意图。</p>
+          </div>
+          <div class="guardrail">
+            <span class="label">Grounding</span>
+            <h3>事实防护</h3>
+            <p>要求回答基于可信知识源；低 groundedness 时拒答、降级或提示不确定。</p>
+          </div>
+          <div class="guardrail">
+            <span class="label">Tools</span>
+            <h3>动作防护</h3>
+            <p>高风险 tool/action 加权限、策略、确认步骤，防止越权执行。</p>
+          </div>
+          <div class="guardrail">
+            <span class="label">Output</span>
+            <h3>输出防护</h3>
+            <p>内容安全、敏感信息保护、引用依据、合规检查和审计记录。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Continuous evaluation and tracing">
+      <div class="number">06 / 07</div>
+      <div class="chapter-mark">05</div>
+      <div class="slide-content">
+        <div class="kicker reveal">Continuous operation loop</div>
+        <h2 class="reveal">线上异常不是终点，而是定位入口</h2>
+        <div class="loop reveal">
+          <div class="loop-step">
+            <h3>Evaluate</h3>
+            <p>continuous / scheduled eval 持续监控质量、安全和业务表现。</p>
+          </div>
+          <div class="loop-step">
+            <h3>Detect</h3>
+            <p>发现 groundedness、safety、tool accuracy 等指标异常。</p>
+          </div>
+          <div class="loop-step">
+            <h3>Trace</h3>
+            <p>回查 conversation、response、retrieval、tool call 和模型调用链。</p>
+          </div>
+          <div class="loop-step">
+            <h3>Improve</h3>
+            <p>优化 prompt、RAG、tool、policy，再用 eval 回归验证。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide closing" aria-label="Good Better Best">
+      <div class="slide-content">
+        <div class="final-words" aria-label="Good Better Best">
+          <div class="final-word">Good</div>
+          <div class="final-word">Better</div>
+          <div class="final-word">Best</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    class SlidePresentation {
+      constructor() {
+        this.slides = [...document.querySelectorAll(".slide")];
+        this.progress = document.querySelector(".progress");
+        this.nav = document.querySelector(".nav-dots");
+        this.current = 0;
+        this.locked = false;
+        this.createDots();
+        this.observeSlides();
+        this.bindEvents();
+        this.update();
+      }
+
+      createDots() {
+        this.slides.forEach((_, index) => {
+          const dot = document.createElement("button");
+          dot.type = "button";
+          dot.setAttribute("aria-label", `Go to slide ${index + 1}`);
+          dot.addEventListener("click", () => this.goTo(index));
+          this.nav.appendChild(dot);
+        });
+      }
+
+      observeSlides() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              this.current = this.slides.indexOf(entry.target);
+              this.update();
+            }
+          });
+        }, { threshold: 0.58 });
+
+        this.slides.forEach((slide) => observer.observe(slide));
+      }
+
+      bindEvents() {
+        document.addEventListener("keydown", (event) => {
+          if (["ArrowRight", "ArrowDown", " "].includes(event.key)) {
+            event.preventDefault();
+            this.goTo(this.current + 1);
+          }
+          if (["ArrowLeft", "ArrowUp"].includes(event.key)) {
+            event.preventDefault();
+            this.goTo(this.current - 1);
+          }
+          if (event.key === "Home") this.goTo(0);
+          if (event.key === "End") this.goTo(this.slides.length - 1);
+        });
+
+        let startY = 0;
+        document.addEventListener("touchstart", (event) => {
+          startY = event.changedTouches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener("touchend", (event) => {
+          const delta = startY - event.changedTouches[0].clientY;
+          if (Math.abs(delta) > 45) this.goTo(this.current + (delta > 0 ? 1 : -1));
+        }, { passive: true });
+      }
+
+      goTo(index) {
+        const next = Math.max(0, Math.min(index, this.slides.length - 1));
+        if (next === this.current || this.locked) return;
+        this.locked = true;
+        this.slides[next].scrollIntoView({ behavior: "smooth", block: "start" });
+        window.setTimeout(() => {
+          this.locked = false;
+        }, 520);
+      }
+
+      update() {
+        this.progress.style.width = `${((this.current + 1) / this.slides.length) * 100}%`;
+        [...this.nav.children].forEach((dot, index) => {
+          dot.classList.toggle("active", index === this.current);
+        });
+      }
+    }
+
+    new SlidePresentation();
+  </script>
+</body>
+</html>

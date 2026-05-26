@@ -186,5 +186,22 @@
     "path": "slides/github-copilot-customer-deck.html",
     "featured": false,
     "updated": "2026-05-19"
+  },
+  {
+    "id": "midea-agent-eval-guardrails",
+    "title": "Agent Evaluation, Guardrails & Observability",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Agent",
+      "Evaluation",
+      "Guardrails",
+      "Observability"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/midea-agent-eval-guardrails.html",
+    "featured": false,
+    "updated": "2026-05-26"
   }
 ]
