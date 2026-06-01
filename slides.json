@@ -203,5 +203,19 @@
     "path": "slides/midea-agent-eval-guardrails.html",
     "featured": false,
     "updated": "2026-05-27"
+  },
+  {
+    "id": "microsoft-ai-product-team-practices-slide",
+    "title": "微软产品团队在 AI 时代的实践",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "AI"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/microsoft-ai-product-team-practices-slide.html",
+    "featured": false,
+    "updated": "2026-06-01"
   }
 ]
