@@ -217,5 +217,21 @@
     "path": "slides/microsoft-ai-product-team-practices-slide.html",
     "featured": false,
     "updated": "2026-06-01"
+  },
+  {
+    "id": "copilot-ubb-cost-optimization",
+    "title": "GitHub Copilot 成本优化 · UBB 时代",
+    "description": "A published HTML deck added from a local source file.",
+    "category": "Showcase",
+    "tags": [
+      "Github",
+      "Copilot",
+      "UBB"
+    ],
+    "audience": "team",
+    "visibility": "public",
+    "path": "slides/copilot-ubb-cost-optimization.html",
+    "featured": false,
+    "updated": "2026-06-04"
   }
 ]
