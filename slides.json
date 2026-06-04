@@ -3,7 +3,7 @@
     "id": "openclaw-team-share-v2",
     "title": "OpenClaw Team Share v2",
     "description": "A presentation deck showing how OpenClaw became a practical system for notes, reminders, and day-to-day workflows.",
-    "category": "Showcase",
+    "category": "AI Product & Practice",
     "tags": [
       "OpenClaw",
       "Workflow"
@@ -18,7 +18,7 @@
     "id": "github-copilot-report",
     "title": "GitHub Copilot — 2026 Q1 Report",
     "description": "A quarterly update deck summarizing GitHub Copilot releases, AI-native development patterns, and CLI best practices.",
-    "category": "Report",
+    "category": "GitHub Copilot",
     "tags": [
       "Copilot",
       "Report"
@@ -33,7 +33,7 @@
     "id": "interview-analysis-slides",
     "title": "AI PM Interview Analysis",
     "description": "An analysis deck that distills interview findings, recurring themes, and product insights for AI-era PM roles.",
-    "category": "Showcase",
+    "category": "AI Product & Practice",
     "tags": [
       "Interview",
       "Analysis"
@@ -48,7 +48,7 @@
     "id": "designer-discussion-report",
     "title": "两场设计对谈匿名洞察报告",
     "description": "基于两场匿名化设计对谈整理的 HTML 报告，聚焦设计、AI 与研发协作的结构性洞察。",
-    "category": "Report",
+    "category": "AI Product & Practice",
     "tags": [
       "Design",
       "AI",
@@ -65,7 +65,7 @@
     "id": "call-to-action-slide-full",
     "title": "Call to Action",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "AI Product & Practice",
     "tags": [
       "Call",
       "Action"
@@ -80,7 +80,7 @@
     "id": "pm-ai-exponential-slide",
     "title": "PM on the AI Exponential — Slide Deck",
     "description": "A shareable HTML slide deck published from a local source file.",
-    "category": "Showcase",
+    "category": "AI Product & Practice",
     "tags": [
       "PM",
       "On",
@@ -97,7 +97,7 @@
     "id": "medical-insights-hub-azure",
     "title": "Medical Insights Hub — Azure Architecture",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "Azure",
     "tags": [
       "Medical",
       "Insights",
@@ -114,7 +114,7 @@
     "id": "azure-translator-slides",
     "title": "Azure Translator · 深度解析",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "Azure",
     "tags": [
       "Azure",
       "Translator"
@@ -129,7 +129,7 @@
     "id": "microsoft-product-design-ai-playbook",
     "title": "微软产品与设计团队的 AI 提效实践",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "AI Product & Practice",
     "tags": [
       "AI"
     ],
@@ -143,7 +143,7 @@
     "id": "copilot-best-practices-claude",
     "title": "让 Copilot 真正读懂你的 OA 系统 · 工程化最佳实践",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "GitHub Copilot",
     "tags": [
       "Copilot",
       "OA"
@@ -158,7 +158,7 @@
     "id": "copilot-ubb-deck",
     "title": "GitHub Copilot 计费革命 // UBB 来了",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "GitHub Copilot",
     "tags": [
       "Github",
       "Copilot",
@@ -174,7 +174,7 @@
     "id": "github-copilot-customer-deck",
     "title": "GitHub Copilot 深度介绍 | AI-Native Software Development",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "GitHub Copilot",
     "tags": [
       "Github",
       "Copilot",
@@ -191,7 +191,7 @@
     "id": "midea-agent-eval-guardrails",
     "title": "Agent Evaluation, Guardrails & Observability",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "AI Product & Practice",
     "tags": [
       "Agent",
       "Evaluation",
@@ -208,7 +208,7 @@
     "id": "microsoft-ai-product-team-practices-slide",
     "title": "微软产品团队在 AI 时代的实践",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "AI Product & Practice",
     "tags": [
       "AI"
     ],
@@ -222,7 +222,7 @@
     "id": "copilot-ubb-cost-optimization",
     "title": "GitHub Copilot 成本优化 · UBB 时代",
     "description": "A published HTML deck added from a local source file.",
-    "category": "Showcase",
+    "category": "GitHub Copilot",
     "tags": [
       "Github",
       "Copilot",
