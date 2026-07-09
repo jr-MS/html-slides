@@ -237,7 +237,7 @@
   {
     "id": "midea-kuka-ai-image-gallery",
     "title": "Midea × KUKA AI Image Use Case Gallery",
-    "description": "65 Midea and KUKA AI image use cases generated with gpt-image-2, with large clickable review images and prompt details.",
+    "description": "65 Midea and KUKA AI image use cases generated with gpt-image-2, shown in a three-column clickable review gallery.",
     "category": "Showcase",
     "tags": [
       "Midea",
